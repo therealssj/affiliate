@@ -12,3 +12,26 @@
 
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
+work/
+target/
+nbproject/
+*.iml
+*.ipr
+*.iws
+.settings/
+.classpath
+.project
+.wtpmodules/
+.fbprefs
+.pmd
+.svn
+*.DS_Store
+.*
+bin/
+build/
+dist/
+*.log
+*.swp
+*.out
+*~
+/target
