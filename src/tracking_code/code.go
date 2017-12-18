@@ -26,5 +26,23 @@ func GetId(str string) (id uint64) {
 			id = 0
 		}
 	}()
+	if len(str)<5{
+		return 0
+	}
+	if str[0]=='w'{
+		if str[1]=='x'{
+			if str[2]=='y'{
+				if str[3]=='z'{
+					str = str[4:]
+				}else{
+					str = str[3:]
+				}
+			}else{
+				str = str[2:]
+			}
+		}else{
+			str = str[1:]
+		}
+	}
 	return duotricenary.DecodeUint64(str)
 }

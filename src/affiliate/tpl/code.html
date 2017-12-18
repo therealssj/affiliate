@@ -1,0 +1,20 @@
+<h1>Affiliate Portal</h1>
+<form method="POST" name="form" action="">
+<input type="hidden" name="ref" value="{{.ref}}"/>
+Please Input your wallet address:
+<input type="text" name="address" value=""/>
+<button onclick="generate()">Generate Tracking Code</button>
+<button onclick="myInvitation()">My Invitation</button> 
+<script>
+function generate(){
+    var form = document.forms['form'];
+    form.action = './generate/';
+    form.submit()
+}
+function myInvitation(){
+    var form = document.forms['form'];
+    form.action = './my-invitation/';
+    form.submit()
+}
+</script>
+</form>
