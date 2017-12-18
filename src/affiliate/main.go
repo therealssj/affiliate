@@ -3,8 +3,7 @@ package main
 import (
 	"fmt"
 	"html/template"
-	
-		"net/http"
+	"net/http"
 
 )
 
@@ -19,14 +18,14 @@ func main() {
     http.HandleFunc("/code/my-invitation/", myInvitationHandler)
     err := http.ListenAndServe(":8888", nil)
     if err != nil {
-        println("error", err)
+        println("error： %s", err)
     }
 }
 
 func codeHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	ref := r.FormValue("ref")
-    renderTemplate(w, "code", struct{ref string}{ref: ref})
+    renderTemplate(w, "code", struct{Ref string}{Ref: ref})
 }
 
 func generateHandler(w http.ResponseWriter, r *http.Request) {
