@@ -4,12 +4,17 @@ import (
 	"database/sql"
 
 	_ "github.com/lib/pq"
-)
 
+	"github.com/spaco/affiliate/src/config"
+)
+var conn_str
+function SetConfig(db *DB){
+	conn_str = "host="+db.Host+" port="+db.Port+" user="+db.User+" password="+db.Password+" dbname="+db.Name+" sslmode="+db.SslMode
+}
 const emptyStr = ""
 
 func open() *sql.DB {
-	db, err := sql.Open("postgres", "host=localhost port=5432 user=lijt password=lijtlijt dbname=affiliate sslmode=disable")
+	db, err := sql.Open("postgres", conn_str)
 	checkErr(err)
 	return db
 }
@@ -18,6 +23,14 @@ func checkErr(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func GetTrackingCodeOrGenerate(address string, refAddress string) uint64{
+	id,_ := GetTrackingCode(address)
+	if id==0{
+		id = GenerateTrackingCode(address,refAddress)
+	}
+	return id
 }
 
 func GetTrackingCode(address string) (uint64, string) {

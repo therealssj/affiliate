@@ -2,39 +2,19 @@ package main
 
 import (
 	"fmt"
-	"github.com/koding/multiconfig"
-	"github.com/spaco/affiliate/src/tracking_code"
 	"html/template"
 	"net/http"
 	"path"
+
+	"github.com/spaco/affiliate/src/config"
+	// "github.com/spaco/affiliate/src/db/postgresql"
+	"github.com/spaco/affiliate/src/tracking_code"
 )
 
-type Config struct {
-	DbHost     string `default:"localhost"`
-	DbPort     string `default:"5432"`
-	DbUser     string `default:"lijt"`
-	DbPassword string `default:"lijtlijt"`
-	DbName     string `default:"affiliate"`
-	DbSslMode  string `default:"disable"`
-	ListenPort string `default:":6060"`
-}
-
-func getConfig() *Config {
-	m := multiconfig.NewWithPath("config.toml") // supports TOML, JSON and YAML
-	// Get an empty struct for your configuration
-	serverConf := new(Config)
-	// Populated the serverConf struct
-	err := m.Load(serverConf) // Check for error
-	if err != nil {
-		fmt.Println("ERROR: %s", err)
-	}
-	m.MustLoad(serverConf) // Panic's if there is any error
-	return serverConf
-}
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println("ERROR: %s", err)
+			fmt.Printf("Panic Error: %s", err)
 		}
 	}()
 	http.HandleFunc("/code/", codeHandler)
@@ -44,11 +24,12 @@ func main() {
 	http.Handle("/s/", http.StripPrefix("/s/", fsh))
 	http.HandleFunc("/favicon.ico", serveFileHandler)
 	http.HandleFunc("/robots.txt", serveFileHandler)
-	config := getConfig()
-	fmt.Println("Listening on", config.ListenPort)
-	err := http.ListenAndServe(config.ListenPort, nil)
+	config := config.GetConfig()
+	// postgresql.SetConfig(&config.DB)
+	fmt.Printf("Listening on :%d", config.Server.Port)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Server.Port), nil)
 	if err != nil {
-		println("error： %s", err)
+		println("ListenAndServe Error： %s", err)
 	}
 }
 func serveFileHandler(w http.ResponseWriter, r *http.Request) {
@@ -65,8 +46,28 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	addr := r.PostFormValue("address")
 	ref := r.PostFormValue("ref")
 	fmt.Printf("Addr: %s, Ref: %s", addr, ref)
-	code := tracking_code.GenerateCode(12)
-	renderTemplate(w, "generate", &struct{ Code string }{Code: code})
+	// id := postgresql.GetTrackingCodeOrGenerate(addr)
+	var id uint64 = 12
+	code := tracking_code.GenerateCode(id)
+	server := config.GetConfig().Server
+	contextPath := "http"
+	if server.Https {
+		contextPath = "https"
+	}
+	contextPath += "://" + server.Domain
+	if server.Https {
+		if server.Port != 443 {
+			contextPath = fmt.Sprintf("%s:%d", contextPath, server.Port)
+		}
+	} else {
+		if server.Port != 80 {
+			contextPath = fmt.Sprintf("%s:%d", contextPath, server.Port)
+		}
+	}
+	renderTemplate(w, "generate", &struct {
+		BuyUrl  string
+		JoinUrl string
+	}{contextPath + "/?ref=" + code, contextPath + "/code/?ref=" + code})
 }
 
 func myInvitationHandler(w http.ResponseWriter, r *http.Request) {
