@@ -4,13 +4,15 @@ import (
 	"database/sql"
 
 	_ "github.com/lib/pq"
-
 	"github.com/spaco/affiliate/src/config"
 )
-var conn_str
-function SetConfig(db *DB){
-	conn_str = "host="+db.Host+" port="+db.Port+" user="+db.User+" password="+db.Password+" dbname="+db.Name+" sslmode="+db.SslMode
+
+var conn_str string
+
+func SetConfig(db *config.Db) {
+	conn_str = "host=" + db.Host + " port=" + db.Port + " user=" + db.User + " password=" + db.Password + " dbname=" + db.Name + " sslmode=" + db.SslMode
 }
+
 const emptyStr = ""
 
 func open() *sql.DB {
@@ -25,10 +27,10 @@ func checkErr(err error) {
 	}
 }
 
-func GetTrackingCodeOrGenerate(address string, refAddress string) uint64{
-	id,_ := GetTrackingCode(address)
-	if id==0{
-		id = GenerateTrackingCode(address,refAddress)
+func GetTrackingCodeOrGenerate(address string, refAddress string) uint64 {
+	id, _ := GetTrackingCode(address)
+	if id == 0 {
+		id = GenerateTrackingCode(address, refAddress)
 	}
 	return id
 }

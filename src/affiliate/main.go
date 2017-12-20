@@ -7,7 +7,7 @@ import (
 	"path"
 
 	"github.com/spaco/affiliate/src/config"
-	// "github.com/spaco/affiliate/src/db/postgresql"
+	"github.com/spaco/affiliate/src/db/postgresql"
 	"github.com/spaco/affiliate/src/tracking_code"
 )
 
@@ -25,7 +25,7 @@ func main() {
 	http.HandleFunc("/favicon.ico", serveFileHandler)
 	http.HandleFunc("/robots.txt", serveFileHandler)
 	config := config.GetConfig()
-	// postgresql.SetConfig(&config.DB)
+	postgresql.SetConfig(&config.Db)
 	fmt.Printf("Listening on :%d", config.Server.Port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Server.Port), nil)
 	if err != nil {
@@ -45,9 +45,8 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	addr := r.PostFormValue("address")
 	ref := r.PostFormValue("ref")
-	fmt.Printf("Addr: %s, Ref: %s", addr, ref)
-	// id := postgresql.GetTrackingCodeOrGenerate(addr)
-	var id uint64 = 12
+	// fmt.Printf("Addr: %s, Ref: %s", addr, ref)
+	id := postgresql.GetTrackingCodeOrGenerate(addr, ref)
 	code := tracking_code.GenerateCode(id)
 	server := config.GetConfig().Server
 	contextPath := "http"
