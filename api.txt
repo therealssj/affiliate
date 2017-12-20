@@ -1,0 +1,17 @@
+
+//GenerateAddress generate a batch of digital currency address, currencyType is BTC, ETH etc, size is batch size
+func GenerateAddress(currencyType String, size uint32) []string
+
+//AddressBalance BTC, ETH etc account balance and last updated timestamp and transaction id
+type Node AddressBalance {
+	Address string
+	Balance float64
+	LastUpdatedTimestamp uint64
+	LastUpdatedTransactionId string		
+}
+
+//GetAddressBalance get BTC, ETH etc account balance
+func GetAddressBalance(currencyType String, address ...string) []AddressBalance
+
+//TransferCoinAndReward transfer coin and reward to address
+func TransferCoinAndReward(addrAndAmount map[string]uint64)

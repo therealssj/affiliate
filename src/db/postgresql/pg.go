@@ -9,7 +9,7 @@ import (
 const emptyStr = ""
 
 func open() *sql.DB {
-	db, err := sql.Open("postgres", "user=lijt password=lijtlijt dbname=affiliate sslmode=disable")
+	db, err := sql.Open("postgres", "host=localhost port=5432 user=lijt password=lijtlijt dbname=affiliate sslmode=disable")
 	checkErr(err)
 	return db
 }
