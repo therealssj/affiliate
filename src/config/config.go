@@ -16,7 +16,7 @@ type Config struct {
 
 type Db struct {
 	Host     string `default:"localhost"`
-	Port     string `default:"5432"`
+	Port     int    `default:"5432"`
 	User     string `default:"lijt"`
 	Password string `default:"lijtlijt"`
 	Name     string `default:"affiliate"`
@@ -25,7 +25,7 @@ type Db struct {
 
 type Server struct {
 	Domain string `default:"localhost"`
-	Port   uint16 `default:6060`
+	Port   int    `default:"6060"`
 	Https  bool   `default:false`
 }
 
@@ -42,6 +42,6 @@ func GetConfig() *Config {
 		fmt.Printf("GetConfig Error: %s", err)
 	}
 	m.MustLoad(config) // Panic's if there is any error
-	// fmt.Printf("%+v\n", config)
+	//	fmt.Printf("%+v\n", config)
 	return config
 }

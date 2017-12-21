@@ -25,7 +25,8 @@ func main() {
 	http.HandleFunc("/favicon.ico", serveFileHandler)
 	http.HandleFunc("/robots.txt", serveFileHandler)
 	config := config.GetConfig()
-	postgresql.SetConfig(&config.Db)
+	postgresql.OpenDb(&config.Db)
+	defer postgresql.CloseDb()
 	fmt.Printf("Listening on :%d", config.Server.Port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Server.Port), nil)
 	if err != nil {

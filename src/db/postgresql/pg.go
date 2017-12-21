@@ -2,23 +2,28 @@ package postgresql
 
 import (
 	"database/sql"
-
+	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/spaco/affiliate/src/config"
 )
 
-var conn_str string
-
-func SetConfig(db *config.Db) {
-	conn_str = "host=" + db.Host + " port=" + db.Port + " user=" + db.User + " password=" + db.Password + " dbname=" + db.Name + " sslmode=" + db.SslMode
-}
+var db *sql.DB
 
 const emptyStr = ""
 
-func open() *sql.DB {
-	db, err := sql.Open("postgres", conn_str)
+func OpenDb(dbConfig *config.Db) {
+	conn_str := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", dbConfig.Host, dbConfig.Port, dbConfig.User, dbConfig.Password, dbConfig.Name, dbConfig.SslMode)
+	//	fmt.Println(conn_str)
+	var err error
+	db, err = sql.Open("postgres", conn_str)
 	checkErr(err)
-	return db
+	db.SetMaxOpenConns(1000)
+	db.SetMaxIdleConns(50)
+	db.Ping()
+}
+
+func CloseDb() {
+	db.Close()
 }
 
 func checkErr(err error) {
@@ -36,10 +41,9 @@ func GetTrackingCodeOrGenerate(address string, refAddress string) uint64 {
 }
 
 func GetTrackingCode(address string) (uint64, string) {
-	db := open()
-	defer db.Close()
 	rows, err := db.Query("SELECT ID,REF_ADDRESS FROM TRACKING_CODE where ADDRESS=$1", address)
 	checkErr(err)
+	defer rows.Close()
 	for rows.Next() {
 		var id uint64
 		var refAddress sql.NullString
@@ -55,8 +59,6 @@ func GetTrackingCode(address string) (uint64, string) {
 }
 
 func GetAddrById(id uint64) (string, string) {
-	db := open()
-	defer db.Close()
 	rows, err := db.Query("SELECT ADDRESS,REF_ADDRESS FROM TRACKING_CODE where ID=$1", id)
 	checkErr(err)
 	for rows.Next() {
@@ -74,14 +76,16 @@ func GetAddrById(id uint64) (string, string) {
 }
 
 func GenerateTrackingCode(address string, refAddress string) uint64 {
-	db := open()
-	defer db.Close()
 	var lastInsertId uint64
 	var ra interface{} = nil
 	if len(refAddress) > 0 {
 		ra = refAddress
 	}
-	err := db.QueryRow("insert into TRACKING_CODE(ADDRESS,REF_ADDRESS,CREATION) values ($1, $2, now()) returning id;", address, ra).Scan(&lastInsertId)
+	tx, err := db.Begin()
 	checkErr(err)
+	defer tx.Rollback()
+	err = tx.QueryRow("insert into TRACKING_CODE(ADDRESS,REF_ADDRESS,CREATION) values ($1, $2, now()) returning id;", address, ra).Scan(&lastInsertId)
+	checkErr(err)
+	checkErr(tx.Commit())
 	return lastInsertId
 }
