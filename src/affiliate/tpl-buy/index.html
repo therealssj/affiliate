@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Buy Coin</title>
+</head>
+<body>
+<h1>Buy Coin</h1>
+<form method="POST" name="form" action="">
+<input type="hidden" name="ref" value="{{.Ref}}"/>
+Please Input your wallet address:<br />
+<input type="text" name="address" value=""/>
+<br />
+Please Choose Cryptocurrency type:<br />
+    <input type="radio" id="choice1"
+     name="currencyType" value="BTC">
+    <label for="choice1">BTC</label>
+
+    <input type="radio" id="choice2"
+     name="currencyType" value="phone">
+    <label for="choice2">ETH</label>
+
+    <input type="radio" id="choice3"
+     name="currencyType" value="mail">
+    <label for="choice3">LTC</label>
+    <br />
+<button onclick="getAddress()">Get Address</button>
+<button onclick="checkStatus()">Check Status</button> 
+<script>
+function getAddress(){
+    var form = document.forms['form'];
+    form.action = './get-address/';
+    form.submit()
+}
+function checkStatus(){
+    var form = document.forms['form'];
+    form.action = './check-status/';
+    form.submit()
+}
+</script>
+</form>
+</body>
+</html>

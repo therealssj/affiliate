@@ -18,6 +18,9 @@ func main() {
 			fmt.Printf("Panic Error: %s", err)
 		}
 	}()
+	http.HandleFunc("/", buyHandler)
+	http.HandleFunc("/get-address/", getAddrHandler)
+	http.HandleFunc("/check-status/", checkStatusHandler)
 	http.HandleFunc("/code/", codeHandler)
 	http.HandleFunc("/code/generate/", generateHandler)
 	http.HandleFunc("/code/my-invitation/", myInvitationHandler)
@@ -40,7 +43,7 @@ func serveFileHandler(w http.ResponseWriter, r *http.Request) {
 }
 func codeHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	renderTemplate(w, "code", struct{ Ref string }{Ref: r.FormValue("ref")})
+	renderCodeTemplate(w, "index", struct{ Ref string }{Ref: r.FormValue("ref")})
 }
 
 func generateHandler(w http.ResponseWriter, r *http.Request) {
@@ -72,15 +75,44 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func myInvitationHandler(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "my-invitation", &struct{ Code string }{Code: "9527"})
+	renderCodeTemplate(w, "my-invitation", &struct{ Code string }{Code: "9527"})
 }
 
-var templates = template.Must(template.ParseGlob("tpl/*.html"))
+var codeTemplates = template.Must(template.ParseGlob("tpl-code/*.html"))
 
-func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	err := templates.ExecuteTemplate(w, tmpl+".html", data)
+func renderCodeTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
+	err := codeTemplates.ExecuteTemplate(w, tmpl+".html", data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
+}
+
+var buyTemplates = template.Must(template.ParseGlob("tpl-buy/*.html"))
+
+func renderBuyTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
+	err := buyTemplates.ExecuteTemplate(w, tmpl+".html", data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+}
+
+func buyHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	renderBuyTemplate(w, "index", struct{ Ref string }{Ref: r.FormValue("ref")})
+}
+
+func checkStatusHandler(w http.ResponseWriter, r *http.Request) {
+	transferAddress := "test" // TODO
+	json.NewEncoder(w).Encode(&struct {
+		TransferAddress string `json:"transferAddress"`
+	}{transferAddress})
+}
+
+func getAddrHandler(w http.ResponseWriter, r *http.Request) {
+	transferAddress := "test" // TODO
+	json.NewEncoder(w).Encode(&struct {
+		TransferAddress string `json:"transferAddress"`
+	}{transferAddress})
 }
