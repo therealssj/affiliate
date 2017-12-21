@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -64,9 +65,9 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 			contextPath = fmt.Sprintf("%s:%d", contextPath, server.Port)
 		}
 	}
-	renderTemplate(w, "generate", &struct {
-		BuyUrl  string
-		JoinUrl string
+	json.NewEncoder(w).Encode(&struct {
+		BuyUrl  string `json:"buyUrl"`
+		JoinUrl string `json:"joinUrl"`
 	}{contextPath + "/?ref=" + code, contextPath + "/code/?ref=" + code})
 }
 
