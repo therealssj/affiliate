@@ -2,8 +2,8 @@
 address是skycoin/spaco wallet adress
 ref是邀请码
 返回json object结构统一为：
-成功：{"ok":0, "data":object} 
-失败：{"ok":1,"msg":"errmsg","data":object} 
+成功：{"code":0, "data":object} 
+失败：{"code":1,"errmsg":"errmsg","data":object} 
 
 入口一： / 是买币的入口，类似otc.skycoin.net，这个页面中有两个操作:
 接口1.1：获取支付转帐地址，/get-address/
