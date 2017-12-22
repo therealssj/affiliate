@@ -1,0 +1,38 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+body{
+  color: #333;
+}
+
+.ng-star-inserted > div{
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+
+.acs-title{
+  text-align: center;
+  font-size: 18px;
+  margin: 10px 0;
+  color: #222;
+}
+
+.acs-input-label{
+  font-size: 16px;
+}
+
+.acs-desc{
+  font-size: 14px;
+  color: #454545;
+  text-indent: 2em;
+  margin: 12px 0;
+}
+
+.acs-submitbutton-box{
+  text-align: right;
+}
+
+.acs-input .mat-form-field-infix{
+  padding-top: 0 !important;
+}
