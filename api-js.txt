@@ -30,17 +30,13 @@ coinAmount:转出coin数量
 无参数
 返回json object, 若成功，data中有一个属性desc
 
-接口2.1：生成邀请URL: /code/generate/
+接口2.2：生成邀请URL: /code/generate/
 使用application/x-www-form-urlencoded方式提交数据，两个参数address(必须)，ref(可选)
 返回json object, 若成功，data中有两个属性buyUrl和joinUrl
 
-接口2.2：查看邀请数据: /code/my-invitation/
+接口2.3：查看邀请数据: /code/my-invitation/
 使用application/x-www-form-urlencoded方式提交数据，一个参数address(必须)
 返回结构待定
-
-接口2.3 获取公告消息:  /code/notice/ 
-使用application/x-www-form-urlencoded方式提交数据, 无参数
-返回 json object 一个属性 content
 
 
 
