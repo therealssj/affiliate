@@ -1,0 +1,20 @@
+<div>
+  <h5 class="acs-title">Affiliate-Code-System</h5>
+  <p class="acs-desc">
+    Affiliate-Code-System is a xxx, Affiliate-Code-System is a xxx, Affiliate-Code-System is a xxx, Affiliate-Code-System is a xxx, Affiliate-Code-System is a xxx, 
+  </p>
+  <div class="acs-input">
+    <form #forms="ngForm">
+      <div class="acs-input-label">Please input your wallet address</div>
+      <mat-form-field >
+        <input matInput [(ngModel)]="modal.walletAddress" name="walletAddress" required>
+        <!-- <mat-error *ngIf="walletChecker.invalid">{{getWalletErrMsg()}}</mat-error> -->
+      </mat-form-field>
+    </form>
+    <div class="acs-submitbutton-box">
+      <button  mat-raised-button color="primary" (click)="onGenerate()" [disabled]="!forms.form.valid || loading">Generate Url</button>
+      <button mat-button mat-raised-button color="accent">My Invitation</button>
+    </div>
+  </div>
+</div>
+<ng4-loading-spinner> </ng4-loading-spinner>
