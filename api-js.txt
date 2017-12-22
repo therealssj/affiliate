@@ -1,5 +1,8 @@
-统一说明：
+﻿统一说明：
 address是skycoin/spaco wallet address
+skycoin和spaco是两种机密数字货币,是用来给两个产品用的：一个请求affliate..skycoin.net 另外一个请求affliate.spaco.io, 
+wallet address是钱包地址的意思
+
 ref是邀请码
 返回json object结构统一为：
 成功：{"code":0, "data":object} 
@@ -35,7 +38,9 @@ coinAmount:转出coin数量
 使用application/x-www-form-urlencoded方式提交数据，一个参数address(必须)
 返回结构待定
 
-
+接口2.3 获取公告消息:  /code/notice/ 
+使用application/x-www-form-urlencoded方式提交数据, 无参数
+返回 json object 一个属性 content
 
 
 
