@@ -1,7 +1,7 @@
 <div>
   <h5 class="acs-title">Affiliate-Code-System</h5>
   <p class="acs-desc">
-    Affiliate-Code-System is a xxx, Affiliate-Code-System is a xxx, Affiliate-Code-System is a xxx, Affiliate-Code-System is a xxx, Affiliate-Code-System is a xxx, 
+    {{desc}}
   </p>
   <div class="acs-input">
     <form #forms="ngForm">
@@ -12,8 +12,8 @@
       </mat-form-field>
     </form>
     <div class="acs-submitbutton-box">
-      <button  mat-raised-button color="primary" (click)="onGenerate()" [disabled]="!forms.form.valid || loading">Generate Url</button>
-      <button mat-button mat-raised-button color="accent">My Invitation</button>
+      <button  mat-raised-button color="primary" (click)="onGenerate()" [disabled]="!forms.form.valid">Generate Url</button>
+      <button mat-button mat-raised-button color="accent" (click)="onViewInvitation()" [disabled]="!forms.form.valid">My Invitation</button>
     </div>
   </div>
 </div>

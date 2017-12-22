@@ -1,25 +1,31 @@
 import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
-import { IndexComponent } from './component/index/index.component';
+import { CodeComponent } from './component/code/code.component';
 import { ShareUrlComponent } from './component/share-url/share-url.component';
 import { InvitationComponent } from './component/invitation/invitation.component';
 
 export const appRoutes=[
 	{
-		path:'',
-		component:IndexComponent
+		path: '',
+		redirectTo: "code",
+		pathMatch: 'full'
 	},
 	{
-		path:"shareUrl",
-		component:ShareUrlComponent
+		path: "code",
+		component: CodeComponent
 	},
 	{
-		path:"invitation",
-		component:InvitationComponent
+		path: "shareUrl",
+		component: ShareUrlComponent
 	},
 	{
-		path:'**',//fallback router must in the last
-		component:IndexComponent
+		path: "invitation",
+		component: InvitationComponent
+	},
+	{
+		path: '**',//fallback router must in the last
+		redirectTo: "code",
+		pathMatch: 'full'
 	}
 ];

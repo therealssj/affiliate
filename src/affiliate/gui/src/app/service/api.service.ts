@@ -17,14 +17,24 @@ export class ApiService {
 
   get(url, options = null) {
     return this.http.get(this.getUrl(url, options)).timeout(15000)
-      .map((res: any) => res.json())
+      .map((res: any) => {
+        let obj = res.json();
+        return obj.code === 0 ? obj.data : this.throwError(obj.errmsg);
+      })
+      .catch((error: any) => Observable.throw(error || 'Server error'));
+  }
+  
+  post(url, options = {}) {
+    return this.http.post(this.getUrl(url), this.getQueryString(options), this.returnRequestOptions()).timeout(15000)
+      .map((res: any) => {
+        let obj = res.json();
+        return obj.code === 0 ? obj.data : this.throwError(obj.errmsg);
+      })
       .catch((error: any) => Observable.throw(error || 'Server error'));
   }
 
-  post(url, options = {}) {
-    return this.http.post(this.getUrl(url), this.getQueryString(options), this.returnRequestOptions()).timeout(15000)
-      .map((res: any) => res.json())
-      .catch((error: any) => Observable.throw(error || 'Server error'));
+  throwError(e:any) {
+    throw e;
   }
 
   private getHeaders() {
@@ -53,6 +63,9 @@ export class ApiService {
   }
 
   private getUrl(url, options = null) {
+    if(options == null){
+      return this.domain + url;
+    }
     return this.domain + url + '?' + this.getQueryString(options);
   }
 }

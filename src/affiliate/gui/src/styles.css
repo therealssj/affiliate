@@ -4,7 +4,13 @@
 body{
   color: #333;
 }
-
+a{
+  color: #337ab7;
+  text-decoration: none;
+}
+.mt10{margin-top: 10px;}.mt15{margin-top: 15px;}.mt20{margin-top: 20px;}
+.ml10{margin-left: 10px;}
+.pl10{padding-left: 10px;}
 .ng-star-inserted > div{
   max-width: 1024px;
   margin: 0 auto;
@@ -13,7 +19,7 @@ body{
 
 .acs-title{
   text-align: center;
-  font-size: 18px;
+  font-size: 22px;
   margin: 10px 0;
   color: #222;
 }
@@ -21,7 +27,12 @@ body{
 .acs-input-label{
   font-size: 16px;
 }
-
+.acs-text-label{
+  font-size: 20px;
+}
+.acs-text-content a{
+  font-size: 20px;
+}
 .acs-desc{
   font-size: 14px;
   color: #454545;
@@ -36,3 +47,17 @@ body{
 .acs-input .mat-form-field-infix{
   padding-top: 0 !important;
 }
+
+.acs-listitem{
+  border-bottom: solid 1px #cccccc;
+  padding: 10px;
+}
+
+/* fix spinner positon */
+.la-ball-clip-rotate-multiple.la-3x{
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  -webkit-transform: translate(-50%, -50%) !important;
+}
+

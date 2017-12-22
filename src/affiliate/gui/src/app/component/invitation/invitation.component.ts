@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { ApiService } from '../../service/api.service';
+import { Ng4LoadingSpinnerService } from 'ng4-loading-spinner';
 
 @Component({
   selector: 'app-invitation',
@@ -8,12 +10,34 @@ import { Router, ActivatedRoute } from '@angular/router';
 })
 export class InvitationComponent implements OnInit {
 
-  constructor(private router: Router, private activeRoute: ActivatedRoute) { }
+  private invitationList = [];
+  constructor(
+    private apiService: ApiService,
+    private router: Router, 
+    private activeRoute: ActivatedRoute,
+    private spinnerService: Ng4LoadingSpinnerService
+  ) { }
 
   ngOnInit() {
     this.activeRoute.params.subscribe(params => {
-      console.log(params);
+      //console.log(params);
+      if(!params.address){
+        console.log("no address");
+        return;
+      }      
+      this.viewInvitation(params);
     });    
   }
 
+  viewInvitation(params){
+    this.spinnerService.show();
+    this.apiService.post("/code/my-invitation/", params).subscribe(res => {
+      console.log(res)
+      this.invitationList = res.list;
+    }, err => {
+      alert(err);
+    }, ()=>{
+      this.spinnerService.hide();
+    })
+  }
 }

@@ -16,7 +16,7 @@ import { AppComponent } from './app.component';
 
 import { RouterModule } from '@angular/router';
 import { appRoutes } from './app.routes';
-import { IndexComponent } from './component/index/index.component';
+import { CodeComponent } from './component/code/code.component';
 import { ShareUrlComponent } from './component/share-url/share-url.component';
 import { InvitationComponent } from './component/invitation/invitation.component';
 
@@ -26,7 +26,7 @@ import { ApiService } from "./service/api.service";
 @NgModule({
   declarations: [
     AppComponent,
-    IndexComponent,
+    CodeComponent,
     ShareUrlComponent,
     InvitationComponent
   ],
