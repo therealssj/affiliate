@@ -9,6 +9,7 @@ import { Ng4LoadingSpinnerService } from 'ng4-loading-spinner';
   styleUrls: ['./share-url.component.css']
 })
 export class ShareUrlComponent implements OnInit {
+  private subscribeRef = null;
   private buyUrl = "";
   private joinUrl = "";
   constructor(
@@ -28,10 +29,15 @@ export class ShareUrlComponent implements OnInit {
       this.generateInfo(params);
     }); 
   }
-
+  ngOnDestroy() {
+    this.spinnerService.hide();
+    if(this.subscribeRef) {
+      this.subscribeRef.unsubscribe();
+    }
+  }
   generateInfo(params: any) {
     this.spinnerService.show();
-    this.apiService.post("/code/generate/", params).subscribe(res => {
+    this.subscribeRef = this.apiService.post("/code/generate/", params).subscribe(res => {
       //console.log(res)
       this.buyUrl = res.buyUrl;
       this.joinUrl = res.joinUrl;

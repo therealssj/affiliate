@@ -13,8 +13,10 @@ export class CodeComponent implements OnInit {
 
   private desc = "";
 
+  private defDesc = "The default desc";
+
   private modal = {
-    walletAddress: ""
+    address: ""
   }
 
   constructor(
@@ -27,7 +29,8 @@ export class CodeComponent implements OnInit {
     this.apiService.get("/code/notice/").subscribe(res => {
       this.desc = res.desc;
     }, err => {
-      alert(err);
+      //alert(err);
+      this.desc = this.defDesc;
     })
   }
 
@@ -38,7 +41,7 @@ export class CodeComponent implements OnInit {
     //   console.log(err);
     // })
 
-    this.router.navigate(['/shareUrl', { address: this.modal.walletAddress, ref: "" }]);
+    this.router.navigate(['/shareUrl', { address: this.modal.address, ref: "" }]);
     // if(this.walletChecker.hasError('required'))
     //   return;
     // this.loading = true;
@@ -46,7 +49,7 @@ export class CodeComponent implements OnInit {
 
   }
   onViewInvitation(){
-    this.router.navigate(['/invitation', { address: this.modal.walletAddress }]);
+    this.router.navigate(['/invitation', { address: this.modal.address }]);
   }
   // getWalletErrMsg() {
   //   return this.walletChecker.hasError('required') ? 'You must enter a value' : '';

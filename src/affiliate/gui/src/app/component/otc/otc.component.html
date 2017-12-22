@@ -1,0 +1,30 @@
+<div>
+  <h5 class="acs-title">OTC</h5>
+  <div class="acs-content">
+    <p class="acs-desc">
+      OTC desc OTC desc OTC desc OTC desc OTC desc OTC desc OTC desc OTC desc OTC desc
+    </p>
+    <div class="acs-input-con">
+      <form #forms="ngForm">
+        <div class="acs-input-label">Please input your wallet address:</div>
+        <mat-form-field >
+          <input matInput [(ngModel)]="modal.address" name="address" required>
+          <!-- <mat-error *ngIf="walletChecker.invalid">{{getWalletErrMsg()}}</mat-error> -->
+        </mat-form-field>
+        <div class="acs-input-label">Please choose payment currency:</div>
+        <div class="acs-radio-con">
+          <mat-radio-group required [(ngModel)]="modal.currencyType" name="currencyType">
+            <mat-radio-button value="BTC">BTC</mat-radio-button>
+            <mat-radio-button value="ETH">ETH</mat-radio-button>
+            <mat-radio-button value="LTC">LTC</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </form>
+      <div class="acs-submitbutton-box">
+        <button mat-raised-button color="primary" (click)="onGet()" [disabled]="!forms.form.valid">Get Address</button>
+        <button mat-button mat-raised-button color="accent" (click)="onCheck()" [disabled]="!forms.form.valid">Check Status</button>
+      </div>
+    </div>
+  </div>
+</div>
+<ng4-loading-spinner> </ng4-loading-spinner>

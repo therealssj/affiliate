@@ -9,7 +9,7 @@ import { Ng4LoadingSpinnerService } from 'ng4-loading-spinner';
   styleUrls: ['./invitation.component.css']
 })
 export class InvitationComponent implements OnInit {
-
+  private subscribeRef = null;
   private invitationList = [];
   constructor(
     private apiService: ApiService,
@@ -28,10 +28,15 @@ export class InvitationComponent implements OnInit {
       this.viewInvitation(params);
     });    
   }
-
+  ngOnDestroy() {
+    this.spinnerService.hide();
+    if(this.subscribeRef) {
+      this.subscribeRef.unsubscribe();
+    }
+  }
   viewInvitation(params){
     this.spinnerService.show();
-    this.apiService.post("/code/my-invitation/", params).subscribe(res => {
+    this.subscribeRef = this.apiService.post("/code/my-invitation/", params).subscribe(res => {
       console.log(res)
       this.invitationList = res.list;
     }, err => {
