@@ -41,6 +41,7 @@ export class InvitationComponent implements OnInit {
       this.invitationList = res.list;
     }, err => {
       alert(err);
+      this.spinnerService.hide();
     }, ()=>{
       this.spinnerService.hide();
     })
