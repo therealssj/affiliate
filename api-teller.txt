@@ -1,17 +1,58 @@
+统一说明
+返回json object结构统一为：
+成功：{"code":0, "data":object}
+失败：{"code":1,"errmsg":"errmsg","data":object}
 
-//GenerateAddress generate a batch of digital currency address, currencyType is BTC, ETH etc, size is batch size
-func GenerateAddress(currencyType String, size uint32) []string
+1.1 /api/all-cryptocurrency-type/
+无参数
+返回json object, data属性为对象数组（即map）, key为加密数字货币简称，value为完整名称
 
-//AddressBalance BTC, ETH etc account balance and last updated timestamp and transaction id
-type Node AddressBalance {
+1.2 /api/generate-address/
+使用application/x-www-form-urlencoded方式提交数据，两个参数，currencyType是数字货币简称，size是生成地址数量
+返回json object, data为字符串数组
+
+1.3 /api/address-balance/
+使用application/json方式提交数据，提交json object两个属性，currencyType是数字货币简称，address是字符串数组
+返回json object, data为对象，结构参考以下golang结构(未来可能微调)：
+type AddressBalance struct{
 	Address string
 	Balance float64
 	LastUpdatedTimestamp uint64
 	LastUpdatedTransactionId string		
 }
 
-//GetAddressBalance get BTC, ETH etc account balance
-func GetAddressBalance(currencyType String, address ...string) []AddressBalance
+1.4 /api/transfer-coin/
+使用application/json方式提交数据，提交json object为以下golang结构数组：
+type TransferCoin struct{
+	Address string
+	Amount uint64
+}
+返回json object, code为0表示成功
 
-//TransferCoinAndReward transfer coin and reward to address
-func TransferCoinAndReward(addrAndAmount map[string]uint64)
+
+
+--------以下是golang接口版本-----
+//AllCryptocurrencyType give all Cryptocurrency Type, return map key is short name, map value is full name
+func AllCryptocurrencyType() map[string]string
+
+//GenerateAddress generate a batch of digital currency address, currencyType is BTC, ETH etc, size is batch size
+func GenerateAddress(currencyType String, size uint32) []string
+
+//AddressBalance BTC, ETH etc account balance and last updated timestamp and transaction id
+type AddressBalance struct{
+	Address string
+	Balance float64
+	LastUpdatedTimestamp uint64
+	LastUpdatedTransactionId string		
+}
+
+//AddressBalance get BTC, ETH etc account balance
+func AddressBalance(currencyType String, address ...string) []AddressBalance
+
+type TransferCoin struct{
+	Address string
+	Amount uint64
+}
+
+//TransferCoin transfer coin and reward to address
+func TransferCoin(addrAndAmount []TransferCoin)
