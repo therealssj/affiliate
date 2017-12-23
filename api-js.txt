@@ -1,42 +1,42 @@
 ﻿统一说明：
 address是skycoin/spaco wallet address
+
 skycoin和spaco是两种机密数字货币,是用来给两个产品用的：一个请求affliate..skycoin.net 另外一个请求affliate.spaco.io, 
 wallet address是钱包地址的意思
-
 ref是邀请码
+
 返回json object结构统一为：
 成功：{"code":0, "data":object} 
 失败：{"code":1,"errmsg":"errmsg","data":object} 
 
-
 入口一： / 是买币的入口，类似otc.skycoin.net，这个页面中有两个操作:
-接口1.1：获取支付转帐地址，/get-address/
-使用application/x-www-form-urlencoded方式提交数据，三个参数，address(必须),数字货币类型currencyType(必须),ref(可选)
-返回json object, 若成功，data中有一个属性transferAddress
-
-接口1.2：检查支付转帐及购买信息，/check-status/
-使用application/x-www-form-urlencoded方式提交数据，一个参数address(必须)
-返回json object，若成功，data中有:
-updated:最后更新时间
-gotDeposit:是否已获得支付货币
-currencyType:数字货币类型
-depositAmount:float64,支付货币数量
-sendCoin:是否已经转出coin
-coinAmount:转出coin数量
+  接口1.1：获取支付转帐地址，/get-address/
+  使用application/x-www-form-urlencoded方式提交数据，三个参数，address(必须),数字货币类型currencyType(必须),ref(可选)
+  返回json object, 若成功，data中有一个属性depositAddr
+    
+  接口1.2：检查支付转帐及购买信息，/check-status/
+  使用application/x-www-form-urlencoded方式提交数据，一个参数address(必须)
+  返回json object，若成功，data中有:
+  updated:最后更新时间
+  gotDeposit:是否已获得支付货币
+  currencyType:数字货币类型
+  depositAmount:float64,支付货币数量
+  sendCoin:是否已经转出coin
+  coinAmount:转出coin数量
 
 
 入口二： /code/ 是生成邀请地址和查看邀请数据的入口，这个页面中有三个操作:
-接口2.1： 获取入口页说明信息： /code/notice/
-无参数
-返回json object, 若成功，data中有一个属性desc
-
-接口2.2：生成邀请URL: /code/generate/
-使用application/x-www-form-urlencoded方式提交数据，两个参数address(必须)，ref(可选)
-返回json object, 若成功，data中有两个属性buyUrl和joinUrl
-
-接口2.3：查看邀请数据: /code/my-invitation/
-使用application/x-www-form-urlencoded方式提交数据，一个参数address(必须)
-返回结构待定
+  接口2.1： 获取入口页说明信息： /code/notice/
+  无参数
+  返回json object, 若成功，data中有一个属性desc
+  
+  接口2.2：生成邀请URL: /code/generate/
+  使用application/x-www-form-urlencoded方式提交数据，两个参数address(必须)，ref(可选)
+  返回json object, 若成功，data中有两个属性buyUrl和joinUrl
+  
+  接口2.3：查看邀请数据: /code/my-invitation/
+  使用application/x-www-form-urlencoded方式提交数据，一个参数address(必须)
+  返回结构待定
 
 
 
