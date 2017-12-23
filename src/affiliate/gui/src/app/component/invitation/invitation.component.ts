@@ -39,10 +39,9 @@ export class InvitationComponent implements OnInit {
     this.subscribeRef = this.apiService.post("/code/my-invitation/", params).subscribe(res => {
       console.log(res)
       this.invitationList = res.list;
+      this.spinnerService.hide();
     }, err => {
       alert(err);
-      this.spinnerService.hide();
-    }, ()=>{
       this.spinnerService.hide();
     })
   }

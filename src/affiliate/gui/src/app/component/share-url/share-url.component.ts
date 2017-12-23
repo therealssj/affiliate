@@ -41,10 +41,9 @@ export class ShareUrlComponent implements OnInit {
       //console.log(res)
       this.buyUrl = res.buyUrl;
       this.joinUrl = res.joinUrl;
+      this.spinnerService.hide();
     }, err => {
       alert(err);
-      this.spinnerService.hide();
-    }, ()=>{
       this.spinnerService.hide();
     })
   }

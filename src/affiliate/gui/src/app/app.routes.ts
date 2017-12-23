@@ -11,13 +11,14 @@ import { OtcStatusComponent } from './component/otc-status/otc-status.component'
 export const appRoutes=[
 	{
 		path: '',
-		redirectTo: "otc",
-		pathMatch: 'full'
-	},
-	{
-		path: "otc",
 		component: OtcComponent
+		// redirectTo: "otc",
+		// pathMatch: 'full'
 	},
+	// {
+	// 	path: "otc",
+	// 	component: OtcComponent
+	// },
 	{
 		path: "otcAddress",
 		component: OtcAddressComponent
@@ -40,7 +41,7 @@ export const appRoutes=[
 	},
 	{
 		path: '**',//fallback router must in the last
-		redirectTo: "otc",
+		redirectTo: "",
 		pathMatch: 'full'
 	}
 ];

@@ -48,7 +48,7 @@ import { OtcStatusComponent } from './component/otc-status/otc-status.component'
     MatInputModule,
     MatListModule,
     MatRadioModule,
-    RouterModule.forRoot(appRoutes, { useHash: true }),
+    RouterModule.forRoot(appRoutes, { useHash: false }),
     Ng4LoadingSpinnerModule.forRoot()
   ],
   providers: [ApiService],

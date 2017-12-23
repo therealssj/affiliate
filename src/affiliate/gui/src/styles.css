@@ -20,6 +20,25 @@ a{
   /* padding: 0 10px; */
 }
 
+.acs-row{
+  display: flex;
+  align-items: baseline;
+}
+.acs-row-label{
+  flex: 3;
+}
+.acs-row-text{
+  flex: 2;
+  font-size: 18px;
+  color: #666;
+  min-width: 0;
+  /* text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;  */
+  word-break: break-all;
+  word-wrap: break-word;
+}
+
 .acs-title{
   text-align: center;
   font-size: 22px;
@@ -40,12 +59,23 @@ a{
   font-size: 20px;
 }
 
+.acs-text-content{
+  padding-left: 4px;
+  margin-top: 10px;
+  /* text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap; */
+  word-break: break-all;
+  word-wrap: break-word;
+}
+
 .acs-text-content a{
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .acs-desc{
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 18px;
   color: #666;
   text-indent: 2em;
   margin: 12px 0;
@@ -54,7 +84,9 @@ a{
 .acs-submitbutton-box{
   text-align: right;
 }
-
+.acs-input-con input.mat-input-element{
+  line-height: 1.3em;
+}
 .acs-input-con .mat-form-field-infix{
   padding-top: 0 !important;
 }
@@ -65,15 +97,16 @@ a{
 }
 
 .acs-radio-con label.mat-radio-label{
-  margin-right: 8px; 
+  margin-left: 8px; 
 }
 .acs-input-con .mat-form-field{
   width: 100%;
+  text-indent: 4px;
 }
 
 .acs-listitem{
   border-bottom: solid 1px #cccccc;
-  padding: 10px;
+  padding: 10px 0;
 }
 
 /* fix spinner positon */
