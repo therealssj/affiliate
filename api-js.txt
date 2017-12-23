@@ -39,4 +39,15 @@ ref是邀请码
   返回结构待定
 
 
+新的接口如下：
 
+/api/deposite
+method: post
+encoding: application/json
+args: req
+response:
+{"code":0, "data":{nextseq:5, deposit:[depositValue1, depositValue2]}
+depositValue:
+{"Seq":3,"UpdatedAt":1513210524,"Status":3,"SpoAddress":"6v7gu8WP2V9aggo","depositAddress":"5fa2f213f18690bc","CoinType":"bitcoin", "Txid":"3486ca63d6169536c4552bm "SkySent":12000000,"SkyBtcRate":25, "depositValue":123,"Height":105948}
+如果nextseq 不为空， 则继续请求，新请求的req=nextseq， 如果为空，说明没有新的存入，等待间隔后继续请求
+如果req指定为0，则从第一个存入返回
