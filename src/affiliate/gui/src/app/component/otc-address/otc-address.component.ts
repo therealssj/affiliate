@@ -11,9 +11,9 @@ import { Ng4LoadingSpinnerService } from 'ng4-loading-spinner';
 export class OtcAddressComponent implements OnInit {
 
   private subscribeRef = null;
-  private address = "";
-  private currencyType = "";
-  private depositAddr = "";
+  address:string;
+  currencyType:string;
+  depositAddr:string;
   constructor(
     private apiService: ApiService,
     private router: Router, 

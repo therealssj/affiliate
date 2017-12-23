@@ -11,12 +11,12 @@ import { Ng4LoadingSpinnerService } from 'ng4-loading-spinner';
 export class OtcStatusComponent implements OnInit {
 
   private subscribeRef = null;
-  private updated:any;
-  private gotDeposit:any;
-  private currencyType:any;
-  private depositAmount:any;
-  private sendCoin:any;
-  private coinAmount:any;
+  updated:any;
+  gotDeposit:any;
+  currencyType:any;
+  depositAmount:any;
+  sendCoin:any;
+  coinAmount:any;
 
   constructor(
     private apiService: ApiService,

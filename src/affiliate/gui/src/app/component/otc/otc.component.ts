@@ -13,7 +13,7 @@ declare let window;
 })
 export class OtcComponent implements OnInit {
 
-  private modal = {
+  modal = {
     address: "",
     currencyType: "BTC"
   }

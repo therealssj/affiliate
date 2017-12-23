@@ -10,7 +10,7 @@ import { Ng4LoadingSpinnerService } from 'ng4-loading-spinner';
 })
 export class InvitationComponent implements OnInit {
   private subscribeRef = null;
-  private invitationList = [];
+  invitationList = [];
   constructor(
     private apiService: ApiService,
     private router: Router, 

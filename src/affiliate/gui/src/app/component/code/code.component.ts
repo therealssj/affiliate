@@ -14,11 +14,11 @@ declare let window:any;
 })
 export class CodeComponent implements OnInit {
 
-  private desc = "";
+  desc:string;
 
   private defDesc = "The default desc";
 
-  private modal = {
+  modal = {
     address: ""
   }
 

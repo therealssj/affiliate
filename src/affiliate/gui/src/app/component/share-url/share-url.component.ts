@@ -10,8 +10,8 @@ import { Ng4LoadingSpinnerService } from 'ng4-loading-spinner';
 })
 export class ShareUrlComponent implements OnInit {
   private subscribeRef = null;
-  private buyUrl = "";
-  private joinUrl = "";
+  buyUrl:string;
+  joinUrl:string;
   constructor(
     private apiService: ApiService,
     private router: Router, 
