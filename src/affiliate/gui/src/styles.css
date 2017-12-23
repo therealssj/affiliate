@@ -31,8 +31,10 @@ a{
   flex: 2;
   font-size: 18px;
   color: #666;
-  min-width: 0;
-  /* text-overflow: ellipsis;
+  text-align: right;
+  padding-right: 10px;
+  /* min-width: 0;
+  text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;  */
   word-break: break-all;
