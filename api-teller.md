@@ -29,15 +29,15 @@ Method: POST
 Accept: application/json
 Content-Type: application/json
 URI: /api/send-coin
-Request Body: {
+Request Body: [{
     "address": "2AzuN3aqF53vUC2yHqdfMKnw4i8eRrwye71"
-    "amount":"1234"
-}
+    "amount":"1234"}
+    ]
 ```
 Example:
 
 ```bash
-curl -X POST -H "Content-Type:application/json" -d '{"address":"2AzuN3aqF53vUC2yHqdfMKnw4i8eRrwye71","amount":"1234"}' http://localhost:7071/api/send-coin
+curl -X POST -H "Content-Type:application/json" -d '[{"address":"2AzuN3aqF53vUC2yHqdfMKnw4i8eRrwye71","amount":"1234"}]' http://localhost:7071/api/send-coin
 ```
 
 response:
@@ -168,18 +168,22 @@ Response:
         "allcoin": [
             {
                 "coin_name": "bitcoin",
+                "coin_code": "BTC",
                 "coin_rate": 22200
             },
             {
                 "coin_name": "ethcoin",
+                "coin_code": "ETH",
                 "coin_rate": 1200
             },
             {
                 "coin_name": "skycoin",
+                "coin_code": "SKY",
                 "coin_rate": 200
             },
             {
                 "coin_name": "xmrcoin",
+                "coin_code": "XMR",
                 "coin_rate": 300
             }
         ]
@@ -202,7 +206,7 @@ Response:
 ```
 {"code":0, "data":{nextseq:5, deposit:[depositValue1, depositValue2]}
 depositValue:
-{"Seq":3,"SpoAddress":"6v7gu8WP2V9aggo","depositAddress":"5fa2f213f18690bc","CoinType":"bitcoin", "Txid":"3486ca63d6169536c4552bm "SkySent":12000000,"SkyBtcRate":25, "depositValue":0.48,"Height":105948}
+{"Seq":3,"UpdatedAt":1513210524, "SpoAddress":"6v7gu8WP2V9aggo","depositAddress":"5fa2f213f18690bc","CoinType":"bitcoin", "Txid":"3486ca63d6169536c4552bm "SkySent":12000000,"SkyBtcRate":25, "depositValue":0.48,"Height":105948}
 ```
 
 
