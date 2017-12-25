@@ -26,7 +26,6 @@ nbproject/
 .pmd
 .svn
 *.DS_Store
-.*
 bin/
 build/
 dist/
@@ -35,3 +34,4 @@ dist/
 *.out
 *~
 /target
+src/affiliate/gui/node_modules/

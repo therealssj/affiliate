@@ -1,0 +1,4 @@
+[RewardConfig]
+BuyerRate=0.02
+PromoterRate=[0.05, 0.03, 0.01]
+MinAmount=1
