@@ -10,7 +10,7 @@ alter table TRACKING_CODE add CONSTRAINT  REF_ADDR FOREIGN KEY(REF_ADDRESS) REFE
 create table ALL_CRYPTOCURRENCY(
 	SHORT_NAME varchar(32) not null,
 	FULL_NAME varchar(128) not null,
-	RATE NUMERIC(18,9) not null,
+	RATE varchar(64) not null,
 	primary key(SHORT_NAME)
 );
 
@@ -37,29 +37,33 @@ create table DEPOSIT_RECORD(
 	ID bigserial NOT NULL,
 	CREATION timestamp NOT NULL,
 	MAPPING_ID bigint not null,
-	SEQ bigint not null,
+	SEQ bigint not null unique,
 	UPDATED_AT bigint not null,
 	TRANSACTION_ID varchar(512) not null,
-	DEPOSIT_AMOUNT NUMERIC(18,9) not null,
+	DEPOSIT_AMOUNT bigint not null,
 	BUY_AMOUNT bigint not null,
-	RATE NUMERIC(18,9) not null,
+	RATE varchar(64) not null,
 	HEIGHT bigint not null,
-	primary key(ID)
-)
+	primary key(ID),
+	UNIQUE (MAPPING_ID, TRANSACTION_ID)
+);
 alter table DEPOSIT_RECORD add CONSTRAINT  MAPPING_ID FOREIGN KEY(MAPPING_ID) REFERENCES BUY_ADDR_MAPPING(ID);
 
-create table AWARD_RECORD(
+create table REWARD_RECORD(
 	ID bigserial NOT NULL,
-	SEND_TIME timestamp NOT NULL,
+	VERSION bigint NOT NULL,
+	CREATION timestamp NOT NULL,
 	DEPOSIT_ID bigint not null,
 	ADDRESS varchar(255) not null,
-	AMOUNT bigint not null,
-	REWARD boolean NOT NULL default false,
-	REWARD_TYPE varchar(32) default null,
-	TRANSACTION_ID varchar(255) default null,
-	primary key(ID)
+	CAL_AMOUNT bigint not null,
+	SENT_AMOUNT bigint default NULL,
+	SENT_TIME timestamp default NULL,
+	SENT boolean not null,
+	REWARD_TYPE varchar(32) not null,
+	primary key(ID),
+	UNIQUE (DEPOSIT_ID, ADDRESS)
 );
-alter table SEND_COIN_RECORD add CONSTRAINT  DEPOSIT_ID FOREIGN KEY(DEPOSIT_ID) REFERENCES DEPOSIT_RECORD(ID);
+alter table REWARD_RECORD add CONSTRAINT  DEPOSIT_ID FOREIGN KEY(DEPOSIT_ID) REFERENCES DEPOSIT_RECORD(ID);
 
 create table KV_STORE(
 	NAME varchar(64) not null,
