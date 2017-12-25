@@ -38,7 +38,7 @@ func UpdateTellerReq(val int64) {
 func ProcessDeposit(batch []db.DepositRecord, req int64) {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
-	for i, dr := range batch {
+	for _, dr := range batch {
 		mapping, found := pg.QueryMappingDepositAddr(tx, dr.Address, dr.CurrencyType)
 		if !found {
 			panic(fmt.Sprintf("not found BuyAddrMapping for address:%s CurrencyType:%s", dr.Address, dr.CurrencyType))

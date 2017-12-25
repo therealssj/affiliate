@@ -16,7 +16,6 @@ func SaveBatchRewardRecord(tx *sql.Tx, batch ...*db.RewardRecord) []uint64 {
 	}
 	return res
 }
-func UpdateBatchRewardRecord(tx *sql.Tx, []uint64){
+func UpdateBatchRewardRecord(tx *sql.Tx) {
 
-	
 }

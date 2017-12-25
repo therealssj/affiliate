@@ -6,7 +6,7 @@ import (
 	"github.com/spaco/affiliate/src/service/db"
 )
 
-func SaveBatchDepositRecord(tx *sql.Tx, batch ...*db.DepositRecord) []uint64 {
+func SaveBatchDepositRecord(tx *sql.Tx, batch ...db.DepositRecord) []uint64 {
 	res := make([]uint64, 0, len(batch))
 	var lastInsertId uint64
 	for _, dr := range batch {

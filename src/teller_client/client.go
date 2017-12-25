@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/spaco/affiliate/src/config"
-	"github.com/spaco/affiliate/src/service/db"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/spaco/affiliate/src/config"
+	"github.com/spaco/affiliate/src/service/db"
 )
 
 type jsonResp struct {
@@ -88,9 +89,9 @@ type rateResp struct {
 }
 
 type coinResp struct {
-	Name string  `json:"coin_name"`
-	Code string  `json:"coin_code"`
-	Rate float32 `json:"coin_rate"`
+	Name string `json:"coin_name"`
+	Code string `json:"coin_code"`
+	Rate string `json:"coin_rate"`
 }
 
 func Rate() []*db.CryptocurrencyInfo {
