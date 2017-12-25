@@ -3,20 +3,46 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
-	"net/http"
-	"path"
-
 	"github.com/spaco/affiliate/src/config"
 	"github.com/spaco/affiliate/src/service"
 	"github.com/spaco/affiliate/src/service/db"
 	"github.com/spaco/affiliate/src/tracking_code"
+	"html/template"
+	"log"
+	"net/http"
+	"os"
+	"path"
+	"runtime/debug"
 )
+
+func init() {
+	os.MkdirAll(config.GetDaemonConfig().LogFolder, 0755)
+	f, err := os.OpenFile(config.GetDaemonConfig().LogFolder+"task.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	checkErr(err)
+	logger = log.New(f, "INFO", log.Ldate|log.Ltime)
+}
+
+func checkErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+var logger *log.Logger
+
+func init() {
+	os.MkdirAll(config.GetDaemonConfig().LogFolder, 0755)
+	f, err := os.OpenFile(config.GetDaemonConfig().LogFolder+"server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	checkErr(err)
+	logger = log.New(f, "INFO", log.Ldate|log.Ltime)
+}
 
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Printf("Panic Error: %s", err)
+			debug.PrintStack()
+			logger.Println(debug.Stack())
 		}
 	}()
 	http.HandleFunc("/", buyHandler)

@@ -32,3 +32,7 @@ func UpdateTellerReq(val int64) {
 	checkErr(tx.Commit())
 	commit = true
 }
+
+func ProcessDeposit(deposit []db.DepositRecord, req int64) {
+
+}

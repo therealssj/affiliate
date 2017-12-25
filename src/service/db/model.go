@@ -11,17 +11,29 @@ type CryptocurrencyInfo struct {
 }
 
 type BuyAddrMapping struct {
-	Id             uint64
-	Version        uint64
-	Creation       time.Time
-	LastModified   time.Time
-	Address        string
-	CurrencyType   string
-	DepositAddr    string
-	Ref            string
-	DepositAmount  float64
-	BuyAmount      uint64
-	LastUpdated    time.Time
-	TransactionIds string
-	SentCoin       bool
+	Id           uint64
+	Creation     time.Time
+	Address      string
+	CurrencyType string
+	DepositAddr  string
+	Ref          string
+}
+
+type DepositRecord struct {
+	Id            uint64
+	Creation      time.Time
+	MappingId     uint64
+	Seq           int64
+	UpdatedAt     uint64
+	TransactionId string `json:"Txid"`
+	DepositAmount float32
+	BuyAmount     uint64
+	Rate          float32
+	Height        uint64
+}
+
+type AwardRecord struct {
+	Id        uint64
+	Creation  time.Time
+	DepositId uint64
 }

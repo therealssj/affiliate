@@ -10,10 +10,11 @@ var initServerConfig = false
 var serverConfig *ServerConfig
 
 type ServerConfig struct {
-	CoinName string `default:"SPO TOKEN"`
-	Db       Db
-	Server   Server
-	Teller   Teller
+	CoinName  string `default:"SPO TOKEN"`
+	LogFolder string `default:"/tmp/affiliate/"`
+	Db        Db
+	Server    Server
+	Teller    Teller
 }
 
 type Db struct {
@@ -57,6 +58,7 @@ var initDaemonConfig = false
 var daemonConfig *DaemonConfig
 
 type DaemonConfig struct {
+	LogFolder    string `default:"/tmp/affiliate/"`
 	Db           Db
 	RewardConfig RewardConfig
 	Teller       Teller

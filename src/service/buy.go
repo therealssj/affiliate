@@ -47,3 +47,7 @@ func MappingDepositAddr(address string, currencyType string, ref string) string 
 	commit = true
 	return depositAddr
 }
+
+func CheckStatus(address string) {
+
+}

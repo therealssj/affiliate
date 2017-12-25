@@ -7,8 +7,10 @@ import (
 	"github.com/spaco/affiliate/src/config"
 	"github.com/spaco/affiliate/src/service/db"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -110,21 +112,9 @@ func Rate() []*db.CryptocurrencyInfo {
 }
 
 type DepositResp struct {
-	NextSeq int64          `json:"nextseq"`
-	Deposit []DepositValue `json:"deposit"`
-}
-
-type DepositValue struct {
-	Seq            int64
-	UpdatedAt      uint64
-	SpoAddress     string
-	DepositAddress string
-	CoinType       string
-	Txid           string
-	Sent           uint64
-	Rate           float32
-	DepositValue   float32
-	Height         uint64
+	GoOn    bool               `json:"goon"`
+	NextSeq int64              `json:"nextseq"`
+	Deposit []db.DepositRecord `json:"deposit"`
 }
 
 func Deposite(req int64) *DepositResp {
@@ -195,10 +185,21 @@ func Status(address string, currencyType string) []*StatusResp {
 type SendCoinInfo struct {
 	Address string `json:"address"`
 	Amount  uint64 `json:"amount"`
+	Id      uint64 `json:"id"`
+}
+
+var logger *log.Logger
+
+func init() {
+	os.MkdirAll(config.GetDaemonConfig().LogFolder, 0755)
+	f, err := os.OpenFile(config.GetDaemonConfig().LogFolder+"send-coin.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	checkErr(err)
+	logger = log.New(f, "INFO", log.Ldate|log.Ltime)
 }
 
 func SendCoin(addrAndAmount []*SendCoinInfo) {
 	body, err := json.Marshal(addrAndAmount)
+	logger.Println(body)
 	checkErr(err)
 	resp := httpPost("/api/send-coin", body)
 	jsonObj := new(jsonResp)
