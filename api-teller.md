@@ -31,13 +31,14 @@ Content-Type: application/json
 URI: /api/send-coin
 Request Body: [{
     "address": "2AzuN3aqF53vUC2yHqdfMKnw4i8eRrwye71"
-    "amount":"1234"}
+    "amount":1234
+    "id":122}
     ]
 ```
 Example:
 
 ```bash
-curl -X POST -H "Content-Type:application/json" -d '[{"address":"2AzuN3aqF53vUC2yHqdfMKnw4i8eRrwye71","amount":"1234"}]' http://localhost:7071/api/send-coin
+curl -X POST -H "Content-Type:application/json" -d '[{"id":111, "address":"2AzuN3aqF53vUC2yHqdfMKnw4i8eRrwye71","amount":"1234"}]' http://localhost:7071/api/send-coin
 ```
 
 response:
@@ -200,13 +201,13 @@ Content-Type: application/json
 URI: /api/deposite
 Query Args: req
 ```
-如果nextseq 不为空， 则继续请求，新请求的req=nextseq， 如果为空，说明没有新的存入，等待间隔后继续请求
+如果goon 为true， 则继续请求，新请求的req=nextseq， 如果false，说明没有新的存入，等待间隔后继续请求
 如果req指定为0，则从第一个存入返回
 Response:
 ```
-{"code":0, "data":{nextseq:5, deposit:[depositValue1, depositValue2]}
+{"code":0, "data":{nextseq:5, goon=false, deposit:[depositValue1, depositValue2]}
 depositValue:
-{"Seq":3,"UpdatedAt":1513210524, "SpoAddress":"6v7gu8WP2V9aggo","depositAddress":"5fa2f213f18690bc","CoinType":"bitcoin", "Txid":"3486ca63d6169536c4552bm "SkySent":12000000,"SkyBtcRate":25, "depositValue":0.48,"Height":105948}
+{"seq":3,"updated_at":1513210524, "spo_address":"6v7gu8WP2V9aggo","deposit_address":"5fa2f213f18690bc","coin_type":"bitcoin", "txid":"3486ca63d6169536c4552bm "sent":12000000,"rate":25, "deposit_value":0.48,"height":105948}
 ```
 
 
