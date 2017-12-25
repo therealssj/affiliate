@@ -1,6 +1,8 @@
 package postgresql
 
 import (
+	"github.com/spaco/affiliate/src/config"
+	"github.com/spaco/affiliate/src/service/db"
 	"math/rand"
 	"testing"
 	"time"
@@ -21,26 +23,24 @@ func randStringRunes(n int) string {
 }
 
 func TestTrackingCodeWithNilRef(t *testing.T) {
-	defer func() {
-		if err := recover(); err != nil {
-			t.Errorf("ERROR: %s", err)
-		}
-	}()
-	db := open()
+	config := config.GetServerConfig()
+	db := db.OpenDb(&config.Db)
 	defer db.Close()
+	tx, _ := db.Begin()
+	defer tx.Rollback()
 	addr := randStringRunes(34)
-	id := GenerateTrackingCode(addr, emptyStr)
+	id := GenerateTrackingCode(tx, addr, "")
 	if id < 1 {
 		t.Errorf("Failed. Got %d <1.", id)
 	}
-	id2, refAddr := GetTrackingCode(addr)
+	id2, refAddr := GetTrackingCode(tx, addr)
 	if id != id2 {
 		t.Errorf("Failed. Got %d, expected %d.", id2, id)
 	}
 	if len(refAddr) != 0 {
 		t.Errorf("Failed. Got not blank string: %s.", refAddr)
 	}
-	addr2, refAddr2 := GetAddrById(id)
+	addr2, refAddr2 := GetAddrById(tx, id)
 	if addr != addr2 {
 		t.Errorf("Failed. Got %s, expected %s.", addr, addr2)
 	}
@@ -48,19 +48,20 @@ func TestTrackingCodeWithNilRef(t *testing.T) {
 		t.Errorf("Failed. Got not blank string: %s.", refAddr2)
 	}
 	//更新数据
-	stmt, err := db.Prepare("DELETE FROM TRACKING_CODE where ADDRESS=$1")
+	stmt, err := tx.Prepare("DELETE FROM TRACKING_CODE where ADDRESS=$1")
 	checkErr(err)
 
 	_, err = stmt.Exec(addr)
 	checkErr(err)
-	id2, refAddr = GetTrackingCode(addr)
+	stmt.Close()
+	id2, refAddr = GetTrackingCode(tx, addr)
 	if 0 != id2 {
 		t.Errorf("Failed. Got %d, expected %d.", id2, 0)
 	}
 	if len(refAddr) != 0 {
 		t.Errorf("Failed. Got not blank string: %s.", refAddr)
 	}
-	addr2, refAddr2 = GetAddrById(id)
+	addr2, refAddr2 = GetAddrById(tx, id)
 	if len(addr2) != 0 {
 		t.Errorf("Failed. Got not blank string: %s.", addr2)
 	}
@@ -70,22 +71,20 @@ func TestTrackingCodeWithNilRef(t *testing.T) {
 }
 
 func TestTrackingCodeWithRef(t *testing.T) {
-	defer func() {
-		if err := recover(); err != nil {
-			t.Errorf("ERROR: %s", err)
-		}
-	}()
-	db := open()
+	config := config.GetServerConfig()
+	db := db.OpenDb(&config.Db)
 	defer db.Close()
+	tx, _ := db.Begin()
+	defer tx.Rollback()
 	addr := randStringRunes(34)
 	refAddr0 := randStringRunes(34)
-	GenerateTrackingCode(refAddr0, emptyStr)
+	GenerateTrackingCode(tx, refAddr0, "")
 	refAddr := refAddr0
-	id := GenerateTrackingCode(addr, refAddr)
+	id := GenerateTrackingCode(tx, addr, refAddr)
 	if id < 1 {
 		t.Errorf("Failed. Got %d <1.", id)
 	}
-	id2, refAddr := GetTrackingCode(addr)
+	id2, refAddr := GetTrackingCode(tx, addr)
 	if id != id2 {
 		t.Errorf("Failed. Got %d, expected %d.", id2, id)
 	}
@@ -93,7 +92,7 @@ func TestTrackingCodeWithRef(t *testing.T) {
 		t.Errorf("Failed. Got blank string: %s.", refAddr)
 	}
 
-	addr2, refAddr2 := GetAddrById(id)
+	addr2, refAddr2 := GetAddrById(tx, id)
 	if addr != addr2 {
 		t.Errorf("Failed. Got %s, expected %s.", addr, addr2)
 	}
@@ -106,23 +105,8 @@ func TestTrackingCodeWithRef(t *testing.T) {
 
 	_, err = stmt.Exec(addr)
 	checkErr(err)
-	id2, refAddr = GetTrackingCode(addr)
-	if 0 != id2 {
-		t.Errorf("Failed. Got %d, expected %d.", id2, 0)
-	}
-	if len(refAddr) != 0 {
-		t.Errorf("Failed. Got not blank string: %s.", refAddr)
-	}
-	addr2, refAddr2 = GetAddrById(id)
-	if len(addr2) != 0 {
-		t.Errorf("Failed. Got not blank string: %s.", addr2)
-	}
-	if len(refAddr2) != 0 {
-		t.Errorf("Failed. Got not blank string: %s.", refAddr2)
-	}
-	stmt, err = db.Prepare("DELETE FROM TRACKING_CODE where ADDRESS=$1")
-	checkErr(err)
 
 	_, err = stmt.Exec(refAddr0)
 	checkErr(err)
+	stmt.Close()
 }
