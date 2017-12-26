@@ -5,29 +5,57 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Affiliate Portal</title>
+    <script src="/s/jquery.js"></script>
 </head>
 <body>
 <h1>Affiliate Portal</h1>
-<form method="POST" name="form" action="">
+<form method="POST" name="form" id="form" action="">
 <input type="hidden" name="ref" value="{{.Ref}}"/>
 Please Input your wallet address:
 <br />
 <input type="text" name="address" value=""/>
+</form>
 <br />
 <button onclick="generate()">Generate Tracking Code</button>
 <button onclick="myInvitation()">My Invitation</button> 
 <script>
 function generate(){
     var form = document.forms['form'];
-    form.action = './generate/';
-    form.submit()
+    if(!form.elements['address'].value){
+    	alert('请输入地址');
+    	return;
+    }
+    $.ajax({ url: "./generate/", data: $(form).serialize(), dataType: "json", success: function(obj){
+    	if(obj){
+    		if(obj.code===0){
+    			$('#buyUrl').text(obj.data.buyUrl);
+    			$('#joinUrl').text(obj.data.joinUrl);
+    			$('#shareUrlDiv').show();
+    		}else{
+    			alert(obj.errmsg);
+    		}
+    	}else{
+    		alert("出现错误"); 		
+    	}
+      }});
 }
 function myInvitation(){
     var form = document.forms['form'];
-    form.action = './my-invitation/';
-    form.submit()
+    if(!form.elements['address'].value){
+    	alert('请输入地址');
+    	return;
+    }
+    //form.action = './my-invitation/';
 }
 </script>
-</form>
+<div id="shareUrlDiv" style="display:none;">
+<br /><br /><br />
+    Buy skycoin URL:
+    <span id="buyUrl"></span>
+    <br />
+    Join affiliate program URL:
+    <span id="joinUrl"></span>
+</div>
+
 </body>
 </html>
