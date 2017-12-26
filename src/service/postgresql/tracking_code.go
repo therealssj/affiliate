@@ -5,7 +5,7 @@ import (
 )
 
 func GetTrackingCode(tx *sql.Tx, address string) (uint64, string) {
-	rows, err := tx.Query("SELECT ID,REF_ADDRESS FROM TRACKING_CODE where ADDRESS=$1", address)
+	rows, err := tx.Query("SELECT ID,REF_ADDR FROM TRACKING_CODE where ADDRESS=$1", address)
 	checkErr(err)
 	defer rows.Close()
 	for rows.Next() {
@@ -23,7 +23,7 @@ func GetTrackingCode(tx *sql.Tx, address string) (uint64, string) {
 }
 
 func GetAddrById(tx *sql.Tx, id uint64) (string, string) {
-	rows, err := tx.Query("SELECT ADDRESS,REF_ADDRESS FROM TRACKING_CODE where ID=$1", id)
+	rows, err := tx.Query("SELECT ADDRESS,REF_ADDR FROM TRACKING_CODE where ID=$1", id)
 	checkErr(err)
 	defer rows.Close()
 	for rows.Next() {
@@ -46,7 +46,7 @@ func GenerateTrackingCode(tx *sql.Tx, address string, refAddress string) uint64 
 	if len(refAddress) > 0 {
 		ra = refAddress
 	}
-	err := tx.QueryRow("insert into TRACKING_CODE(ADDRESS,REF_ADDRESS,CREATION) values ($1, $2, now()) returning id;", address, ra).Scan(&lastInsertId)
+	err := tx.QueryRow("insert into TRACKING_CODE(ADDRESS,REF_ADDR,CREATION) values ($1, $2, now()) returning id;", address, ra).Scan(&lastInsertId)
 	checkErr(err)
 	return lastInsertId
 }

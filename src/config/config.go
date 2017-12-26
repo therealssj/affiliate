@@ -65,9 +65,14 @@ type DaemonConfig struct {
 }
 
 type RewardConfig struct {
-	BuyerRate     float32
-	PromoterRate  []float32
-	MinSendAmount int
+	BuyerRate                float64  `default:"0.02"`
+	LadderLine               []int    `default:[0,1000]`
+	PromoterRatioStr         []string `default:["0.05","0.07"]`
+	SuperiorPromoterRatioStr []string `default:["0.03","0.05"]`
+	PromoterRatio            []float64
+	SuperiorPromoterRatio    []float64
+	SuperiorDiscount         float64 `default:"0.5"`
+	MinSendAmount            int     `default:"1"`
 }
 
 func GetDaemonConfig() *DaemonConfig {
@@ -82,6 +87,18 @@ func GetDaemonConfig() *DaemonConfig {
 	}
 	m.MustLoad(daemonConfig) // Panic's if there is any error
 	//	fmt.Printf("%+v\n", daemonConfig)
+	if len(daemonConfig.RewardConfig.LadderLine) == 0 {
+		panic("empty RewardConfig LadderLine")
+	}
+	if len(daemonConfig.RewardConfig.PromoterRatio) == 0 {
+		panic("empty RewardConfig PromoterRatio")
+	}
+	if len(daemonConfig.RewardConfig.SuperiorPromoterRatio) == 0 {
+		panic("empty RewardConfig SuperiorPromoterRatio")
+	}
+	if len(daemonConfig.RewardConfig.LadderLine) != len(daemonConfig.RewardConfig.PromoterRatio) || len(daemonConfig.RewardConfig.LadderLine) != len(daemonConfig.RewardConfig.SuperiorPromoterRatio) {
+		panic("RewardConfig LadderLine, PromoterRatio, SuperiorPromoterRatio length not same")
+	}
 	initDaemonConfig = true
 	return daemonConfig
 }

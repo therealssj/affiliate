@@ -20,36 +20,35 @@ func checkErr(err error) {
 
 var logger *log.Logger
 
+var conf config.DaemonConfig
+
 func init() {
-	os.MkdirAll(config.GetDaemonConfig().LogFolder, 0755)
-	f, err := os.OpenFile(config.GetDaemonConfig().LogFolder+"task.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	conf := config.GetDaemonConfig()
+	os.MkdirAll(conf.LogFolder, 0755)
+	f, err := os.OpenFile(conf.LogFolder+"task.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	checkErr(err)
 	logger = log.New(f, "INFO", log.Ldate|log.Ltime)
 }
 
+func deferFunc() {
+	if err := recover(); err != nil {
+		fmt.Printf("Panic Error: %s", err)
+		debug.PrintStack()
+		logger.Println(debug.Stack())
+	}
+}
+
 func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Printf("Panic Error: %s", err)
-			debug.PrintStack()
-			logger.Println(debug.Stack())
-		}
-	}()
-	config := config.GetDaemonConfig()
-	db.OpenDb(&config.Db)
+	defer deferFunc()
+	db.OpenDb(&conf.Db)
 	defer db.CloseDb()
 	syncCryptocurrency()
 	syncDeposit()
+	sendReward()
 }
 
 func syncCryptocurrency() {
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Printf("Panic Error: %s", err)
-			debug.PrintStack()
-			logger.Println(debug.Stack())
-		}
-	}()
+	defer deferFunc()
 	currencyMap := service.AllCryptocurrencyMap()
 	newCurrency := make([]*db.CryptocurrencyInfo, 0, 4)
 	updateRateCur := make([]*db.CryptocurrencyInfo, 0, 4)
@@ -66,13 +65,7 @@ func syncCryptocurrency() {
 }
 
 func syncDeposit() {
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Printf("Panic Error: %s", err)
-			debug.PrintStack()
-			logger.Println(debug.Stack())
-		}
-	}()
+	defer deferFunc()
 	req := service.GetTellerReq()
 	for {
 		depositResp := client.Deposite(req)
@@ -82,4 +75,9 @@ func syncDeposit() {
 			break
 		}
 	}
+}
+
+func sendReward() {
+	defer deferFunc()
+	service.SendReward()
 }

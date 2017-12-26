@@ -82,9 +82,9 @@ type JsonObj struct {
 func generateHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	addr := r.PostFormValue("address")
-	ref := r.PostFormValue("ref")
+	refCode := r.PostFormValue("ref")
 	// fmt.Printf("Addr: %s, Ref: %s", addr, ref)
-	id := service.GetTrackingCodeOrGenerate(addr, ref)
+	id := service.GetTrackingCodeOrGenerate(addr, refCode)
 	code := tracking_code.GenerateCode(id)
 	server := config.GetServerConfig().Server
 	contextPath := "http"
