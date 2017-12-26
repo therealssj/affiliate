@@ -3,13 +3,14 @@ package service
 import (
 	"database/sql"
 	"fmt"
+
 	"github.com/spaco/affiliate/src/config"
 	"github.com/spaco/affiliate/src/service/db"
 	pg "github.com/spaco/affiliate/src/service/postgresql"
 	"github.com/spaco/affiliate/src/tracking_code"
 )
 
-func SyncCryptocurrency(newCurrency []*db.CryptocurrencyInfo, updateRateCur []*db.CryptocurrencyInfo) {
+func SyncCryptocurrency(newCurrency []db.CryptocurrencyInfo, updateRateCur []db.CryptocurrencyInfo) {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
 	pg.AddBatchCryptocurrency(tx, newCurrency...)
@@ -29,17 +30,22 @@ func GetTellerReq() int64 {
 	return intVal
 }
 
-func UpdateTellerReq(val int64) {
-	tx, commit := db.BeginTx()
-	defer db.Rollback(tx, &commit)
-	pg.SaveKvStore(tx, tellerReqName, val, "")
-	checkErr(tx.Commit())
-	commit = true
+func getRewardRemain(tx *sql.Tx, batch []db.DepositRecord) map[string]uint64 {
+	addrs = make([]string, 0, 2*len(batch))
+	for _, dr := range batch {
+		if len(dr.RefAddr) > 0 {
+			addrs = append(addrs, dr.BuyAddr, dr.RefAddr)
+			if len(dr.SuperiorRefAddr) > 0 {
+				addrs = append(addrs, dr.SuperiorRefAddr)
+	return pg.QueryRewardRemain(tx, addrs...)
 }
 
 func ProcessDeposit(batch []db.DepositRecord, req int64) {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
+	rewardConfig := config.GetDaemonConfig().RewardConfig
+	rewardRecords := make([]db.RewardRecord, 0, 3*len(batch))
+	remainMap := getRewardRemain(tx, batch)
 	for _, dr := range batch {
 		mapping, found := pg.QueryMappingDepositAddr(tx, dr.BuyAddr, dr.CurrencyType)
 		if !found {
@@ -51,19 +57,53 @@ func ProcessDeposit(batch []db.DepositRecord, req int64) {
 				dr.RefAddr, dr.SuperiorRefAddr = pg.GetAddrById(tx, id)
 			}
 		}
-	}
-	pg.SaveBatchDepositRecord(tx, batch...)
-	//	rewardConfig := config.GetDaemonConfig().RewardConfig
-	rewardRecords := make([]db.RewardRecord, 0, 3*len(batch))
-	var rewardRecord db.RewardRecord
-	for _, dr := range batch {
+		pg.SaveBatchDepositRecord(tx, dr)
 		if len(dr.RefAddr) > 0 {
-			rewardRecords = append(rewardRecords, rewardRecord)
-			//			SumSalesVolume()
+			//reward buyer
+			rewardAmount := uint64(float64(dr.BuyAmount) * rewardConfig.BuyerRate)
+			if rm, ok := remainMap[dr.BuyAddr]; ok {
+				rewardAmount += rm
+			}
+			remain := rewardAmount % uint64(rewardConfig.MinSendAmount)
+			remainMap[dr.BuyAddr] = remain
+			rewardRecords = append(rewardRecords, db.RewardRecord{DepositId: dr.Id,
+				Address:    dr.BuyAddr,
+				CalAmount:  rewardAmount,
+				SentAmount: rewardAmount - remain,
+				RewardType: db.RewardBuyer})
+			//reward promoter
+			ratio, _ := getPromoterRatio(tx, &rewardConfig, dr.RefAddr)
+			rewardAmount = uint64(float64(dr.BuyAmount) * ratio)
+			if rm, ok := remainMap[dr.RefAddr]; ok {
+				rewardAmount += rm
+			}
+			remain = rewardAmount % uint64(rewardConfig.MinSendAmount)
+			remainMap[dr.RefAddr] = remain
+			rewardRecords = append(rewardRecords, db.RewardRecord{DepositId: dr.Id,
+				Address:    dr.RefAddr,
+				CalAmount:  rewardAmount,
+				SentAmount: rewardAmount - remain,
+				RewardType: db.RewardPromoter})
+			if len(dr.SuperiorRefAddr) > 0 {
+				//reward promoter
+				_, ratio = getPromoterRatio(tx, &rewardConfig, dr.SuperiorRefAddr)
+				rewardAmount = uint64(float64(dr.BuyAmount) * ratio)
+				if rm, ok := remainMap[dr.SuperiorRefAddr]; ok {
+					rewardAmount += rm
+				}
+				remain = rewardAmount % uint64(rewardConfig.MinSendAmount)
+				remainMap[dr.SuperiorRefAddr] = remain
+				rewardRecords = append(rewardRecords, db.RewardRecord{DepositId: dr.Id,
+					Address:    dr.SuperiorRefAddr,
+					CalAmount:  rewardAmount,
+					SentAmount: rewardAmount - remain,
+					RewardType: db.RewardSuperiorPromoter})
+			}
 		}
 	}
-
-	// calculator reward
+	pg.SaveBatchRewardRecord(tx, rewardRecords...)
+	pg.UpdateRewardRemain(tx, remainMap)
+	pg.SaveKvStore(tx, tellerReqName, req, "")
 	commit = true
 }
 
@@ -78,6 +118,18 @@ func getPromoterRatio(tx *sql.Tx, rewardConfig *config.RewardConfig, address str
 	return rewardConfig.PromoterRatio[i], rewardConfig.SuperiorPromoterRatio[i]
 }
 
-func SendReward() {
+func GetUnsentRewardRecord() []db.RewardRecord {
+	tx, commit := db.BeginTx()
+	defer db.Rollback(tx, &commit)
+	rrs := pg.GetUnsentRewardRecord(tx)
+	checkErr(tx.Commit())
+	commit = true
+	return rrs
+}
 
+func UpdateBatchRewardRecord(ids []uint64) {
+	tx, commit := db.BeginTx()
+	defer db.Rollback(tx, &commit)
+	pg.UpdateBatchRewardRecord(tx, ids...)
+	commit = true
 }

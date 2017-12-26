@@ -1,11 +1,12 @@
 package postgresql
 
 import (
-	"github.com/spaco/affiliate/src/config"
-	"github.com/spaco/affiliate/src/service/db"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/spaco/affiliate/src/config"
+	"github.com/spaco/affiliate/src/service/db"
 )
 
 func init() {

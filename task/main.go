@@ -50,8 +50,8 @@ func main() {
 func syncCryptocurrency() {
 	defer deferFunc()
 	currencyMap := service.AllCryptocurrencyMap()
-	newCurrency := make([]*db.CryptocurrencyInfo, 0, 4)
-	updateRateCur := make([]*db.CryptocurrencyInfo, 0, 4)
+	newCurrency := make([]db.CryptocurrencyInfo, 0, 4)
+	updateRateCur := make([]db.CryptocurrencyInfo, 0, 4)
 	for _, info := range client.Rate() {
 		if old, ok := currencyMap[info.ShortName]; ok {
 			if old.Rate != info.Rate {
@@ -79,5 +79,11 @@ func syncDeposit() {
 
 func sendReward() {
 	defer deferFunc()
-	service.SendReward()
+	rrs:=service.GetUnsentRewardRecord()
+	ids := make([]uint64,len(rrs)])
+	for _,rr:=range rrs{
+		ids = append(ids,rr.Id)
+	}
+	client.SendCoin(rrs)
+	service.UpdateBatchRewardRecord(ids...)
 }

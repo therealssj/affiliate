@@ -94,7 +94,7 @@ type coinResp struct {
 	Rate string `json:"coin_rate"`
 }
 
-func Rate() []*db.CryptocurrencyInfo {
+func Rate() []db.CryptocurrencyInfo {
 	resp := httpGet("/api/rate?tokenType=all")
 	jsonObj := new(jsonResp)
 	err := json.Unmarshal(resp, &jsonObj)
@@ -105,9 +105,9 @@ func Rate() []*db.CryptocurrencyInfo {
 	rResp := new(rateResp)
 	err = json.Unmarshal(jsonObj.Data, &rResp)
 	checkErr(err)
-	res := make([]*db.CryptocurrencyInfo, 0, 16)
+	res := make([]db.CryptocurrencyInfo, 0, 16)
 	for _, coin := range rResp.AllCoin {
-		res = append(res, &db.CryptocurrencyInfo{coin.Name, coin.Code, coin.Rate})
+		res = append(res, db.CryptocurrencyInfo{coin.Name, coin.Code, coin.Rate})
 	}
 	return res
 }
@@ -155,7 +155,7 @@ const (
 	StatusDone
 )
 
-func Status(address string, currencyType string) []*StatusResp {
+func Status(address string, currencyType string) []StatusResp {
 	resp := httpGet(fmt.Sprintf("/api/status?address=%s&coin_type=%s", address, currencyType))
 	jsonObj := new(jsonResp)
 	err := json.Unmarshal(resp, &jsonObj)
@@ -163,7 +163,7 @@ func Status(address string, currencyType string) []*StatusResp {
 	if jsonObj.Code != 0 {
 		panic(fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code))
 	}
-	res := make([]*StatusResp, 0, 16)
+	res := make([]StatusResp, 0, 16)
 	err = json.Unmarshal(jsonObj.Data, &res)
 	checkErr(err)
 	for _, s := range res {
@@ -183,12 +183,6 @@ func Status(address string, currencyType string) []*StatusResp {
 	return res
 }
 
-type SendCoinInfo struct {
-	Address string `json:"address"`
-	Amount  uint64 `json:"amount"`
-	Id      uint64 `json:"id"`
-}
-
 var logger *log.Logger
 
 func init() {
@@ -198,7 +192,7 @@ func init() {
 	logger = log.New(f, "INFO", log.Ldate|log.Ltime)
 }
 
-func SendCoin(addrAndAmount []*SendCoinInfo) {
+func SendCoin(addrAndAmount []db.RewardRecord) {
 	body, err := json.Marshal(addrAndAmount)
 	logger.Println(body)
 	checkErr(err)

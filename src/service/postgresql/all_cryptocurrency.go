@@ -6,16 +6,16 @@ import (
 	"github.com/spaco/affiliate/src/service/db"
 )
 
-func AllCryptocurrency(tx *sql.Tx) []*db.CryptocurrencyInfo {
+func AllCryptocurrency(tx *sql.Tx) []db.CryptocurrencyInfo {
 	rows, err := tx.Query("SELECT SHORT_NAME,FULL_NAME,RATE FROM ALL_CRYPTOCURRENCY")
 	checkErr(err)
-	res := make([]*db.CryptocurrencyInfo, 0, 10)
+	res := make([]db.CryptocurrencyInfo, 0, 10)
 	defer rows.Close()
 	for rows.Next() {
 		var shortName, fullName, rate string
 		err = rows.Scan(&shortName, &fullName, &rate)
 		checkErr(err)
-		res = append(res, &db.CryptocurrencyInfo{shortName, fullName, rate})
+		res = append(res, db.CryptocurrencyInfo{shortName, fullName, rate})
 	}
 	return res
 }

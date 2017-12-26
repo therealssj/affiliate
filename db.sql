@@ -59,7 +59,7 @@ create table REWARD_RECORD(
 	DEPOSIT_ID bigint not null,
 	ADDRESS varchar(255) not null,
 	CAL_AMOUNT bigint not null,
-	SENT_AMOUNT bigint default NULL,
+	SENT_AMOUNT bigint not NULL,
 	SENT_TIME timestamp default NULL,
 	SENT boolean not null,
 	REWARD_TYPE varchar(32) not null,
@@ -70,7 +70,6 @@ alter table REWARD_RECORD add CONSTRAINT  DEPOSIT_ID FOREIGN KEY(DEPOSIT_ID) REF
 
 create table REWARD_REMAIN(
 	ADDRESS varchar(255) not null,
-	VERSION bigint NOT NULL,
 	CREATION timestamp NOT NULL,
 	LAST_MODIFIED timestamp NOT NULL,
 	AMOUNT bigint not null,

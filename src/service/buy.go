@@ -15,7 +15,7 @@ func AllCryptocurrencyMap() map[string]*db.CryptocurrencyInfo {
 	return m
 }
 
-func AllCryptocurrency() []*db.CryptocurrencyInfo {
+func AllCryptocurrency() []db.CryptocurrencyInfo {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
 	all := pg.AllCryptocurrency(tx)

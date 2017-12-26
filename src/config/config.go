@@ -9,6 +9,8 @@ import (
 var initServerConfig = false
 var serverConfig *ServerConfig
 
+const BUY_COIN_UNIT = 1000000
+
 type ServerConfig struct {
 	CoinName  string `default:"SPO TOKEN"`
 	LogFolder string `default:"/tmp/affiliate/"`
@@ -66,13 +68,13 @@ type DaemonConfig struct {
 
 type RewardConfig struct {
 	BuyerRate                float64  `default:"0.02"`
-	LadderLine               []int    `default:[0,1000]`
+	LadderLine               []int    `default:[0,1000000000]`
 	PromoterRatioStr         []string `default:["0.05","0.07"]`
 	SuperiorPromoterRatioStr []string `default:["0.03","0.05"]`
 	PromoterRatio            []float64
 	SuperiorPromoterRatio    []float64
 	SuperiorDiscount         float64 `default:"0.5"`
-	MinSendAmount            int     `default:"1"`
+	MinSendAmount            int     `default:"1000000"`
 }
 
 func GetDaemonConfig() *DaemonConfig {

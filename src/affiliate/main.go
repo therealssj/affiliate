@@ -3,16 +3,17 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/spaco/affiliate/src/config"
-	"github.com/spaco/affiliate/src/service"
-	"github.com/spaco/affiliate/src/service/db"
-	"github.com/spaco/affiliate/src/tracking_code"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"path"
 	"runtime/debug"
+
+	"github.com/spaco/affiliate/src/config"
+	"github.com/spaco/affiliate/src/service"
+	"github.com/spaco/affiliate/src/service/db"
+	"github.com/spaco/affiliate/src/tracking_code"
 )
 
 func init() {
@@ -136,7 +137,7 @@ func buyHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	renderBuyTemplate(w, "index", struct {
 		CoinName    string
-		AllCurrency []*db.CryptocurrencyInfo
+		AllCurrency []db.CryptocurrencyInfo
 		Ref         string
 	}{config.GetServerConfig().CoinName, service.AllCryptocurrency(), r.FormValue("ref")})
 }

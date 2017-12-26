@@ -38,16 +38,16 @@ type DepositRecord struct {
 }
 
 type RewardRecord struct {
-	Id         uint64
-	Version    uint64
-	Creation   time.Time
-	DepositId  uint64
-	Address    string
-	CalAmount  uint64
-	SentAmount uint64
-	SentTime   time.Time
-	Sent       bool
-	RewardType string
+	Id         uint64    `json:"id"`
+	Version    uint64    `json:"-"`
+	Creation   time.Time `json:"-"`
+	DepositId  uint64    `json:"-"`
+	Address    string    `json:"address"`
+	CalAmount  uint64    `json:"-"`
+	SentAmount uint64    `json:"amount"`
+	SentTime   time.Time `json:"-"`
+	Sent       bool      `json:"-"`
+	RewardType string    `json:"-"`
 }
 
 const (
