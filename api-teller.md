@@ -21,14 +21,14 @@ type AddressBalance struct{
 	LastUpdatedTransactionId string		
 }
 
-1.4 /api/send-coin/
+1.4 /api/send-reward/
 使用application/json方式提交数据，提交json object为以下golang结构数组：
 
 ```bash
 Method: POST
 Accept: application/json
 Content-Type: application/json
-URI: /api/send-coin
+URI: /api/send-reward
 Request Body: [{
     "address": "2AzuN3aqF53vUC2yHqdfMKnw4i8eRrwye71"
     "amount":1234
@@ -38,7 +38,7 @@ Request Body: [{
 Example:
 
 ```bash
-curl -X POST -H "Content-Type:application/json" -d '[{"id":111, "address":"2AzuN3aqF53vUC2yHqdfMKnw4i8eRrwye71","amount":"1234"}]' http://localhost:7071/api/send-coin
+curl -X POST -H "Content-Type:application/json" -d '[{"id":111, "address":"2AzuN3aqF53vUC2yHqdfMKnw4i8eRrwye71","amount":"1234"}]' http://localhost:7071/api/send-reward
 ```
 
 response:
@@ -115,6 +115,9 @@ response:
 
 ```bash
 {
+    "errmsg": "",
+    "code": 0,
+    "data": {
     "statuses": [
         {
             "seq": 1,
