@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"database/sql"
+
 	"github.com/spaco/affiliate/src/service/db"
 )
 
@@ -11,8 +12,7 @@ func AllCryptocurrency(tx *sql.Tx) []*db.CryptocurrencyInfo {
 	res := make([]*db.CryptocurrencyInfo, 0, 10)
 	defer rows.Close()
 	for rows.Next() {
-		var shortName, fullName string
-		var rate float32
+		var shortName, fullName, rate string
 		err = rows.Scan(&shortName, &fullName, &rate)
 		checkErr(err)
 		res = append(res, &db.CryptocurrencyInfo{shortName, fullName, rate})
@@ -40,15 +40,15 @@ func UpdateBatchRate(tx *sql.Tx, batch ...*db.CryptocurrencyInfo) {
 	}
 }
 
-func GetRate(tx *sql.Tx, shortName string) (float32, bool) {
+func GetRate(tx *sql.Tx, shortName string) (string, bool) {
 	rows, err := tx.Query("SELECT RATE FROM ALL_CRYPTOCURRENCY where SHORT_NAME=$1", shortName)
 	checkErr(err)
 	defer rows.Close()
 	for rows.Next() {
-		var rate float32
+		var rate string
 		err = rows.Scan(&rate)
 		checkErr(err)
 		return rate, true
 	}
-	return 0, false
+	return "", false
 }

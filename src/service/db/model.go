@@ -7,7 +7,7 @@ import (
 type CryptocurrencyInfo struct {
 	ShortName string
 	FullName  string
-	Rate      float32
+	Rate      string
 }
 
 type BuyAddrMapping struct {
@@ -23,17 +23,27 @@ type DepositRecord struct {
 	Id            uint64
 	Creation      time.Time
 	MappingId     uint64
-	Seq           int64
-	UpdatedAt     uint64
-	TransactionId string `json:"Txid"`
-	DepositAmount float32
-	BuyAmount     uint64
-	Rate          float32
-	Height        uint64
+	Seq           int64  `json:"seq"`
+	UpdatedAt     uint64 `json:"update_at"`
+	TransactionId string `json:"txid"`
+	DepositAmount uint64 `json:"deposit_value"`
+	BuyAmount     uint64 `json:"sent"`
+	Rate          string `json:"rate"`
+	Height        uint64 `json:"height"`
+	Address       string `json:"address"`
+	CurrencyType  string `json:"coin_type"`
+	DepositAddr   string `json:"deposit_address"`
 }
 
-type AwardRecord struct {
-	Id        uint64
-	Creation  time.Time
-	DepositId uint64
+type RewardRecord struct {
+	Id         uint64
+	Version    uint64
+	Creation   time.Time
+	DepositId  uint64
+	Address    string
+	CalAmount  uint64
+	SentAmount uint64
+	SentTime   time.Time
+	Sent       bool
+	RewardType string
 }

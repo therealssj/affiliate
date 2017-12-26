@@ -2,8 +2,9 @@ package postgresql
 
 import (
 	"database/sql"
-	"github.com/spaco/affiliate/src/service/db"
 	"time"
+
+	"github.com/spaco/affiliate/src/service/db"
 )
 
 func QueryMappingDepositAddr(tx *sql.Tx, address string, currencyType string) (*db.BuyAddrMapping, bool) {
@@ -32,7 +33,4 @@ func SaveDepositAddrMapping(tx *sql.Tx, address string, currencyType string, ref
 	checkErr(err)
 	return lastInsertId
 
-}
-
-func UpdateDepositAddrMapping(tx *sql.Tx, address string, currencyType string) {
 }

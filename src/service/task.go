@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/spaco/affiliate/src/service/db"
 	pg "github.com/spaco/affiliate/src/service/postgresql"
 )
@@ -33,6 +35,17 @@ func UpdateTellerReq(val int64) {
 	commit = true
 }
 
-func ProcessDeposit(deposit []db.DepositRecord, req int64) {
-
+func ProcessDeposit(batch []db.DepositRecord, req int64) {
+	tx, commit := db.BeginTx()
+	defer db.Rollback(tx, &commit)
+	for _, dr := range batch {
+		mapping, found := pg.QueryMappingDepositAddr(tx, dr.Address, dr.CurrencyType)
+		if !found {
+			panic(fmt.Sprintf("not found BuyAddrMapping for address:%s CurrencyType:%s", dr.Address, dr.CurrencyType))
+		}
+		dr.MappingId = mapping.Id
+	}
+	pg.SaveBatchDepositRecord(tx, batch...)
+	// calculator reward
+	commit = true
 }

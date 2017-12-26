@@ -31,7 +31,7 @@ type Db struct {
 type Server struct {
 	Domain string `default:"localhost"`
 	Port   int    `default:"6060"`
-	Https  bool   `default:false`
+	Https  bool   `default:"false"`
 }
 
 type Teller struct {
