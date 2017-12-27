@@ -19,10 +19,17 @@ Please Input your wallet address:
 <button onclick="generate()">Generate Tracking Code</button>
 <button onclick="myInvitation()">My Invitation</button> 
 <script>
+function validate(form){
+	if(!form.elements['address'].value){
+    	alert('请输入地址');
+    	return false;
+    }
+	return true
+}
+
 function generate(){
     var form = document.forms['form'];
-    if(!form.elements['address'].value){
-    	alert('请输入地址');
+    if(!validate(form)){
     	return;
     }
     $.ajax({ url: './generate/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
@@ -41,15 +48,13 @@ function generate(){
 }
 function myInvitation(){
     var form = document.forms['form'];
-    if(!form.elements['address'].value){
-    	alert('请输入地址');
+    if(!validate(form)){
     	return;
     }
     $.ajax({ url: './my-invitation/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
     	if(obj){
     		if(obj.code===0){
-    			console.log(obj.data.remain);
-    			console.log(obj.data.records);
+    			$("#myInvitationDiv").tmpl('tmpl', obj.data);
     		}else{
     			alert(obj.errmsg);
     		}
@@ -67,6 +72,10 @@ function myInvitation(){
     Join affiliate program URL:
     <span id="joinUrl"></span>
 </div>
-
+<div id="myInvitationDiv">
+</div>
+<script type="text/html" id="tmpl">
+<span>got <%=records.length%> times reward.</span>
+</script>
 </body>
 </html>
