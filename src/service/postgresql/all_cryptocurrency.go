@@ -20,7 +20,7 @@ func AllCryptocurrency(tx *sql.Tx) []db.CryptocurrencyInfo {
 	return res
 }
 
-func AddBatchCryptocurrency(tx *sql.Tx, batch ...*db.CryptocurrencyInfo) {
+func AddBatchCryptocurrency(tx *sql.Tx, batch []db.CryptocurrencyInfo) {
 	stmt, err := tx.Prepare("insert into ALL_CRYPTOCURRENCY(SHORT_NAME,FULL_NAME,RATE) values ($1, $2, $3)")
 	defer stmt.Close()
 	checkErr(err)
@@ -30,7 +30,7 @@ func AddBatchCryptocurrency(tx *sql.Tx, batch ...*db.CryptocurrencyInfo) {
 	}
 }
 
-func UpdateBatchRate(tx *sql.Tx, batch ...*db.CryptocurrencyInfo) {
+func UpdateBatchRate(tx *sql.Tx, batch []db.CryptocurrencyInfo) {
 	stmt, err := tx.Prepare("update ALL_CRYPTOCURRENCY set RATE=$1 where SHORT_NAME=$2")
 	defer stmt.Close()
 	checkErr(err)

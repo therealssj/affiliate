@@ -2,7 +2,7 @@ package postgresql
 
 import (
 	"database/sql"
-	"strings"
+	"github.com/spaco/affiliate/src/service/db"
 )
 
 func UpdateRewardRemain(tx *sql.Tx, data map[string]uint64) {
@@ -21,7 +21,7 @@ func QueryRewardRemain(tx *sql.Tx, addr ...string) map[string]uint64 {
 	for _, ad := range addr {
 		args = append(args, ad)
 	}
-	rows, err := tx.Query("select ADDRESS,AMOUNT from REWARD_REMAIN where ADDRESS in (?"+strings.Repeat(",?", len(addr)-1)+")", args...)
+	rows, err := tx.Query("select ADDRESS,AMOUNT from REWARD_REMAIN where ADDRESS in "+db.InClause(len(addr), 1), args...)
 	checkErr(err)
 	defer rows.Close()
 	for rows.Next() {

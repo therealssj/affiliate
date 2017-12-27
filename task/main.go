@@ -20,10 +20,10 @@ func checkErr(err error) {
 
 var logger *log.Logger
 
-var conf config.DaemonConfig
+var conf *config.DaemonConfig
 
 func init() {
-	conf := config.GetDaemonConfig()
+	conf = config.GetDaemonConfig()
 	os.MkdirAll(conf.LogFolder, 0755)
 	f, err := os.OpenFile(conf.LogFolder+"task.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	checkErr(err)
@@ -79,10 +79,10 @@ func syncDeposit() {
 
 func sendReward() {
 	defer deferFunc()
-	rrs:=service.GetUnsentRewardRecord()
-	ids := make([]uint64,len(rrs)])
-	for _,rr:=range rrs{
-		ids = append(ids,rr.Id)
+	rrs := service.GetUnsentRewardRecord()
+	ids := make([]uint64, len(rrs))
+	for _, rr := range rrs {
+		ids = append(ids, rr.Id)
 	}
 	client.SendCoin(rrs)
 	service.UpdateBatchRewardRecord(ids...)

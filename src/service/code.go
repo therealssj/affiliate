@@ -33,3 +33,24 @@ func GetTrackingCodeOrGenerate(address string, refCode string) uint64 {
 	commit = true
 	return id
 }
+
+func QueryRewardRecord(address string) []db.RewardRecord {
+	tx, commit := db.BeginTx()
+	defer db.Rollback(tx, &commit)
+	res := pg.QueryRewardRecord(tx, address)
+	checkErr(tx.Commit())
+	commit = true
+	return res
+}
+
+func QueryRewardRemain(address string) uint64 {
+	tx, commit := db.BeginTx()
+	defer db.Rollback(tx, &commit)
+	m := pg.QueryRewardRemain(tx, address)
+	checkErr(tx.Commit())
+	commit = true
+	if rm, ok := m[address]; ok {
+		return rm
+	}
+	return 0
+}

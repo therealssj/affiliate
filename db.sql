@@ -54,7 +54,6 @@ alter table DEPOSIT_RECORD add CONSTRAINT  MAPPING_ID FOREIGN KEY(MAPPING_ID) RE
 
 create table REWARD_RECORD(
 	ID bigserial NOT NULL,
-	VERSION bigint NOT NULL,
 	CREATION timestamp NOT NULL,
 	DEPOSIT_ID bigint not null,
 	ADDRESS varchar(255) not null,

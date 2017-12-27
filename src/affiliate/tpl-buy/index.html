@@ -43,7 +43,7 @@ function getAddress(){
     	alert('请选择数字货币类型。');
     	return;
     }
-    $.ajax({ url: "./get-address/", data: $(form).serialize(), dataType: "json", success: function(obj){
+    $.ajax({ url: './get-address/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
     	if(obj){
     		if(obj.code===0){
     			$('#depositAddr').text(obj.data.depositAddr);
@@ -62,10 +62,22 @@ function checkStatus(){
     	alert('请输入地址');
     	return;
     }
-    $.ajax({ url: "./check-status/", data: $(form).serialize(), dataType: "json", success: function(obj){
+    var radios = form.elements['currencyType'];
+    var valid = false;
+    for (var i = 0; i < radios.length; i++){
+     if (radios[i].checked){
+      valid = true;
+      break;
+     }
+    }
+    if(!valid){
+    	alert('请选择数字货币类型。');
+    	return;
+    }
+    $.ajax({ url: './check-status/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
     	if(obj){
     		if(obj.code===0){
-    			console.log(obj.data);
+    			$('#statusRes').text(obj.data);
     			$('#statusDiv').show();
     		}else{
     			alert(obj.errmsg);
@@ -81,7 +93,8 @@ function checkStatus(){
 Deposit Address:<span id="depositAddr"></span>
 </div>
 <div id="statusDiv" style="display:none;">
-<br /><br /><br />
+<br /><br />
+<span id="statusRes"></span>
 </div>
 </body>
 </html>

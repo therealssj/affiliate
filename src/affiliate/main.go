@@ -10,18 +10,13 @@ import (
 	"path"
 	"runtime/debug"
 
+	"github.com/skycoin/skycoin/src/cipher"
 	"github.com/spaco/affiliate/src/config"
 	"github.com/spaco/affiliate/src/service"
 	"github.com/spaco/affiliate/src/service/db"
+	client "github.com/spaco/affiliate/src/teller_client"
 	"github.com/spaco/affiliate/src/tracking_code"
 )
-
-func init() {
-	os.MkdirAll(config.GetDaemonConfig().LogFolder, 0755)
-	f, err := os.OpenFile(config.GetDaemonConfig().LogFolder+"task.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	checkErr(err)
-	logger = log.New(f, "INFO", log.Ldate|log.Ltime)
-}
 
 func checkErr(err error) {
 	if err != nil {
@@ -32,8 +27,8 @@ func checkErr(err error) {
 var logger *log.Logger
 
 func init() {
-	os.MkdirAll(config.GetDaemonConfig().LogFolder, 0755)
-	f, err := os.OpenFile(config.GetDaemonConfig().LogFolder+"server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	os.MkdirAll(config.GetServerConfig().LogFolder, 0755)
+	f, err := os.OpenFile(config.GetServerConfig().LogFolder+"server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	checkErr(err)
 	logger = log.New(f, "INFO", log.Ldate|log.Ltime)
 }
@@ -83,8 +78,11 @@ type JsonObj struct {
 func generateHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	addr := r.PostFormValue("address")
+	if _, err := cipher.DecodeBase58Address(addr); err != nil {
+		json.NewEncoder(w).Encode(&JsonObj{1, addr + " is not valid. " + err.Error(), nil})
+		return
+	}
 	refCode := r.PostFormValue("ref")
-	// fmt.Printf("Addr: %s, Ref: %s", addr, ref)
 	id := service.GetTrackingCodeOrGenerate(addr, refCode)
 	code := tracking_code.GenerateCode(id)
 	server := config.GetServerConfig().Server
@@ -110,7 +108,17 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func myInvitationHandler(w http.ResponseWriter, r *http.Request) {
-	renderCodeTemplate(w, "my-invitation", &struct{ Code string }{Code: "9527"})
+	r.ParseForm()
+	addr := r.PostFormValue("address")
+	if _, err := cipher.DecodeBase58Address(addr); err != nil {
+		json.NewEncoder(w).Encode(&JsonObj{1, addr + " is not valid. " + err.Error(), nil})
+		return
+	}
+	data := &struct {
+		RewardRecords []db.RewardRecord `json:"records"`
+		RewardRemain  uint64            `json:"remain"`
+	}{service.QueryRewardRecord(addr), service.QueryRewardRemain(addr)}
+	json.NewEncoder(w).Encode(&JsonObj{0, "", data})
 }
 
 var codeTemplates = template.Must(template.ParseGlob("tpl-code/*.html"))
@@ -143,15 +151,55 @@ func buyHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkStatusHandler(w http.ResponseWriter, r *http.Request) {
-	transferAddress := "test" // TODO
-	json.NewEncoder(w).Encode(&struct {
-		TransferAddress string `json:"transferAddress"`
-	}{transferAddress})
+	r.ParseForm()
+	addr := r.PostFormValue("address")
+	if _, err := cipher.DecodeBase58Address(addr); err != nil {
+		json.NewEncoder(w).Encode(&JsonObj{1, addr + " is not valid. " + err.Error(), nil})
+		return
+	}
+	currencyType := r.PostFormValue("currencyType")
+	var data string
+	res := service.QueryDepositRecord(addr)
+	if len(res) > 0 {
+		var totalDeposit, totalBuy uint64
+		for _, dr := range res {
+			totalDeposit += dr.DepositAmount
+			totalBuy += dr.BuyAmount
+		}
+		data = fmt.Sprintf("found %d deposit, Total amount is %d, buy %d "+config.GetServerConfig().CoinName, len(res), totalDeposit, totalBuy)
+	} else if service.CheckMappingAddr(addr, currencyType) {
+		status, err := client.Status(addr, currencyType)
+		if err != nil {
+			json.NewEncoder(w).Encode(&JsonObj{2, "Teller api error: " + err.Error(), nil})
+			return
+		}
+		if len(status) > 0 {
+			data = fmt.Sprintf("found %d deposit, please waiting for confirm", len(status))
+		}
+		data = "Not found deposit record."
+	} else {
+		data = "Not found deposit record."
+	}
+	json.NewEncoder(w).Encode(&JsonObj{0, "", data})
 }
 
 func getAddrHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	depositAddr := service.MappingDepositAddr(r.FormValue("address"), r.FormValue("currencyType"), r.FormValue("ref"))
+	addr := r.PostFormValue("address")
+	if _, err := cipher.DecodeBase58Address(addr); err != nil {
+		json.NewEncoder(w).Encode(&JsonObj{1, addr + " is not valid. " + err.Error(), nil})
+		return
+	}
+	currencyType := r.PostFormValue("currencyType")
+	if len(currencyType) == 0 || !service.CheckCryptocurrency(currencyType) {
+		json.NewEncoder(w).Encode(&JsonObj{2, "Cryptocurrency type is not valid: " + currencyType, nil})
+		return
+	}
+	depositAddr, err := service.MappingDepositAddr(addr, currencyType, r.PostFormValue("ref"))
+	if err != nil {
+		json.NewEncoder(w).Encode(&JsonObj{2, "Teller api error: " + err.Error(), nil})
+		return
+	}
 	data := &struct {
 		DepositAddr string `json:"depositAddr"`
 	}{depositAddr}

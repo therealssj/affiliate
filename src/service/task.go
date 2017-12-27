@@ -13,8 +13,8 @@ import (
 func SyncCryptocurrency(newCurrency []db.CryptocurrencyInfo, updateRateCur []db.CryptocurrencyInfo) {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
-	pg.AddBatchCryptocurrency(tx, newCurrency...)
-	pg.UpdateBatchRate(tx, updateRateCur...)
+	pg.AddBatchCryptocurrency(tx, newCurrency)
+	pg.UpdateBatchRate(tx, updateRateCur)
 	checkErr(tx.Commit())
 	commit = true
 }
@@ -31,12 +31,15 @@ func GetTellerReq() int64 {
 }
 
 func getRewardRemain(tx *sql.Tx, batch []db.DepositRecord) map[string]uint64 {
-	addrs = make([]string, 0, 2*len(batch))
+	addrs := make([]string, 0, 2*len(batch))
 	for _, dr := range batch {
 		if len(dr.RefAddr) > 0 {
 			addrs = append(addrs, dr.BuyAddr, dr.RefAddr)
 			if len(dr.SuperiorRefAddr) > 0 {
 				addrs = append(addrs, dr.SuperiorRefAddr)
+			}
+		}
+	}
 	return pg.QueryRewardRemain(tx, addrs...)
 }
 
@@ -101,9 +104,10 @@ func ProcessDeposit(batch []db.DepositRecord, req int64) {
 			}
 		}
 	}
-	pg.SaveBatchRewardRecord(tx, rewardRecords...)
+	pg.SaveBatchRewardRecord(tx, rewardRecords)
 	pg.UpdateRewardRemain(tx, remainMap)
 	pg.SaveKvStore(tx, tellerReqName, req, "")
+	checkErr(tx.Commit())
 	commit = true
 }
 
@@ -127,7 +131,7 @@ func GetUnsentRewardRecord() []db.RewardRecord {
 	return rrs
 }
 
-func UpdateBatchRewardRecord(ids []uint64) {
+func UpdateBatchRewardRecord(ids ...uint64) {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
 	pg.UpdateBatchRewardRecord(tx, ids...)

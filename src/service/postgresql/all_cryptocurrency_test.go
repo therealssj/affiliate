@@ -22,7 +22,7 @@ func TestAddBatchCryptocurrency(t *testing.T) {
 		types = append(types, str)
 		sli = append(sli, db.CryptocurrencyInfo{str, str, fmt.Sprintf("%d", i+1)})
 	}
-	AddBatchCryptocurrency(tx, sli...)
+	AddBatchCryptocurrency(tx, sli)
 	if len(AllCryptocurrency(tx)) != len(alls)+5 {
 		t.Errorf("Failed. count error")
 	}
@@ -47,9 +47,7 @@ func TestAddCryptocurrency(t *testing.T) {
 		types = append(types, str)
 		sli = append(sli, db.CryptocurrencyInfo{str, str, fmt.Sprintf("%d", i+1)})
 	}
-	for _, info := range sli {
-		AddBatchCryptocurrency(tx, &info)
-	}
+	AddBatchCryptocurrency(tx, sli)
 	if len(AllCryptocurrency(tx)) != len(alls)+5 {
 		t.Errorf("Failed. count error")
 	}

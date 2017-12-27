@@ -25,7 +25,7 @@ function generate(){
     	alert('请输入地址');
     	return;
     }
-    $.ajax({ url: "./generate/", data: $(form).serialize(), dataType: "json", success: function(obj){
+    $.ajax({ url: './generate/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
     	if(obj){
     		if(obj.code===0){
     			$('#buyUrl').text(obj.data.buyUrl);
@@ -45,7 +45,18 @@ function myInvitation(){
     	alert('请输入地址');
     	return;
     }
-    //form.action = './my-invitation/';
+    $.ajax({ url: './my-invitation/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
+    	if(obj){
+    		if(obj.code===0){
+    			console.log(obj.data.remain);
+    			console.log(obj.data.records);
+    		}else{
+    			alert(obj.errmsg);
+    		}
+    	}else{
+    		alert("出现错误"); 		
+    	}
+      }});
 }
 </script>
 <div id="shareUrlDiv" style="display:none;">

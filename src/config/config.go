@@ -38,6 +38,7 @@ type Server struct {
 
 type Teller struct {
 	ContextPath string `default:"http://localhost:7071"`
+	ApiToken    string `teller`
 }
 
 func GetServerConfig() *ServerConfig {
@@ -67,14 +68,12 @@ type DaemonConfig struct {
 }
 
 type RewardConfig struct {
-	BuyerRate                float64  `default:"0.02"`
-	LadderLine               []int    `default:[0,1000000000]`
-	PromoterRatioStr         []string `default:["0.05","0.07"]`
-	SuperiorPromoterRatioStr []string `default:["0.03","0.05"]`
-	PromoterRatio            []float64
-	SuperiorPromoterRatio    []float64
-	SuperiorDiscount         float64 `default:"0.5"`
-	MinSendAmount            int     `default:"1000000"`
+	BuyerRate             float64   `default:"0.02"`
+	LadderLine            []int     // default [0]
+	PromoterRatio         []float64 //default [0.05]
+	SuperiorPromoterRatio []float64 // default [0.03]
+	SuperiorDiscount      float64   `default:"0.5"`
+	MinSendAmount         int       `default:"1000000"`
 }
 
 func GetDaemonConfig() *DaemonConfig {
@@ -88,16 +87,16 @@ func GetDaemonConfig() *DaemonConfig {
 		fmt.Printf("GetDaemonConfig Error: %s", err)
 	}
 	m.MustLoad(daemonConfig) // Panic's if there is any error
-	//	fmt.Printf("%+v\n", daemonConfig)
 	if len(daemonConfig.RewardConfig.LadderLine) == 0 {
-		panic("empty RewardConfig LadderLine")
+		daemonConfig.RewardConfig.LadderLine = []int{0}
 	}
 	if len(daemonConfig.RewardConfig.PromoterRatio) == 0 {
-		panic("empty RewardConfig PromoterRatio")
+		daemonConfig.RewardConfig.PromoterRatio = []float64{0.05}
 	}
 	if len(daemonConfig.RewardConfig.SuperiorPromoterRatio) == 0 {
-		panic("empty RewardConfig SuperiorPromoterRatio")
+		daemonConfig.RewardConfig.SuperiorPromoterRatio = []float64{0.03}
 	}
+	//	fmt.Printf("%+v\n", daemonConfig)
 	if len(daemonConfig.RewardConfig.LadderLine) != len(daemonConfig.RewardConfig.PromoterRatio) || len(daemonConfig.RewardConfig.LadderLine) != len(daemonConfig.RewardConfig.SuperiorPromoterRatio) {
 		panic("RewardConfig LadderLine, PromoterRatio, SuperiorPromoterRatio length not same")
 	}

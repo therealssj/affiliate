@@ -1,10 +1,12 @@
 package db
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/spaco/affiliate/src/config"
+	"strconv"
 )
 
 var db *sql.DB
@@ -47,4 +49,20 @@ func Rollback(tx *sql.Tx, commit *bool) {
 	if !*commit {
 		tx.Rollback()
 	}
+}
+
+func InClause(count int, first int) string {
+	if count == 1 {
+		return fmt.Sprintf("($%d)", first)
+	}
+	var buffer bytes.Buffer
+	buffer.WriteString("($")
+	buffer.WriteString(strconv.Itoa(first))
+	for i := 1; i < count; i++ {
+		buffer.WriteString(", $")
+		first++
+		buffer.WriteString(strconv.Itoa(first))
+	}
+	buffer.WriteString(")")
+	return buffer.String()
 }

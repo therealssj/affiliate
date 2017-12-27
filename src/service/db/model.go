@@ -26,7 +26,7 @@ type DepositRecord struct {
 	RefAddr         string
 	SuperiorRefAddr string
 	Seq             int64  `json:"seq"`
-	UpdatedAt       uint64 `json:"update_at"`
+	UpdatedAt       int64  `json:"update_at"`
 	TransactionId   string `json:"txid"`
 	DepositAmount   uint64 `json:"deposit_value"`
 	BuyAmount       uint64 `json:"sent"`
@@ -39,15 +39,14 @@ type DepositRecord struct {
 
 type RewardRecord struct {
 	Id         uint64    `json:"id"`
-	Version    uint64    `json:"-"`
-	Creation   time.Time `json:"-"`
-	DepositId  uint64    `json:"-"`
+	Creation   time.Time `json:"rewardTime"`
+	DepositId  uint64    `json:"depositId"`
 	Address    string    `json:"address"`
-	CalAmount  uint64    `json:"-"`
+	CalAmount  uint64    `json:"awardAmount"`
 	SentAmount uint64    `json:"amount"`
-	SentTime   time.Time `json:"-"`
-	Sent       bool      `json:"-"`
-	RewardType string    `json:"-"`
+	SentTime   time.Time `json:"sentTime"`
+	Sent       bool      `json:"sent"`
+	RewardType string    `json:"type"`
 }
 
 const (

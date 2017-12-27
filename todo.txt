@@ -1,3 +1,6 @@
-golang后端校验
+[完成]golang后端校验
 增加http缓存header
 事务改进
+[完成]address有效性校验
+显示单位和精度的问题
+前端优化
