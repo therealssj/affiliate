@@ -5,19 +5,49 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Affiliate Portal</title>
-    <script src="/s/jquery.js"></script>
+    <link href="/s/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<div class="container">
 <h1>Affiliate Portal</h1>
-<form method="POST" name="form" id="form" action="">
+<p>
+</p>
+<p>
+SPACO, is a distributed next-generation network protocol,
+which significantly improves on the current HTTP/HTTPS internet protocols.
+SPACO opens the floodgates and allows anyone to be a network operator,
+Instead of all resources being controlled by few industry giants.
+Network resources and integrity are protected using our redundancy and smart contracts.
+SPACO have a great advantage being distributed along with its reliability and also
+its privacy protection in relation to the current Internet.
+</p>
+<p>
+</p>
+<form method="POST" name="form" id="form" action="" role="form">
 <input type="hidden" name="ref" value="{{.Ref}}"/>
-Please Input your wallet address:
-<br />
-<input type="text" name="address" value=""/>
+<div class="form-group">
+<label for="address">Please Input your wallet address:</label>
+<input type="text" name="address" value="" id="address" class="form-control" placeholder="wallet address" size="60" maxlength="60"/>
+</div>
 </form>
 <br />
-<button onclick="generate()">Generate Tracking Code</button>
-<button onclick="myInvitation()">My Invitation</button> 
+<div>
+<button type="button" class="btn btn-primary" onclick="generate()">Generate Tracking URL</button>
+<button type="button" class="btn btn-default" onclick="myInvitation()">My Invitation</button> 
+</div>
+<div id="shareUrlDiv" class="alert alert-success" role="alert" style="display:none;">
+<div>
+<label for="buyUrl" style="display:block;">Buy skycoin URL:</label>
+<span id="buyUrl"></span>
+</div>
+<div>
+<label for="joinUrl" style="display:block;">Join affiliate program URL:</label>
+<span id="joinUrl"></span>
+</div>
+</div>
+<div id="myInvitationDiv" class="alert alert-success" role="alert" style="display:none;">
+</div>
+</div>
 <script>
 function validate(form){
 	if(!form.elements['address'].value){
@@ -54,7 +84,10 @@ function myInvitation(){
     $.ajax({ url: './my-invitation/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
     	if(obj){
     		if(obj.code===0){
-    			$("#myInvitationDiv").tmpl('tmpl', obj.data);
+    			$.views.settings.delimiters("[[", "]]");
+    			var tmpl = $.templates('#tmpl')
+    			$("#myInvitationDiv").html(tmpl.render(obj.data));
+    			$('#myInvitationDiv').show();
     		}else{
     			alert(obj.errmsg);
     		}
@@ -64,18 +97,11 @@ function myInvitation(){
       }});
 }
 </script>
-<div id="shareUrlDiv" style="display:none;">
-<br /><br /><br />
-    Buy skycoin URL:
-    <span id="buyUrl"></span>
-    <br />
-    Join affiliate program URL:
-    <span id="joinUrl"></span>
-</div>
-<div id="myInvitationDiv">
-</div>
-<script type="text/html" id="tmpl">
-<span>got <%=records.length%> times reward.</span>
+<script type="text/x-jsrender" id="tmpl">
+<span>got [[:records.length]] times reward.</span>
 </script>
+<script src="/s/jquery.js"></script>
+<script src="/s/jsrender.js"></script>
+<script src="/s/bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>

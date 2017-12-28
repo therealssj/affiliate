@@ -5,25 +5,51 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Buy Coin</title>
-    <script src="/s/jquery.js"></script>
+    <link href="/s/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<div class="container">
 <h1>Buy Coin</h1>
-<form method="POST" name="form" action="">
+<p>
+</p>
+<p>
+SPACO, is a distributed next-generation network protocol,
+which significantly improves on the current HTTP/HTTPS internet protocols.
+SPACO opens the floodgates and allows anyone to be a network operator,
+Instead of all resources being controlled by few industry giants.
+Network resources and integrity are protected using our redundancy and smart contracts.
+SPACO have a great advantage being distributed along with its reliability and also
+its privacy protection in relation to the current Internet.
+</p>
+<p>
+</p>
+<form method="POST" name="form" action="" role="form">
 <input type="hidden" name="ref" value="{{.Ref}}"/>
-Please Input your wallet address:<br />
-<input type="text" name="address" value=""/>
-<br />
-Please Choose Cryptocurrency type:<br />
+<div class="form-group">
+<label for="address">Please Input your wallet address:</label>
+<input type="text" name="address" value="" id="address" class="form-control" placeholder="wallet address" size="60" max-length="60"/>
+</div>
+<div class="form-group">
+<label style="display:block;">Please Choose Cryptocurrency type:</label>
 {{range .AllCurrency}}
-    <input type="radio" id="choice-{{.ShortName}}"
-     name="currencyType" value="{{.ShortName}}">
-    <label for="choice-{{.ShortName}}">{{.FullName}} (1{{.ShortName}}={{.Rate}} {{$.CoinName}})</label>
+<label class="radio-inline">
+<input type="radio" id="choice-{{.ShortName}}" name="currencyType" value="{{.ShortName}}">{{.FullName}} (1{{.ShortName}}={{.Rate}} {{$.CoinName}})
+</label>
 {{end}}
+</div>
 </form>
-<br />
-<button onclick="getAddress()">Get Address</button>
-<button onclick="checkStatus()">Check Status</button> 
+<div>
+<button type="button" class="btn btn-primary" onclick="getAddress()">Get Address</button>
+<button type="button" class="btn btn-default" onclick="checkStatus()">Check Status</button> 
+</div>
+<div id="depositAddrDiv" class="alert alert-success" role="alert" style="display:none;">
+<label for="depositAddr" style="display:block;">Deposit Address:</label>
+<span id="depositAddr"></span>
+</div>
+<div id="statusDiv" class="alert alert-success" role="alert" style="display:none;">
+<span id="statusRes"></span>
+</div>
+</div>
 <script>
 function validate(form){
 	if(!form.elements['address'].value){
@@ -81,13 +107,7 @@ function checkStatus(){
       }});
 }
 </script>
-<div id="depositAddrDiv" style="display:none;">
-<br /><br /><br />
-Deposit Address:<span id="depositAddr"></span>
-</div>
-<div id="statusDiv" style="display:none;">
-<br /><br />
-<span id="statusRes"></span>
-</div>
+<script src="/s/jquery.js"></script>
+<script src="/s/bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>
