@@ -36,72 +36,99 @@ its privacy protection in relation to the current Internet.
 <button type="button" class="btn btn-default" onclick="myInvitation()">My Invitation</button> 
 </div>
 <div id="shareUrlDiv" class="alert alert-success" role="alert" style="display:none;">
-<div>
+<div class="input-group" style="width: 80%;">
 <label for="buyUrl" style="display:block;">Buy skycoin URL:</label>
-<span id="buyUrl"></span>
+<input id="buyUrl" value="" type="text" style="width: 80%;"/>
+<button class="clipboardBtn" data-clipboard-target="#buyUrl">
+		<img src="/s/svg/clippy.svg" alt="Copy to clipboard" width="13">
+</button>
 </div>
-<div>
+<div class="input-group" style="width: 80%;">
 <label for="joinUrl" style="display:block;">Join affiliate program URL:</label>
-<span id="joinUrl"></span>
+<input id="joinUrl" value="" type="text" style="width: 80%;"/>
+<button class="clipboardBtn" data-clipboard-target="#joinUrl">
+		<img src="/s/svg/clippy.svg" alt="Copy to clipboard" width="13">
+</button>
 </div>
 </div>
 <div id="myInvitationDiv" class="alert alert-success" role="alert" style="display:none;">
 </div>
 </div>
-<script>
-function validate(form){
-	if(!form.elements['address'].value){
-    	alert('请输入地址');
-    	return false;
-    }
-	return true
-}
-
-function generate(){
-    var form = document.forms['form'];
-    if(!validate(form)){
-    	return;
-    }
-    $.ajax({ url: './generate/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
-    	if(obj){
-    		if(obj.code===0){
-    			$('#buyUrl').text(obj.data.buyUrl);
-    			$('#joinUrl').text(obj.data.joinUrl);
-    			$('#shareUrlDiv').show();
-    		}else{
-    			alert(obj.errmsg);
-    		}
-    	}else{
-    		alert("出现错误"); 		
-    	}
-      }});
-}
-function myInvitation(){
-    var form = document.forms['form'];
-    if(!validate(form)){
-    	return;
-    }
-    $.ajax({ url: './my-invitation/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
-    	if(obj){
-    		if(obj.code===0){
-    			$.views.settings.delimiters("[[", "]]");
-    			var tmpl = $.templates('#tmpl')
-    			$("#myInvitationDiv").html(tmpl.render(obj.data));
-    			$('#myInvitationDiv').show();
-    		}else{
-    			alert(obj.errmsg);
-    		}
-    	}else{
-    		alert("出现错误"); 		
-    	}
-      }});
-}
-</script>
 <script type="text/x-jsrender" id="tmpl">
 <span>got [[:records.length]] times reward.</span>
+[[if records.length>0]]
+<table class="table">
+	<caption>Remain [[:remain]]</caption>
+	<thead>
+	<tr> <th>#</th> <th>Reward Amount</th> <th>Sent Amount</th>
+		 <th>Sent</th> <th>Sent Time</th> <th>Reward Type</th> </tr>
+	</thead> 
+	<tbody> 
+	[[for records]]
+	<tr> <th scope="row">r[[:id]]</th> <td>[[:rewardAmount]]</td> <td>[[:amount]]</td>
+		 <td>[[if sent]] done [[else]] waiting [[/if]]</td><td>[[:sentTime]]</td><td>[[:type]]</td> </tr>
+	[[/for]]
+	</tbody> 
+	</table>
+[[/if]]
 </script>
 <script src="/s/jquery.js"></script>
 <script src="/s/jsrender.js"></script>
 <script src="/s/bootstrap/js/bootstrap.min.js"></script>
+<script src="/s/clipboard.js"></script>
+<script>
+new Clipboard('.clipboardBtn');
+function validate(form){
+	if(!form.elements['address'].value){
+		alert('请输入地址');
+		return false;
+	}
+	return true
+}
+
+function generate(){
+	var form = document.forms['form'];
+	if(!validate(form)){
+		return;
+	}
+	$.ajax({ url: './generate/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
+		if(obj){
+			if(obj.code===0){
+				$('#buyUrl').removeAttr("readonly");
+				$('#joinUrl').removeAttr("readonly");
+				$('#buyUrl').val(obj.data.buyUrl);
+				$('#joinUrl').val(obj.data.joinUrl);
+				$('#buyUrl').attr("readonly","readonly");
+				$('#joinUrl').attr("readonly","readonly");
+				$('#shareUrlDiv').show();
+			}else{
+				alert(obj.errmsg);
+			}
+		}else{
+			alert("出现错误"); 		
+		}
+		}});
+}
+function myInvitation(){
+	var form = document.forms['form'];
+	if(!validate(form)){
+		return;
+	}
+	$.ajax({ url: './my-invitation/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
+		if(obj){
+			if(obj.code===0){
+				$.views.settings.delimiters("[[", "]]");
+				var tmpl = $.templates('#tmpl')
+				$("#myInvitationDiv").html(tmpl.render(obj.data));
+				$('#myInvitationDiv').show();
+			}else{
+				alert(obj.errmsg);
+			}
+		}else{
+			alert("出现错误"); 		
+		}
+		}});
+}
+</script>
 </body>
 </html>

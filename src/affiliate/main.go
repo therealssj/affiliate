@@ -114,10 +114,17 @@ func myInvitationHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(&JsonObj{1, addr + " is not valid. " + err.Error(), nil})
 		return
 	}
+	records := service.QueryRewardRecord(addr)
+	// total := 0
+	// if len(records)>0{
+	// 	for _,r := range records{
+	// 		total += r.SentAmount
+	// 	}
+	// }
 	data := &struct {
 		RewardRecords []db.RewardRecord `json:"records"`
 		RewardRemain  uint64            `json:"remain"`
-	}{service.QueryRewardRecord(addr), service.QueryRewardRemain(addr)}
+	}{records, service.QueryRewardRemain(addr)}
 	json.NewEncoder(w).Encode(&JsonObj{0, "", data})
 }
 
