@@ -2,6 +2,8 @@
 返回json object结构统一为：
 成功：{"code":0, "data":object}
 失败：{"code":1,"errmsg":"errmsg","data":object}
+验证：所有请求都携带timestamp和auth两个header，auth的值为md5(timestamp+secretToken)
+如果构造的md5和请求的md5一致，并且处理时间与请求时间在给定范围内，则验证通过，反之，验证失败
 
 1.1 /api/all-cryptocurrency-type/
 无参数
@@ -201,16 +203,16 @@ Response:
 ```bash
 Method: GET
 Content-Type: application/json
-URI: /api/deposite
-Query Args: req
+URI: /api/deposites
+Query Args: seq
 ```
 如果goon 为true， 则继续请求，新请求的req=nextseq， 如果false，说明没有新的存入，等待间隔后继续请求
 如果req指定为0，则从第一个存入返回
 Response:
 ```
-{"code":0, "data":{nextseq:5, goon=false, deposit:[depositValue1, depositValue2]}
+{"code":0, "data":{nextseq:5, goon=false, deposits:[depositValue1, depositValue2]}
 depositValue:
-{"seq":3,"updated_at":1513210524, "spo_address":"6v7gu8WP2V9aggo","deposit_address":"5fa2f213f18690bc","coin_type":"bitcoin", "txid":"3486ca63d6169536c4552bm "sent":12000000,"rate":25, "deposit_value":0.48,"height":105948}
+{"seq":3,"updated_at":1513210524, "address":"6v7gu8WP2V9aggo","deposit_address":"5fa2f213f18690bc","coin_type":"bitcoin", "txid":"3486ca63d6169536c4552bm "sent":12000000,"rate":25, "deposit_value":0.48,"height":105948}
 ```
 
 
