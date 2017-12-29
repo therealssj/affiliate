@@ -11,6 +11,7 @@ create table ALL_CRYPTOCURRENCY(
 	SHORT_NAME varchar(32) not null,
 	FULL_NAME varchar(128) not null,
 	RATE varchar(64) not null,
+	UNIT_POWER smallint not null,
 	primary key(SHORT_NAME)
 );
 
@@ -38,6 +39,7 @@ create table DEPOSIT_RECORD(
 	CREATION timestamp NOT NULL,
 	MAPPING_ID bigint not null,
 	BUY_ADDR varchar(255) not null,
+	CURRENCY_TYPE varchar(32) not null,
 	REF_ADDR varchar(255) not null,
 	SUPERIOR_REF_ADDR varchar(255) not null,
 	SEQ bigint not null unique,
@@ -50,6 +52,7 @@ create table DEPOSIT_RECORD(
 	primary key(ID),
 	UNIQUE (MAPPING_ID, TRANSACTION_ID)
 );
+alter table DEPOSIT_RECORD add CONSTRAINT  CURRENCY_TYPE FOREIGN KEY(CURRENCY_TYPE) REFERENCES ALL_CRYPTOCURRENCY(SHORT_NAME);
 alter table DEPOSIT_RECORD add CONSTRAINT  MAPPING_ID FOREIGN KEY(MAPPING_ID) REFERENCES BUY_ADDR_MAPPING(ID);
 
 create table REWARD_RECORD(

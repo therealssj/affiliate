@@ -126,9 +126,10 @@ type rateResp struct {
 }
 
 type coinResp struct {
-	Name string `json:"coin_name"`
-	Code string `json:"coin_code"`
-	Rate string `json:"coin_rate"`
+	Name      string `json:"coin_name"`
+	Code      string `json:"coin_code"`
+	Rate      string `json:"coin_rate"`
+	UnitPower int32  `json:"power"`
 }
 
 func Rate() []db.CryptocurrencyInfo {
@@ -144,7 +145,7 @@ func Rate() []db.CryptocurrencyInfo {
 	panicErr(err)
 	res := make([]db.CryptocurrencyInfo, 0, 16)
 	for _, coin := range rResp.AllCoin {
-		res = append(res, db.CryptocurrencyInfo{coin.Name, coin.Code, coin.Rate})
+		res = append(res, db.CryptocurrencyInfo{coin.Name, coin.Code, coin.Rate, coin.UnitPower})
 	}
 	return res
 }
@@ -237,8 +238,18 @@ func getSendCoinLogger() *log.Logger {
 	return sendCoinLogger
 }
 
+type sendCoinInfo struct {
+	Id         uint64 `json:"id"`
+	Address    string `json:"address"`
+	SentAmount uint64 `json:"amount"`
+}
+
 func SendCoin(addrAndAmount []db.RewardRecord) {
-	body, err := json.Marshal(addrAndAmount)
+	arr := make([]sendCoinInfo, 0, len(addrAndAmount))
+	for _, rr := range addrAndAmount {
+		arr = append(arr, sendCoinInfo{rr.Id, rr.Address, rr.SentAmount})
+	}
+	body, err := json.Marshal(arr)
 	getSendCoinLogger().Println(body)
 	panicErr(err)
 	resp, _ := httpPost(true, "/api/send-coin", body)

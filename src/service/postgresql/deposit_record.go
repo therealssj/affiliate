@@ -9,28 +9,27 @@ import (
 func SaveBatchDepositRecord(tx *sql.Tx, batch ...db.DepositRecord) {
 	var lastInsertId uint64
 	for _, dr := range batch {
-		err := tx.QueryRow("insert into DEPOSIT_RECORD(CREATION,MAPPING_ID,SEQ,UPDATED_AT,TRANSACTION_ID,DEPOSIT_AMOUNT,BUY_AMOUNT,RATE,HEIGHT,BUY_ADDR,REF_ADDR,SUPERIOR_REF_ADDR) values (now(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning id;", dr.MappingId, dr.Seq, time.Unix(dr.UpdatedAt, 0), dr.TransactionId, dr.DepositAmount, dr.BuyAmount, dr.Rate, dr.Height, dr.BuyAddr, dr.RefAddr, dr.SuperiorRefAddr).Scan(&lastInsertId)
+		err := tx.QueryRow("insert into DEPOSIT_RECORD(CREATION,MAPPING_ID,SEQ,UPDATED_AT,TRANSACTION_ID,DEPOSIT_AMOUNT,BUY_AMOUNT,RATE,HEIGHT,BUY_ADDR,CURRENCY_TYPE,REF_ADDR,SUPERIOR_REF_ADDR) values (now(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning id;", dr.MappingId, dr.Seq, time.Unix(dr.UpdatedAt, 0), dr.TransactionId, dr.DepositAmount, dr.BuyAmount, dr.Rate, dr.Height, dr.BuyAddr, dr.CurrencyType, dr.RefAddr, dr.SuperiorRefAddr).Scan(&lastInsertId)
 		checkErr(err)
 		dr.Id = lastInsertId
 	}
 }
 
-func QueryDepositRecord(tx *sql.Tx, address string) []db.DepositRecord {
-	rows, err := tx.Query("SELECT ID,CREATION,MAPPING_ID,BUY_ADDR,REF_ADDR,SUPERIOR_REF_ADDR,SEQ,UPDATED_AT,TRANSACTION_ID,DEPOSIT_AMOUNT,BUY_AMOUNT,RATE,HEIGHT FROM DEPOSIT_RECORD where BUY_ADDR=$1", address)
-	checkErr(err)
-	res := make([]db.DepositRecord, 0, 8)
+func buildDepositRecordSlice(rows *sql.Rows) []db.DepositRecord {
 	defer rows.Close()
+	res := make([]db.DepositRecord, 0, 8)
 	for rows.Next() {
 		var id, mappingId, depositAmount, buyAmount, height uint64
 		var seq int64
-		var buyAddr, refAddr, superiorRefAddr, transactionId, rate string
+		var buyAddr, currencyType, refAddr, superiorRefAddr, transactionId, rate string
 		var creation, updatedAt time.Time
-		err = rows.Scan(&id, &creation, &mappingId, &buyAddr, &refAddr, &superiorRefAddr, &seq, &updatedAt, &transactionId, &depositAmount, &buyAmount, &rate, &height)
+		err := rows.Scan(&id, &creation, &mappingId, &buyAddr, &currencyType, &refAddr, &superiorRefAddr, &seq, &updatedAt, &transactionId, &depositAmount, &buyAmount, &rate, &height)
 		checkErr(err)
 		res = append(res, db.DepositRecord{Id: id,
 			Creation:        creation,
 			MappingId:       mappingId,
 			BuyAddr:         buyAddr,
+			CurrencyType:    currencyType,
 			RefAddr:         refAddr,
 			SuperiorRefAddr: superiorRefAddr,
 			Seq:             seq,
@@ -42,6 +41,19 @@ func QueryDepositRecord(tx *sql.Tx, address string) []db.DepositRecord {
 			Height:          height})
 	}
 	return res
+
+}
+
+func QueryDepositRecord(tx *sql.Tx, address string, currencyType string) []db.DepositRecord {
+	rows, err := tx.Query("SELECT ID,CREATION,MAPPING_ID,BUY_ADDR, CURRENCY_TYPE, REF_ADDR,SUPERIOR_REF_ADDR,SEQ,UPDATED_AT,TRANSACTION_ID,DEPOSIT_AMOUNT,BUY_AMOUNT,RATE,HEIGHT FROM DEPOSIT_RECORD where BUY_ADDR=$1 and CURRENCY_TYPE=$2 order by ID", address, currencyType)
+	checkErr(err)
+	return buildDepositRecordSlice(rows)
+}
+
+func QueryDepositRecordByAddr(tx *sql.Tx, address string) []db.DepositRecord {
+	rows, err := tx.Query("SELECT ID,CREATION,MAPPING_ID,BUY_ADDR, CURRENCY_TYPE, REF_ADDR,SUPERIOR_REF_ADDR,SEQ,UPDATED_AT,TRANSACTION_ID,DEPOSIT_AMOUNT,BUY_AMOUNT,RATE,HEIGHT FROM DEPOSIT_RECORD where BUY_ADDR=$1 order by ID", address)
+	checkErr(err)
+	return buildDepositRecordSlice(rows)
 }
 
 func sumL1PromoteSalesVolume(tx *sql.Tx, address string) uint64 {

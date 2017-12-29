@@ -19,7 +19,7 @@ func SaveBatchRewardRecord(tx *sql.Tx, batch []db.RewardRecord) []uint64 {
 }
 
 func GetUnsentRewardRecord(tx *sql.Tx) []db.RewardRecord {
-	rows, err := tx.Query("SELECT ID,CREATION,DEPOSIT_ID,ADDRESS,CAL_AMOUNT,SENT_AMOUNT,REWARD_TYPE FROM REWARD_RECORD where SENT=false and SENT_AMOUNT<>0")
+	rows, err := tx.Query("SELECT ID,CREATION,DEPOSIT_ID,ADDRESS,CAL_AMOUNT,SENT_AMOUNT,REWARD_TYPE FROM REWARD_RECORD where SENT=false and SENT_AMOUNT<>0 order by ID")
 	checkErr(err)
 	res := make([]db.RewardRecord, 0, 16)
 	defer rows.Close()
@@ -53,7 +53,7 @@ func UpdateBatchRewardRecord(tx *sql.Tx, ids ...uint64) {
 }
 
 func QueryRewardRecord(tx *sql.Tx, address string) []db.RewardRecord {
-	rows, err := tx.Query("SELECT ID,CREATION,DEPOSIT_ID,ADDRESS,CAL_AMOUNT,SENT_AMOUNT,SENT_TIME,SENT,REWARD_TYPE FROM REWARD_RECORD where ADDRESS=$1", address)
+	rows, err := tx.Query("SELECT ID,CREATION,DEPOSIT_ID,ADDRESS,CAL_AMOUNT,SENT_AMOUNT,SENT_TIME,SENT,REWARD_TYPE FROM REWARD_RECORD where ADDRESS=$1 order by ID", address)
 	checkErr(err)
 	res := make([]db.RewardRecord, 0, 16)
 	defer rows.Close()

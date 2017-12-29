@@ -9,7 +9,7 @@ import (
 var initServerConfig = false
 var serverConfig *ServerConfig
 
-const BUY_COIN_UNIT = 1000000
+const BUY_COIN_UNIT_POWER int32 = 6
 
 type ServerConfig struct {
 	CoinName  string `default:"SPO TOKEN"`

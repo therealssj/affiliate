@@ -7,25 +7,26 @@ import (
 )
 
 func AllCryptocurrency(tx *sql.Tx) []db.CryptocurrencyInfo {
-	rows, err := tx.Query("SELECT SHORT_NAME,FULL_NAME,RATE FROM ALL_CRYPTOCURRENCY")
+	rows, err := tx.Query("SELECT SHORT_NAME,FULL_NAME,RATE,UNIT_POWER FROM ALL_CRYPTOCURRENCY order by SHORT_NAME")
 	checkErr(err)
 	res := make([]db.CryptocurrencyInfo, 0, 10)
 	defer rows.Close()
 	for rows.Next() {
 		var shortName, fullName, rate string
-		err = rows.Scan(&shortName, &fullName, &rate)
+		var unitPower int32
+		err = rows.Scan(&shortName, &fullName, &rate, &unitPower)
 		checkErr(err)
-		res = append(res, db.CryptocurrencyInfo{shortName, fullName, rate})
+		res = append(res, db.CryptocurrencyInfo{shortName, fullName, rate, unitPower})
 	}
 	return res
 }
 
 func AddBatchCryptocurrency(tx *sql.Tx, batch []db.CryptocurrencyInfo) {
-	stmt, err := tx.Prepare("insert into ALL_CRYPTOCURRENCY(SHORT_NAME,FULL_NAME,RATE) values ($1, $2, $3)")
+	stmt, err := tx.Prepare("insert into ALL_CRYPTOCURRENCY(SHORT_NAME,FULL_NAME,RATE,UNIT_POWER) values ($1, $2, $3, $4)")
 	defer stmt.Close()
 	checkErr(err)
 	for _, info := range batch {
-		_, err = stmt.Exec(info.ShortName, info.FullName, info.Rate)
+		_, err = stmt.Exec(info.ShortName, info.FullName, info.Rate, info.UnitPower)
 		checkErr(err)
 	}
 }
@@ -40,15 +41,16 @@ func UpdateBatchRate(tx *sql.Tx, batch []db.CryptocurrencyInfo) {
 	}
 }
 
-func GetRate(tx *sql.Tx, shortName string) (string, bool) {
-	rows, err := tx.Query("SELECT RATE FROM ALL_CRYPTOCURRENCY where SHORT_NAME=$1", shortName)
+func GetCryptocurrency(tx *sql.Tx, shortName string) *db.CryptocurrencyInfo {
+	rows, err := tx.Query("SELECT SHORT_NAME,FULL_NAME,RATE,UNIT_POWER FROM ALL_CRYPTOCURRENCY where SHORT_NAME=$1", shortName)
 	checkErr(err)
 	defer rows.Close()
 	for rows.Next() {
-		var rate string
-		err = rows.Scan(&rate)
+		var shortName, fullName, rate string
+		var unitPower int32
+		err = rows.Scan(&shortName, &fullName, &rate, &unitPower)
 		checkErr(err)
-		return rate, true
+		return &db.CryptocurrencyInfo{shortName, fullName, rate, unitPower}
 	}
-	return "", false
+	return nil
 }

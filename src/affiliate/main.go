@@ -3,19 +3,20 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
-	"log"
-	"net/http"
-	"os"
-	"path"
-	"runtime/debug"
-
+	"github.com/shopspring/decimal"
 	"github.com/skycoin/skycoin/src/cipher"
 	"github.com/spaco/affiliate/src/config"
 	"github.com/spaco/affiliate/src/service"
 	"github.com/spaco/affiliate/src/service/db"
 	client "github.com/spaco/affiliate/src/teller_client"
 	"github.com/spaco/affiliate/src/tracking_code"
+	"html/template"
+	"log"
+	"net/http"
+	"os"
+	"path"
+	"runtime/debug"
+	"time"
 )
 
 func checkErr(err error) {
@@ -31,6 +32,28 @@ func init() {
 	f, err := os.OpenFile(config.GetServerConfig().LogFolder+"server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	checkErr(err)
 	logger = log.New(f, "INFO", log.Ldate|log.Ltime)
+}
+
+func convertUnitPower(val uint64, unitPower int32) string {
+	return decimal.New(int64(val), 1).Div(decimal.New(1, unitPower)).String()
+}
+
+func convertUnit(val uint64) string {
+	return convertUnitPower(val, config.BUY_COIN_UNIT_POWER)
+}
+
+func convertOfCurrency(val uint64, currencyType string) string {
+	var unitPower int32
+	if info, ok := getAllCryptocurrencyMap()[currencyType]; ok {
+		unitPower = info.UnitPower
+	} else {
+		info := service.GetCryptocurrency(currencyType)
+		if info == nil {
+			panic(currencyType + " is not support.")
+		}
+		unitPower = info.UnitPower
+	}
+	return convertUnitPower(val, unitPower)
 }
 
 func main() {
@@ -115,16 +138,16 @@ func myInvitationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	records := service.QueryRewardRecord(addr)
-	// total := 0
-	// if len(records)>0{
-	// 	for _,r := range records{
-	// 		total += r.SentAmount
-	// 	}
-	// }
+	if len(records) > 0 {
+		for _, r := range records {
+			r.CalAmountStr = convertUnit(r.CalAmount)
+			r.SentAmountStr = convertUnit(r.SentAmount)
+		}
+	}
 	data := &struct {
 		RewardRecords []db.RewardRecord `json:"records"`
-		RewardRemain  uint64            `json:"remain"`
-	}{records, service.QueryRewardRemain(addr)}
+		RewardRemain  string            `json:"remain"`
+	}{records, convertUnit(service.QueryRewardRemain(addr))}
 	json.NewEncoder(w).Encode(&JsonObj{0, "", data})
 }
 
@@ -148,13 +171,34 @@ func renderBuyTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 
 }
 
+var allCryptocurrencyMap map[string]db.CryptocurrencyInfo
+var allCurrencyMapLastUpdated int64
+
+func getAllCryptocurrencyMap() map[string]db.CryptocurrencyInfo {
+	if allCryptocurrencyMap == nil || len(allCryptocurrencyMap) == 0 || time.Now().Unix()-allCurrencyMapLastUpdated > 3600 {
+		allCryptocurrencyMap = service.AllCryptocurrencyMap()
+		allCurrencyMapLastUpdated = time.Now().Unix()
+		return allCryptocurrencyMap
+	}
+	return allCryptocurrencyMap
+}
+
+func allCryptocurrency() []db.CryptocurrencyInfo {
+	m := getAllCryptocurrencyMap()
+	res := make([]db.CryptocurrencyInfo, 0, len(m))
+	for _, value := range m {
+		res = append(res, value)
+	}
+	return res
+}
+
 func buyHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	renderBuyTemplate(w, "index", struct {
 		CoinName    string
 		AllCurrency []db.CryptocurrencyInfo
 		Ref         string
-	}{config.GetServerConfig().CoinName, service.AllCryptocurrency(), r.FormValue("ref")})
+	}{config.GetServerConfig().CoinName, allCryptocurrency(), r.FormValue("ref")})
 }
 
 func checkStatusHandler(w http.ResponseWriter, r *http.Request) {
@@ -166,14 +210,14 @@ func checkStatusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	currencyType := r.PostFormValue("currencyType")
 	var data string
-	res := service.QueryDepositRecord(addr)
+	res := service.QueryDepositRecord(addr, currencyType)
 	if len(res) > 0 {
 		var totalDeposit, totalBuy uint64
 		for _, dr := range res {
 			totalDeposit += dr.DepositAmount
 			totalBuy += dr.BuyAmount
 		}
-		data = fmt.Sprintf("found %d deposit, Total amount is %d, buy %d "+config.GetServerConfig().CoinName, len(res), totalDeposit, totalBuy)
+		data = fmt.Sprintf("found %d deposit, Total amount is %d, buy %d "+config.GetServerConfig().CoinName, len(res), convertOfCurrency(totalDeposit, currencyType), convertUnit(totalBuy))
 	} else if service.CheckMappingAddr(addr, currencyType) {
 		status, err := client.Status(addr, currencyType)
 		if err != nil {
@@ -198,7 +242,7 @@ func getAddrHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	currencyType := r.PostFormValue("currencyType")
-	if len(currencyType) == 0 || !service.CheckCryptocurrency(currencyType) {
+	if _, ok := getAllCryptocurrencyMap()[currencyType]; !ok {
 		json.NewEncoder(w).Encode(&JsonObj{2, "Cryptocurrency type is not valid: " + currencyType, nil})
 		return
 	}

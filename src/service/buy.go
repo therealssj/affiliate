@@ -8,13 +8,20 @@ import (
 
 func AllCryptocurrencyMap() map[string]db.CryptocurrencyInfo {
 	slice := AllCryptocurrency()
-	m := make(map[string]db.CryptocurrencyInfo, 16)
+	m := make(map[string]db.CryptocurrencyInfo, len(slice))
 	for _, info := range slice {
 		m[info.ShortName] = info
 	}
 	return m
 }
-
+func GetCryptocurrency(currencyType string) *db.CryptocurrencyInfo {
+	tx, commit := db.BeginTx()
+	defer db.Rollback(tx, &commit)
+	info := pg.GetCryptocurrency(tx, currencyType)
+	checkErr(tx.Commit())
+	commit = true
+	return info
+}
 func AllCryptocurrency() []db.CryptocurrencyInfo {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
@@ -60,19 +67,10 @@ func CheckMappingAddr(address string, currencyType string) bool {
 	return found
 }
 
-func CheckCryptocurrency(shortName string) bool {
+func QueryDepositRecord(address string, currencyType string) []db.DepositRecord {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
-	_, found := pg.GetRate(tx, shortName)
-	checkErr(tx.Commit())
-	commit = true
-	return found
-}
-
-func QueryDepositRecord(address string) []db.DepositRecord {
-	tx, commit := db.BeginTx()
-	defer db.Rollback(tx, &commit)
-	res := pg.QueryDepositRecord(tx, address)
+	res := pg.QueryDepositRecord(tx, address, currencyType)
 	checkErr(tx.Commit())
 	commit = true
 	return res

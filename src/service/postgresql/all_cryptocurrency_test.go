@@ -20,7 +20,7 @@ func TestAddBatchCryptocurrency(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		str := randStringRunes(5)
 		types = append(types, str)
-		sli = append(sli, db.CryptocurrencyInfo{str, str, fmt.Sprintf("%d", i+1)})
+		sli = append(sli, db.CryptocurrencyInfo{str, str, fmt.Sprintf("%d", i+1), 6})
 	}
 	AddBatchCryptocurrency(tx, sli)
 	if len(AllCryptocurrency(tx)) != len(alls)+5 {
@@ -45,7 +45,7 @@ func TestAddCryptocurrency(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		str := randStringRunes(5)
 		types = append(types, str)
-		sli = append(sli, db.CryptocurrencyInfo{str, str, fmt.Sprintf("%d", i+1)})
+		sli = append(sli, db.CryptocurrencyInfo{str, str, fmt.Sprintf("%d", i+1), 6})
 	}
 	AddBatchCryptocurrency(tx, sli)
 	if len(AllCryptocurrency(tx)) != len(alls)+5 {

@@ -8,6 +8,7 @@ type CryptocurrencyInfo struct {
 	ShortName string
 	FullName  string
 	Rate      string
+	UnitPower int32
 }
 
 type BuyAddrMapping struct {
@@ -38,15 +39,17 @@ type DepositRecord struct {
 }
 
 type RewardRecord struct {
-	Id         uint64    `json:"id"`
-	Creation   time.Time `json:"rewardTime"`
-	DepositId  uint64    `json:"depositId"`
-	Address    string    `json:"address"`
-	CalAmount  uint64    `json:"rewardAmount"`
-	SentAmount uint64    `json:"amount"`
-	SentTime   time.Time `json:"sentTime"`
-	Sent       bool      `json:"sent"`
-	RewardType string    `json:"type"`
+	Id            uint64    `json:"id"`
+	Creation      time.Time `json:"rewardTime"`
+	DepositId     uint64    `json:"-"`
+	Address       string    `json:"address"`
+	CalAmount     uint64    `json:"-"`
+	CalAmountStr  string    `json:"rewardAmount"`
+	SentAmount    uint64    `json:"-"`
+	SentAmountStr string    `json:"sentAmount"`
+	SentTime      time.Time `json:"sentTime"`
+	Sent          bool      `json:"sent"`
+	RewardType    string    `json:"type"`
 }
 
 const (
