@@ -8,7 +8,7 @@ import (
 )
 
 func QueryMappingDepositAddr(tx *sql.Tx, address string, currencyType string) (*db.BuyAddrMapping, bool) {
-	rows, err := tx.Query("select ID,CREATION,DEPOSIT_ADDR,REF from BUY_ADDR_MAPPING where CURRENCY_TYPE=$1 and DEPOSIT_ADDR=$2", currencyType, address)
+	rows, err := tx.Query("select ID,CREATION,DEPOSIT_ADDR,REF from BUY_ADDR_MAPPING where CURRENCY_TYPE=$1 and ADDRESS=$2", currencyType, address)
 	checkErr(err)
 	defer rows.Close()
 	for rows.Next() {

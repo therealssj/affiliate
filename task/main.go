@@ -70,7 +70,11 @@ func syncDeposit() {
 	for {
 		depositResp := client.Deposite(req)
 		req = depositResp.NextSeq
-		service.ProcessDeposit(depositResp.Deposit, req)
+		if len(depositResp.Deposits) == 0 {
+			service.SaveTellerReq(req)
+		} else {
+			service.ProcessDeposit(depositResp.Deposits, req)
+		}
 		if !depositResp.GoOn {
 			break
 		}
@@ -80,6 +84,9 @@ func syncDeposit() {
 func sendReward() {
 	defer deferFunc()
 	rrs := service.GetUnsentRewardRecord()
+	if len(rrs) == 0 {
+		return
+	}
 	ids := make([]uint64, len(rrs))
 	for _, rr := range rrs {
 		ids = append(ids, rr.Id)

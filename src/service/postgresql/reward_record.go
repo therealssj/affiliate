@@ -41,6 +41,9 @@ func GetUnsentRewardRecord(tx *sql.Tx) []db.RewardRecord {
 }
 
 func UpdateBatchRewardRecord(tx *sql.Tx, ids ...uint64) {
+	if len(ids) == 0 {
+		return
+	}
 	stmt, err := tx.Prepare("update REWARD_RECORD set SENT_TIME=now(),SENT=true where ID in " + db.InClause(len(ids), 1))
 	defer stmt.Close()
 	checkErr(err)

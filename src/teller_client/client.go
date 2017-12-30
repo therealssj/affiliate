@@ -10,6 +10,7 @@ import (
 	"log"
 	//	"math/rand"
 	"crypto/md5"
+	"github.com/shopspring/decimal"
 	"github.com/spaco/affiliate/src/config"
 	"github.com/spaco/affiliate/src/service/db"
 	"net/http"
@@ -18,7 +19,7 @@ import (
 )
 
 type jsonResp struct {
-	Code   uint8           `json:"code"`
+	Code   int16           `json:"code"`
 	ErrMsg string          `json:"errmsg"`
 	Data   json.RawMessage `json:"data"`
 }
@@ -55,7 +56,7 @@ func checkErr(err error, errPanic bool) error {
 func setAuthHeaders(req *http.Request, teller *config.Teller) {
 	timestamp := fmt.Sprintf("%d", time.Now().Unix())
 	h := md5.New()
-	io.WriteString(h, teller.ApiToken+timestamp)
+	io.WriteString(h, timestamp+teller.ApiToken)
 	req.Header.Set("timestamp", timestamp)
 	req.Header.Set("auth", fmt.Sprintf("%x", h.Sum(nil)))
 }
@@ -80,6 +81,7 @@ func httpReq(errPanic bool, url string, method string, reqBody io.Reader, conten
 	if resErr := checkErr(err, errPanic); resErr != nil {
 		return nil, resErr
 	}
+	//	fmt.Printf(string(body))
 	return body, nil
 }
 func httpGet(errPanic bool, url string) ([]byte, error) {
@@ -90,12 +92,12 @@ func httpPost(errPanic bool, url string, json []byte) ([]byte, error) {
 }
 
 type bindResp struct {
-	Address      string `json:"address"`
-	CurrencyType string `json:"coin_type"`
+	Address      string `json:"tokenAddress"`
+	CurrencyType string `json:"tokenType"`
 }
 
 func Bind(currencyType string, address string) (string, error) {
-	resp, err := httpPost(false, "/api/bind/", []byte(fmt.Sprintf(`{"address":"%s","coin_type":"%s"}`, address, currencyType)))
+	resp, err := httpPost(false, "/api/bind", []byte(fmt.Sprintf(`{"address":"%s","tokenType":"%s"}`, address, currencyType)))
 	if err != nil {
 		return "", err
 	}
@@ -126,10 +128,10 @@ type rateResp struct {
 }
 
 type coinResp struct {
-	Name      string `json:"coin_name"`
-	Code      string `json:"coin_code"`
-	Rate      string `json:"coin_rate"`
-	UnitPower int32  `json:"power"`
+	Name      string  `json:"coin_name"`
+	Code      string  `json:"coin_code"`
+	Rate      float64 `json:"coin_rate"`
+	UnitPower int32   `json:"unit"`
 }
 
 func Rate() []db.CryptocurrencyInfo {
@@ -145,19 +147,20 @@ func Rate() []db.CryptocurrencyInfo {
 	panicErr(err)
 	res := make([]db.CryptocurrencyInfo, 0, 16)
 	for _, coin := range rResp.AllCoin {
-		res = append(res, db.CryptocurrencyInfo{coin.Name, coin.Code, coin.Rate, coin.UnitPower})
+		res = append(res, db.CryptocurrencyInfo{coin.Name, coin.Code, decimal.NewFromFloat(coin.Rate).String(), coin.UnitPower})
 	}
 	return res
 }
 
 type DepositResp struct {
-	GoOn    bool               `json:"goon"`
-	NextSeq int64              `json:"nextseq"`
-	Deposit []db.DepositRecord `json:"deposit"`
+	GoOn     bool               `json:"goon"`
+	NextSeq  int64              `json:"nextseq"`
+	Deposits []db.DepositRecord `json:"deposits"`
 }
 
 func Deposite(req int64) *DepositResp {
-	resp, _ := httpGet(true, fmt.Sprintf("/api/deposite?req=%d", req))
+	resp, _ := httpGet(true, fmt.Sprintf("/api/deposits?seq=%d", req))
+	//	resp, _ := httpPost(true, "/api/deposits", []byte(fmt.Sprintf(`{"req":"%d"}`, req)))
 	jsonObj := new(jsonResp)
 	err := json.Unmarshal(resp, &jsonObj)
 	panicErr(err)
@@ -167,16 +170,24 @@ func Deposite(req int64) *DepositResp {
 	res := new(DepositResp)
 	err = json.Unmarshal(jsonObj.Data, &res)
 	panicErr(err)
+	if len(res.Deposits) > 0 {
+		for _, dr := range res.Deposits {
+			dr.Rate = decimal.NewFromFloat(dr.RateFloat).String()
+		}
+	}
 	return res
 }
 
+type statusesResp struct {
+	Statuses []StatusResp `json:"statuses"`
+}
 type StatusResp struct {
 	Seq       int64  `json:"seq"`
 	UpdateAt  uint64 `json:"update_at"`
 	Address   string `json:"address"`
 	TokenType string `json:"tokenType"`
 	StatusStr string `json:"status"`
-	Status    int
+	Status    int    `json:"-"`
 }
 
 const (
@@ -194,7 +205,7 @@ const (
 )
 
 func Status(address string, currencyType string) ([]StatusResp, error) {
-	resp, err := httpGet(false, fmt.Sprintf("/api/status?address=%s&coin_type=%s", address, currencyType))
+	resp, err := httpGet(false, fmt.Sprintf("/api/status?address=%s&tokenType=%s", address, currencyType))
 	if err != nil {
 		return nil, err
 	}
@@ -206,10 +217,10 @@ func Status(address string, currencyType string) ([]StatusResp, error) {
 	if jsonObj.Code != 0 {
 		return nil, errors.New(fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code))
 	}
-	res := make([]StatusResp, 0, 16)
+	res := new(statusesResp)
 	err = json.Unmarshal(jsonObj.Data, &res)
 	panicErr(err)
-	for _, s := range res {
+	for _, s := range res.Statuses {
 		switch s.StatusStr {
 		case str_waiting_deposit:
 			s.Status = StatusWaitingDeposit
@@ -223,7 +234,7 @@ func Status(address string, currencyType string) ([]StatusResp, error) {
 			return nil, errors.New("wrong status string")
 		}
 	}
-	return res, nil
+	return res.Statuses, nil
 }
 
 var sendCoinLogger *log.Logger

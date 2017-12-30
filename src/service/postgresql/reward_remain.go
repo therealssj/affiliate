@@ -17,6 +17,9 @@ func UpdateRewardRemain(tx *sql.Tx, data map[string]uint64) {
 
 func QueryRewardRemain(tx *sql.Tx, addr ...string) map[string]uint64 {
 	m := make(map[string]uint64, len(addr))
+	if len(addr) == 0 {
+		return m
+	}
 	args := make([]interface{}, 0, len(addr))
 	for _, ad := range addr {
 		args = append(args, ad)

@@ -43,12 +43,21 @@ func getRewardRemain(tx *sql.Tx, batch []db.DepositRecord) map[string]uint64 {
 	return pg.QueryRewardRemain(tx, addrs...)
 }
 
+func SaveTellerReq(req int64) {
+	tx, commit := db.BeginTx()
+	defer db.Rollback(tx, &commit)
+	pg.SaveKvStore(tx, tellerReqName, req, "")
+	checkErr(tx.Commit())
+	commit = true
+}
+
 func ProcessDeposit(batch []db.DepositRecord, req int64) {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
 	rewardConfig := config.GetDaemonConfig().RewardConfig
 	rewardRecords := make([]db.RewardRecord, 0, 3*len(batch))
 	remainMap := getRewardRemain(tx, batch)
+	changedRemainMap := make(map[string]uint64, len(remainMap))
 	for _, dr := range batch {
 		mapping, found := pg.QueryMappingDepositAddr(tx, dr.BuyAddr, dr.CurrencyType)
 		if !found {
@@ -69,6 +78,7 @@ func ProcessDeposit(batch []db.DepositRecord, req int64) {
 			}
 			remain := rewardAmount % uint64(rewardConfig.MinSendAmount)
 			remainMap[dr.BuyAddr] = remain
+			changedRemainMap[dr.BuyAddr] = remain
 			rewardRecords = append(rewardRecords, db.RewardRecord{DepositId: dr.Id,
 				Address:    dr.BuyAddr,
 				CalAmount:  rewardAmount,
@@ -82,13 +92,14 @@ func ProcessDeposit(batch []db.DepositRecord, req int64) {
 			}
 			remain = rewardAmount % uint64(rewardConfig.MinSendAmount)
 			remainMap[dr.RefAddr] = remain
+			changedRemainMap[dr.RefAddr] = remain
 			rewardRecords = append(rewardRecords, db.RewardRecord{DepositId: dr.Id,
 				Address:    dr.RefAddr,
 				CalAmount:  rewardAmount,
 				SentAmount: rewardAmount - remain,
 				RewardType: db.RewardPromoter})
 			if len(dr.SuperiorRefAddr) > 0 {
-				//reward promoter
+				//reward superior promoter
 				_, ratio = getPromoterRatio(tx, &rewardConfig, dr.SuperiorRefAddr)
 				rewardAmount = uint64(float64(dr.BuyAmount) * ratio)
 				if rm, ok := remainMap[dr.SuperiorRefAddr]; ok {
@@ -96,6 +107,7 @@ func ProcessDeposit(batch []db.DepositRecord, req int64) {
 				}
 				remain = rewardAmount % uint64(rewardConfig.MinSendAmount)
 				remainMap[dr.SuperiorRefAddr] = remain
+				changedRemainMap[dr.SuperiorRefAddr] = remain
 				rewardRecords = append(rewardRecords, db.RewardRecord{DepositId: dr.Id,
 					Address:    dr.SuperiorRefAddr,
 					CalAmount:  rewardAmount,
@@ -105,7 +117,7 @@ func ProcessDeposit(batch []db.DepositRecord, req int64) {
 		}
 	}
 	pg.SaveBatchRewardRecord(tx, rewardRecords)
-	pg.UpdateRewardRemain(tx, remainMap)
+	pg.UpdateRewardRemain(tx, changedRemainMap)
 	pg.SaveKvStore(tx, tellerReqName, req, "")
 	checkErr(tx.Commit())
 	commit = true

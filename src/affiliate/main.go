@@ -16,6 +16,7 @@ import (
 	"os"
 	"path"
 	"runtime/debug"
+	"sort"
 	"time"
 )
 
@@ -189,6 +190,7 @@ func allCryptocurrency() []db.CryptocurrencyInfo {
 	for _, value := range m {
 		res = append(res, value)
 	}
+	sort.Sort(db.CryptocurrencyInfoSlice(res))
 	return res
 }
 
