@@ -77,7 +77,6 @@ create table REWARD_REMAIN(
 	AMOUNT bigint not null,
 	primary key(ADDRESS)
 );
-alter table REWARD_REMAIN add CONSTRAINT  ADDRESS FOREIGN KEY(ADDRESS) REFERENCES TRACKING_CODE(ADDRESS);
 
 create table KV_STORE(
 	NAME varchar(64) not null,

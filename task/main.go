@@ -45,6 +45,7 @@ func main() {
 	syncCryptocurrency()
 	syncDeposit()
 	sendReward()
+	//	testSendReward()
 }
 
 func syncCryptocurrency() {
@@ -93,4 +94,12 @@ func sendReward() {
 	}
 	client.SendCoin(rrs)
 	service.UpdateBatchRewardRecord(ids...)
+}
+
+func testSendReward() {
+	defer deferFunc()
+	rrs := make([]db.RewardRecord, 0, 4)
+	rrs = append(rrs, db.RewardRecord{Id: 1, Address: "2KSZSEoijudK6R6C4s7rJS9Qt1yfxvKfvao", SentAmount: 1000000})
+	rrs = append(rrs, db.RewardRecord{Id: 2, Address: "2TNbiXocP6PxAD6rULiFkTHgkUoCXpjNttc", SentAmount: 2000000})
+	client.SendCoin(rrs)
 }

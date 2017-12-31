@@ -253,8 +253,7 @@ func getAddrHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(&JsonObj{2, "Teller api error: " + err.Error(), nil})
 		return
 	}
-	data := &struct {
+	json.NewEncoder(w).Encode(&JsonObj{0, "", &struct {
 		DepositAddr string `json:"depositAddr"`
-	}{depositAddr}
-	json.NewEncoder(w).Encode(&JsonObj{0, "", data})
+	}{depositAddr}})
 }

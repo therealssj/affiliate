@@ -3,10 +3,12 @@ package db
 import (
 	"bytes"
 	"database/sql"
+	"database/sql/driver"
 	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/spaco/affiliate/src/config"
 	"strconv"
+	"time"
 )
 
 var db *sql.DB
@@ -54,6 +56,8 @@ func Rollback(tx *sql.Tx, commit *bool) {
 func InClause(count int, first int) string {
 	if count == 1 {
 		return fmt.Sprintf("($%d)", first)
+	} else if count == 0 {
+		panic("count can't be zero")
 	}
 	var buffer bytes.Buffer
 	buffer.WriteString("($")
@@ -65,4 +69,23 @@ func InClause(count int, first int) string {
 	}
 	buffer.WriteString(")")
 	return buffer.String()
+}
+
+type NullTime struct {
+	Time  time.Time
+	Valid bool // Valid is true if Time is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (self *NullTime) Scan(value interface{}) error {
+	self.Time, self.Valid = value.(time.Time)
+	return nil
+}
+
+// Value implements the driver Valuer interface.
+func (self NullTime) Value() (driver.Value, error) {
+	if !self.Valid {
+		return nil, nil
+	}
+	return self.Time, nil
 }

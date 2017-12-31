@@ -1,9 +1,9 @@
 package postgresql
 
 import (
-	"fmt"
 	"testing"
 
+	"github.com/shopspring/decimal"
 	"github.com/spaco/affiliate/src/config"
 	"github.com/spaco/affiliate/src/service/db"
 )
@@ -20,13 +20,13 @@ func TestAddBatchCryptocurrency(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		str := randStringRunes(5)
 		types = append(types, str)
-		sli = append(sli, db.CryptocurrencyInfo{str, str, fmt.Sprintf("%d", i+1), 6})
+		sli = append(sli, db.CryptocurrencyInfo{str, str, decimal.NewFromFloat(float64(i + 1)).String(), 6})
 	}
 	AddBatchCryptocurrency(tx, sli)
 	if len(AllCryptocurrency(tx)) != len(alls)+5 {
 		t.Errorf("Failed. count error")
 	}
-	stmt, err := dbo.Prepare("DELETE FROM ALL_CRYPTOCURRENCY where SHORT_NAME in ($1, $2, $3, $4, $5)")
+	stmt, err := tx.Prepare("DELETE FROM ALL_CRYPTOCURRENCY where SHORT_NAME in ($1, $2, $3, $4, $5)")
 	checkErr(err)
 	_, err = stmt.Exec(types[0], types[1], types[2], types[3], types[4])
 	checkErr(err)
@@ -45,19 +45,19 @@ func TestAddCryptocurrency(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		str := randStringRunes(5)
 		types = append(types, str)
-		sli = append(sli, db.CryptocurrencyInfo{str, str, fmt.Sprintf("%d", i+1), 6})
+		sli = append(sli, db.CryptocurrencyInfo{str, str, decimal.NewFromFloat(float64(i + 1)).String(), 6})
 	}
 	AddBatchCryptocurrency(tx, sli)
 	if len(AllCryptocurrency(tx)) != len(alls)+5 {
 		t.Errorf("Failed. count error")
 	}
 	for i := 0; i < 5; i++ {
-		rate, ok := GetRate(tx, types[i])
-		if !ok || fmt.Sprintf("%d", i+1) != rate {
-			t.Errorf("Failed. rate error")
+		info := GetCryptocurrency(tx, types[i])
+		if info == nil || decimal.NewFromFloat(float64(i+1)).String() != info.Rate {
+			t.Errorf("Failed. rate error, expect:[%s], actual:[%s]", decimal.NewFromFloat(float64(i+1)).String(), info.Rate)
 		}
 	}
-	stmt, err := dbo.Prepare("DELETE FROM ALL_CRYPTOCURRENCY where SHORT_NAME in ($1, $2, $3, $4, $5)")
+	stmt, err := tx.Prepare("DELETE FROM ALL_CRYPTOCURRENCY where SHORT_NAME in ($1, $2, $3, $4, $5)")
 	checkErr(err)
 
 	_, err = stmt.Exec(types[0], types[1], types[2], types[3], types[4])

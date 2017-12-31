@@ -33,7 +33,7 @@ its privacy protection in relation to the current Internet.
 <label style="display:block;">Please Choose Cryptocurrency type:</label>
 {{range .AllCurrency}}
 <label class="radio-inline">
-<input type="radio" id="choice-{{.ShortName}}" name="currencyType" value="{{.ShortName}}">{{.FullName}} (1{{.ShortName}}={{.Rate}} {{$.CoinName}})
+<input type="radio" id="choice-{{.ShortName}}" name="currencyType" value="{{.ShortName}}">{{.FullName}} (1{{.FullName}}={{.Rate}} {{$.CoinName}})
 </label>
 {{end}}
 </div>

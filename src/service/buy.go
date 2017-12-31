@@ -42,8 +42,8 @@ func AddBatchCryptocurrency(batch []db.CryptocurrencyInfo) {
 func MappingDepositAddr(address string, currencyType string, ref string) (string, error) {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
-	buyAddrMapping, found := pg.QueryMappingDepositAddr(tx, address, currencyType)
-	if found {
+	buyAddrMapping := pg.QueryMappingDepositAddr(tx, address, currencyType)
+	if buyAddrMapping != nil {
 		checkErr(tx.Commit())
 		commit = true
 		return buyAddrMapping.DepositAddr, nil
@@ -61,10 +61,10 @@ func MappingDepositAddr(address string, currencyType string, ref string) (string
 func CheckMappingAddr(address string, currencyType string) bool {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
-	_, found := pg.QueryMappingDepositAddr(tx, address, currencyType)
+	mapping := pg.QueryMappingDepositAddr(tx, address, currencyType)
 	checkErr(tx.Commit())
 	commit = true
-	return found
+	return mapping != nil
 }
 
 func QueryDepositRecord(address string, currencyType string) []db.DepositRecord {

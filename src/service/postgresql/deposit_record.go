@@ -6,13 +6,17 @@ import (
 	"time"
 )
 
-func SaveBatchDepositRecord(tx *sql.Tx, batch ...db.DepositRecord) {
+//func SaveBatchDepositRecord(tx *sql.Tx, batch []db.DepositRecord) {
+//	for i, _ := range batch {
+//		SaveDepositRecord(tx, &batch[i])
+//	}
+//}
+
+func SaveDepositRecord(tx *sql.Tx, dr *db.DepositRecord) {
 	var lastInsertId uint64
-	for _, dr := range batch {
-		err := tx.QueryRow("insert into DEPOSIT_RECORD(CREATION,MAPPING_ID,SEQ,UPDATED_AT,TRANSACTION_ID,DEPOSIT_AMOUNT,BUY_AMOUNT,RATE,HEIGHT,BUY_ADDR,CURRENCY_TYPE,REF_ADDR,SUPERIOR_REF_ADDR) values (now(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning id;", dr.MappingId, dr.Seq, time.Unix(dr.UpdatedAt, 0), dr.TransactionId, dr.DepositAmount, dr.BuyAmount, dr.Rate, dr.Height, dr.BuyAddr, dr.CurrencyType, dr.RefAddr, dr.SuperiorRefAddr).Scan(&lastInsertId)
-		checkErr(err)
-		dr.Id = lastInsertId
-	}
+	err := tx.QueryRow("insert into DEPOSIT_RECORD(CREATION,MAPPING_ID,SEQ,UPDATED_AT,TRANSACTION_ID,DEPOSIT_AMOUNT,BUY_AMOUNT,RATE,HEIGHT,BUY_ADDR,CURRENCY_TYPE,REF_ADDR,SUPERIOR_REF_ADDR) values (now(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning ID", dr.MappingId, dr.Seq, dr.UpdatedAt, dr.TransactionId, dr.DepositAmount, dr.BuyAmount, dr.Rate, dr.Height, dr.BuyAddr, dr.CurrencyType, dr.RefAddr, dr.SuperiorRefAddr).Scan(&lastInsertId)
+	checkErr(err)
+	dr.Id = lastInsertId
 }
 
 func buildDepositRecordSlice(rows *sql.Rows) []db.DepositRecord {
@@ -20,9 +24,10 @@ func buildDepositRecordSlice(rows *sql.Rows) []db.DepositRecord {
 	res := make([]db.DepositRecord, 0, 8)
 	for rows.Next() {
 		var id, mappingId, depositAmount, buyAmount, height uint64
+		var updatedAt int64
 		var seq int64
 		var buyAddr, currencyType, refAddr, superiorRefAddr, transactionId, rate string
-		var creation, updatedAt time.Time
+		var creation time.Time
 		err := rows.Scan(&id, &creation, &mappingId, &buyAddr, &currencyType, &refAddr, &superiorRefAddr, &seq, &updatedAt, &transactionId, &depositAmount, &buyAmount, &rate, &height)
 		checkErr(err)
 		res = append(res, db.DepositRecord{Id: id,
@@ -33,7 +38,7 @@ func buildDepositRecordSlice(rows *sql.Rows) []db.DepositRecord {
 			RefAddr:         refAddr,
 			SuperiorRefAddr: superiorRefAddr,
 			Seq:             seq,
-			UpdatedAt:       updatedAt.Unix(),
+			UpdatedAt:       updatedAt,
 			TransactionId:   transactionId,
 			DepositAmount:   depositAmount,
 			BuyAmount:       buyAmount,

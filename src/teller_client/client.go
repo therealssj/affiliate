@@ -18,6 +18,8 @@ import (
 	"time"
 )
 
+const print_req_resp = false
+
 type jsonResp struct {
 	Code   int16           `json:"code"`
 	ErrMsg string          `json:"errmsg"`
@@ -81,7 +83,9 @@ func httpReq(errPanic bool, url string, method string, reqBody io.Reader, conten
 	if resErr := checkErr(err, errPanic); resErr != nil {
 		return nil, resErr
 	}
-	//	fmt.Printf(string(body))
+	if print_req_resp {
+		fmt.Printf(string(body))
+	}
 	return body, nil
 }
 func httpGet(errPanic bool, url string) ([]byte, error) {
@@ -261,6 +265,9 @@ func SendCoin(addrAndAmount []db.RewardRecord) {
 		arr = append(arr, sendCoinInfo{rr.Id, rr.Address, rr.SentAmount})
 	}
 	body, err := json.Marshal(arr)
+	if print_req_resp {
+		fmt.Printf(string(body))
+	}
 	getSendCoinLogger().Println(body)
 	panicErr(err)
 	resp, _ := httpPost(true, "/api/send-coin", body)

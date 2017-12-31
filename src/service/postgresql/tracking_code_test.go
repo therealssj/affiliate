@@ -25,9 +25,9 @@ func randStringRunes(n int) string {
 
 func TestTrackingCodeWithNilRef(t *testing.T) {
 	config := config.GetServerConfig()
-	db := db.OpenDb(&config.Db)
-	defer db.Close()
-	tx, _ := db.Begin()
+	dbo := db.OpenDb(&config.Db)
+	defer dbo.Close()
+	tx, _ := dbo.Begin()
 	defer tx.Rollback()
 	addr := randStringRunes(34)
 	id := GenerateTrackingCode(tx, addr, "")
@@ -73,9 +73,9 @@ func TestTrackingCodeWithNilRef(t *testing.T) {
 
 func TestTrackingCodeWithRef(t *testing.T) {
 	config := config.GetServerConfig()
-	db := db.OpenDb(&config.Db)
-	defer db.Close()
-	tx, _ := db.Begin()
+	dbo := db.OpenDb(&config.Db)
+	defer dbo.Close()
+	tx, _ := dbo.Begin()
 	defer tx.Rollback()
 	addr := randStringRunes(34)
 	refAddr0 := randStringRunes(34)
@@ -101,7 +101,7 @@ func TestTrackingCodeWithRef(t *testing.T) {
 		t.Errorf("Failed. Got blank string: %s.", refAddr2)
 	}
 	//更新数据
-	stmt, err := db.Prepare("DELETE FROM TRACKING_CODE where ADDRESS=$1")
+	stmt, err := tx.Prepare("DELETE FROM TRACKING_CODE where ADDRESS=$1")
 	checkErr(err)
 
 	_, err = stmt.Exec(addr)
