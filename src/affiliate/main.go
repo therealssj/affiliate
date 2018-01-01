@@ -36,7 +36,7 @@ func init() {
 }
 
 func convertUnitPower(val uint64, unitPower int32) string {
-	return decimal.New(int64(val), 1).Div(decimal.New(1, unitPower)).String()
+	return decimal.New(int64(val), 0).Div(decimal.New(1, unitPower)).String()
 }
 
 func convertUnit(val uint64) string {
@@ -78,8 +78,8 @@ func main() {
 	config := config.GetServerConfig()
 	db.OpenDb(&config.Db)
 	defer db.CloseDb()
-	fmt.Printf("Listening on :%d", config.Server.Port)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Server.Port), nil)
+	fmt.Printf("Listening on :%d", config.Server.ListenPort)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Server.ListenPort), nil)
 	if err != nil {
 		println("ListenAndServe Error： %s", err)
 	}
@@ -140,15 +140,16 @@ func myInvitationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	records := service.QueryRewardRecord(addr)
 	if len(records) > 0 {
-		for _, r := range records {
-			r.CalAmountStr = convertUnit(r.CalAmount)
-			r.SentAmountStr = convertUnit(r.SentAmount)
+		for i, _ := range records {
+			records[i].CalAmountStr = convertUnit(records[i].CalAmount)
+			records[i].SentAmountStr = convertUnit(records[i].SentAmount)
 		}
 	}
 	data := &struct {
+		CoinName      string            `json:"coinName"`
 		RewardRecords []db.RewardRecord `json:"records"`
 		RewardRemain  string            `json:"remain"`
-	}{records, convertUnit(service.QueryRewardRemain(addr))}
+	}{config.GetServerConfig().CoinName, records, convertUnit(service.QueryRewardRemain(addr))}
 	json.NewEncoder(w).Encode(&JsonObj{0, "", data})
 }
 
@@ -219,7 +220,8 @@ func checkStatusHandler(w http.ResponseWriter, r *http.Request) {
 			totalDeposit += dr.DepositAmount
 			totalBuy += dr.BuyAmount
 		}
-		data = fmt.Sprintf("found %d deposit, Total amount is %d, buy %d "+config.GetServerConfig().CoinName, len(res), convertOfCurrency(totalDeposit, currencyType), convertUnit(totalBuy))
+		data = fmt.Sprintf("found %d deposit, Total amount is %s, buy %s %s", len(res),
+			convertOfCurrency(totalDeposit, currencyType), convertUnit(totalBuy), config.GetServerConfig().CoinName)
 	} else if service.CheckMappingAddr(addr, currencyType) {
 		status, err := client.Status(addr, currencyType)
 		if err != nil {
@@ -228,8 +230,9 @@ func checkStatusHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if len(status) > 0 {
 			data = fmt.Sprintf("found %d deposit, please waiting for confirm", len(status))
+		} else {
+			data = "Not found deposit record."
 		}
-		data = "Not found deposit record."
 	} else {
 		data = "Not found deposit record."
 	}

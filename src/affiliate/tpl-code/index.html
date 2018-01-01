@@ -38,17 +38,16 @@ its privacy protection in relation to the current Internet.
 <div id="shareUrlDiv" class="alert alert-success" role="alert" style="display:none;">
 <div class="input-group" style="width: 80%;">
 <label for="buyUrl" style="display:block;">Buy skycoin URL:</label>
-<input id="buyUrl" value="" type="text" style="width: 80%;"/>
-<button class="clipboardBtn" data-clipboard-target="#buyUrl">
-		<img src="/s/svg/clippy.svg" alt="Copy to clipboard" width="13">
+<input id="buyUrl" value="" type="text" style="width: 80%;"/><button 
+class="clipboardBtn btn btn-default" data-clipboard-target="#buyUrl" data-toggle="tooltip" data-placement="right" title="Copy to clipboard"><img 
+src="/s/svg/clippy.svg" alt="Copy to clipboard" width="14">
 </button>
 </div>
 <div class="input-group" style="width: 80%;">
 <label for="joinUrl" style="display:block;">Join affiliate program URL:</label>
-<input id="joinUrl" value="" type="text" style="width: 80%;"/>
-<button class="clipboardBtn" data-clipboard-target="#joinUrl">
-		<img src="/s/svg/clippy.svg" alt="Copy to clipboard" width="13">
-</button>
+<input id="joinUrl" value="" type="text" style="width: 80%;"/><button 
+class="clipboardBtn btn btn-default" data-clipboard-target="#joinUrl" data-toggle="tooltip" data-placement="right" title="Copy to clipboard"><img 
+src="/s/svg/clippy.svg" alt="Copy to clipboard" width="14"></button>
 </div>
 </div>
 <div id="myInvitationDiv" class="alert alert-success" role="alert" style="display:none;">
@@ -58,15 +57,15 @@ its privacy protection in relation to the current Internet.
 <span>got [[:records.length]] times reward.</span>
 [[if records.length>0]]
 <table class="table">
-	<caption>Remain [[:remain]]</caption>
+	<caption>Remain [[:remain]] [[:coinName]]</caption>
 	<thead>
-	<tr> <th>#</th> <th>Reward Amount</th> <th>Sent Amount</th>
-		 <th>Sent</th> <th>Sent Time</th> <th>Reward Type</th> </tr>
+	<tr> <th>#</th> <th>Reward</th> <th>Send</th>
+		 <th>Status</th> <th>Time</th> <th>Type</th> </tr>
 	</thead> 
 	<tbody> 
 	[[for records]]
 	<tr> <th scope="row">r[[:id]]</th> <td>[[:rewardAmount]]</td> <td>[[:sentAmount]]</td>
-		 <td>[[if sent]] done [[else]] waiting [[/if]]</td><td>[[:sentTime]]</td><td>[[:type]]</td> </tr>
+		 <td>[[if sent]] done [[else sentAmount=='0']] remain [[else]] waiting [[/if]]</td><td>[[if sent]][[:sentTime]][[/if]]</td><td>[[:type]]</td> </tr>
 	[[/for]]
 	</tbody> 
 	</table>
@@ -78,15 +77,17 @@ its privacy protection in relation to the current Internet.
 <script src="/s/clipboard.js"></script>
 <script>
 var clipboard = new Clipboard('.clipboardBtn');
-//clipboard.on('success',function(e){
-//showTooltip(e.trigger,'Copied!');
-//});
-//clipboard.on('error',function(e){
-//showTooltip(e.trigger,fallbackMessage(e.action));
-//});
+clipboard.on('success',function(e){
+	showTooltip(e.trigger,'Copied!');
+});
+clipboard.on('error',function(e){
+	showTooltip(e.trigger,fallbackMessage(e.action));
+});
 function showTooltip(elem,msg){
-	elem.setAttribute('class','btn tooltipped tooltipped-s');
-	elem.setAttribute('aria-label',msg);
+	$(elem).tooltip('hide')
+    .attr('data-original-title', msg)
+    .tooltip('fixTitle')
+    .tooltip('show');
 }
 function fallbackMessage(action){
 	var actionMsg='';
@@ -102,7 +103,7 @@ function fallbackMessage(action){
 }
 function validate(form){
 	if(!form.elements['address'].value){
-		alert('请输入地址');
+		alert('please input wallet address');
 		return false;
 	}
 	return true
@@ -123,11 +124,12 @@ function generate(){
 				$('#buyUrl').attr("readonly","readonly");
 				$('#joinUrl').attr("readonly","readonly");
 				$('#shareUrlDiv').show();
+				$("[data-toggle='tooltip']").tooltip(); 
 			}else{
 				alert(obj.errmsg);
 			}
 		}else{
-			alert("出现错误"); 		
+			alert("error"); 		
 		}
 		}});
 }
@@ -147,7 +149,7 @@ function myInvitation(){
 				alert(obj.errmsg);
 			}
 		}else{
-			alert("出现错误"); 		
+			alert("error"); 		
 		}
 		}});
 }

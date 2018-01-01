@@ -26,7 +26,7 @@ func TestDepositRecord(t *testing.T) {
 	if mappingId < 1 {
 		t.Errorf("Failed. SaveDepositAddrMapping error")
 	}
-	dr := db.DepositRecord{MappingId: mappingId, Seq: 1, UpdatedAt: time.Now().Unix(), TransactionId: "testTransactionId", DepositAmount: 100, BuyAmount: 10000, Rate: "100", Height: 101, CurrencyType: currencyType, DepositAddr: "testDepositAddr", BuyAddr: "testBuyAddr", SuperiorRefAddr: "testSuperiorRefAddr", RefAddr: "testRefAddr"}
+	dr := db.DepositRecord{MappingId: mappingId, Seq: 100000000000, UpdatedAt: time.Now().Unix(), TransactionId: "testTransactionId", DepositAmount: 100, BuyAmount: 10000, Rate: "100", Height: 101, CurrencyType: currencyType, DepositAddr: "testDepositAddr", BuyAddr: "testBuyAddr", SuperiorRefAddr: "testSuperiorRefAddr", RefAddr: "testRefAddr"}
 	SaveDepositRecord(tx, &dr)
 	depositId := dr.Id
 	if depositId < 1 {

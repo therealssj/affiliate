@@ -45,9 +45,9 @@ its privacy protection in relation to the current Internet.
 <div id="depositAddrDiv" class="alert alert-success" role="alert" style="display:none;">
 <div class="input-group" style="width: 80%;">
 <label for="depositAddr" style="display:block;">Deposit Address:</label>
-<input id="depositAddr" value="" type="text" style="width: 80%;"/>
-<button class="clipboardBtn" data-clipboard-target="#depositAddr">
-		<img src="/s/svg/clippy.svg" alt="Copy to clipboard" width="13">
+<input id="depositAddr" value="" type="text" style="width: 80%;"/><button 
+class="clipboardBtn" data-clipboard-target="#depositAddr" data-toggle="tooltip" data-placement="right" title="Copy to clipboard"><img 
+src="/s/svg/clippy.svg" alt="Copy to clipboard" width="13">
 </button>
 </div>
 </div>
@@ -60,15 +60,18 @@ its privacy protection in relation to the current Internet.
 <script src="/s/clipboard.js"></script>
 <script>
 var clipboard = new Clipboard('.clipboardBtn');
-//clipboard.on('success',function(e){
-//showTooltip(e.trigger,'Copied!');
-//});
-//clipboard.on('error',function(e){
-//showTooltip(e.trigger,fallbackMessage(e.action));
-//});
+var clipboard = new Clipboard('.clipboardBtn');
+clipboard.on('success',function(e){
+	showTooltip(e.trigger,'Copied!');
+});
+clipboard.on('error',function(e){
+	showTooltip(e.trigger,fallbackMessage(e.action));
+});
 function showTooltip(elem,msg){
-	elem.setAttribute('class','btn tooltipped tooltipped-s');
-	elem.setAttribute('aria-label',msg);
+	$(elem).tooltip('hide')
+    .attr('data-original-title', msg)
+    .tooltip('fixTitle')
+    .tooltip('show');
 }
 function fallbackMessage(action){
 	var actionMsg='';
@@ -84,7 +87,7 @@ function fallbackMessage(action){
 }
 function validate(form){
 	if(!form.elements['address'].value){
-    	alert('请输入地址');
+    	alert('please input wallet address');
     	return false;
     }
     var radios = form.elements['currencyType'];
@@ -96,7 +99,7 @@ function validate(form){
      }
     }
     if(!valid){
-    	alert('请选择数字货币类型。');
+    	alert('please choose Cryptocurrency type');
     	return false;
     }
 	return true
@@ -113,11 +116,12 @@ function getAddress(){
 				$('#depositAddr').val(obj.data.depositAddr);
 				$('#depositAddr').attr("readonly","readonly");
     			$('#depositAddrDiv').show();
+    			$("[data-toggle='tooltip']").tooltip(); 
     		}else{
     			alert(obj.errmsg);
     		}
     	}else{
-    		alert("出现错误"); 		
+    		alert("error"); 		
     	}
       }});
 }
@@ -135,7 +139,7 @@ function checkStatus(){
     			alert(obj.errmsg);
     		}
     	}else{
-    		alert("出现错误"); 		
+    		alert("error"); 		
     	}
       }});
 }

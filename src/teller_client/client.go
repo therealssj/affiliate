@@ -163,6 +163,9 @@ type DepositResp struct {
 }
 
 func Deposite(req int64) *DepositResp {
+	if print_req_resp {
+		fmt.Printf("seq:%d", req)
+	}
 	resp, _ := httpGet(true, fmt.Sprintf("/api/deposits?seq=%d", req))
 	//	resp, _ := httpPost(true, "/api/deposits", []byte(fmt.Sprintf(`{"req":"%d"}`, req)))
 	jsonObj := new(jsonResp)
@@ -175,8 +178,8 @@ func Deposite(req int64) *DepositResp {
 	err = json.Unmarshal(jsonObj.Data, &res)
 	panicErr(err)
 	if len(res.Deposits) > 0 {
-		for _, dr := range res.Deposits {
-			dr.Rate = decimal.NewFromFloat(dr.RateFloat).String()
+		for i, _ := range res.Deposits {
+			res.Deposits[i].Rate = decimal.NewFromFloat(res.Deposits[i].RateFloat).String()
 		}
 	}
 	return res
@@ -268,7 +271,7 @@ func SendCoin(addrAndAmount []db.RewardRecord) {
 	if print_req_resp {
 		fmt.Printf(string(body))
 	}
-	getSendCoinLogger().Println(body)
+	getSendCoinLogger().Println(string(body))
 	panicErr(err)
 	resp, _ := httpPost(true, "/api/send-coin", body)
 	jsonObj := new(jsonResp)

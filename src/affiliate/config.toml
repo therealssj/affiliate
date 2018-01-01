@@ -1,5 +1,2 @@
 CoinName="Spo Token"
 
-[Server]
-Port=8000
-Domain="localhost"

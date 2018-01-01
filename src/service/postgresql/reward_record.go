@@ -63,7 +63,8 @@ func QueryRewardRecord(tx *sql.Tx, address string) []db.RewardRecord {
 	for rows.Next() {
 		var id, depositId, calAmount, sentAmount uint64
 		var address, rewardType string
-		var creation, sentTime time.Time
+		var creation time.Time
+		var sentTime db.Time
 		var sentTimeNullable db.NullTime
 		var sent bool
 		err = rows.Scan(&id, &creation, &depositId, &address, &calAmount, &sentAmount, &sentTimeNullable, &sent, &rewardType)

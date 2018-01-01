@@ -59,7 +59,7 @@ type RewardRecord struct {
 	CalAmountStr  string    `json:"rewardAmount"`
 	SentAmount    uint64    `json:"-"`
 	SentAmountStr string    `json:"sentAmount"`
-	SentTime      time.Time `json:"sentTime"`
+	SentTime      Time      `json:"sentTime"`
 	Sent          bool      `json:"sent"`
 	RewardType    string    `json:"type"`
 }

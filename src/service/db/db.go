@@ -71,14 +71,40 @@ func InClause(count int, first int) string {
 	return buffer.String()
 }
 
+type Time time.Time
+
+const (
+	timeFormart = "2006-01-02 15:04:05"
+)
+
+func (self *Time) UnmarshalJSON(data []byte) (err error) {
+	now, err := time.ParseInLocation(`"`+timeFormart+`"`, string(data), time.Local)
+	*self = Time(now)
+	return
+}
+
+func (self Time) MarshalJSON() ([]byte, error) {
+	b := make([]byte, 0, len(timeFormart)+2)
+	b = append(b, '"')
+	b = time.Time(self).AppendFormat(b, timeFormart)
+	b = append(b, '"')
+	return b, nil
+}
+
+func (self Time) String() string {
+	return time.Time(self).Format(timeFormart)
+}
+
 type NullTime struct {
-	Time  time.Time
+	Time  Time
 	Valid bool // Valid is true if Time is not NULL
 }
 
 // Scan implements the Scanner interface.
 func (self *NullTime) Scan(value interface{}) error {
-	self.Time, self.Valid = value.(time.Time)
+	var t time.Time
+	t, self.Valid = value.(time.Time)
+	self.Time = Time(t)
 	return nil
 }
 

@@ -30,13 +30,24 @@ func GetTellerReq() int64 {
 	return intVal
 }
 
-func getRewardRemain(tx *sql.Tx, batch []db.DepositRecord) map[string]uint64 {
+func fillAndGetRewardRemain(tx *sql.Tx, batch []db.DepositRecord) map[string]uint64 {
 	addrs := make([]string, 0, 2*len(batch))
-	for _, dr := range batch {
-		if len(dr.RefAddr) > 0 {
-			addrs = append(addrs, dr.BuyAddr, dr.RefAddr)
-			if len(dr.SuperiorRefAddr) > 0 {
-				addrs = append(addrs, dr.SuperiorRefAddr)
+	for i, _ := range batch {
+		dr := &(batch[i])
+		mapping := pg.QueryMappingDepositAddr(tx, dr.BuyAddr, dr.CurrencyType)
+		if mapping == nil {
+			panic(fmt.Sprintf("not found BuyAddrMapping for address:%s CurrencyType:%s", dr.BuyAddr, dr.CurrencyType))
+		}
+		dr.MappingId = mapping.Id
+		if len(mapping.Ref) > 0 {
+			if id := tracking_code.GetId(mapping.Ref); id > 0 {
+				dr.RefAddr, dr.SuperiorRefAddr = pg.GetAddrById(tx, id)
+				if len(dr.RefAddr) > 0 {
+					addrs = append(addrs, dr.BuyAddr, dr.RefAddr)
+					if len(dr.SuperiorRefAddr) > 0 {
+						addrs = append(addrs, dr.SuperiorRefAddr)
+					}
+				}
 			}
 		}
 	}
@@ -59,19 +70,9 @@ func ProcessDeposit(batch []db.DepositRecord, req int64) {
 	rewardRecords := make([]db.RewardRecord, 0, 3*len(batch))
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
-	remainMap := getRewardRemain(tx, batch)
+	remainMap := fillAndGetRewardRemain(tx, batch)
 	changedRemainMap := make(map[string]uint64, len(remainMap))
 	for _, dr := range batch {
-		mapping := pg.QueryMappingDepositAddr(tx, dr.BuyAddr, dr.CurrencyType)
-		if mapping == nil {
-			panic(fmt.Sprintf("not found BuyAddrMapping for address:%s CurrencyType:%s", dr.BuyAddr, dr.CurrencyType))
-		}
-		dr.MappingId = mapping.Id
-		if len(mapping.Ref) > 0 {
-			if id := tracking_code.GetId(mapping.Ref); id > 0 {
-				dr.RefAddr, dr.SuperiorRefAddr = pg.GetAddrById(tx, id)
-			}
-		}
 		pg.SaveDepositRecord(tx, &dr)
 		if len(dr.RefAddr) > 0 {
 			rewardRecords = append(rewardRecords, buildBuyerRewardRecord(tx, &dr, &rewardConfig, remainMap, changedRemainMap))
