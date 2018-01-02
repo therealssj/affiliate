@@ -90,7 +90,10 @@ func serveFileHandler(w http.ResponseWriter, r *http.Request) {
 }
 func codeHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	renderCodeTemplate(w, "index", struct{ Ref string }{Ref: r.FormValue("ref")})
+	renderCodeTemplate(w, "index", struct {
+		CoinName string
+		Ref      string
+	}{config.GetServerConfig().CoinName, r.FormValue("ref")})
 }
 
 type JsonObj struct {
