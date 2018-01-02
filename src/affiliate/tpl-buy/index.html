@@ -60,7 +60,6 @@ src="/s/svg/clippy.svg" alt="Copy to clipboard" width="13">
 <script src="/s/clipboard.js"></script>
 <script>
 var clipboard = new Clipboard('.clipboardBtn');
-var clipboard = new Clipboard('.clipboardBtn');
 clipboard.on('success',function(e){
 	showTooltip(e.trigger,'Copied!');
 });
@@ -87,7 +86,7 @@ function fallbackMessage(action){
 }
 function validate(form){
 	if(!form.elements['address'].value){
-    	alert('please input wallet address');
+    	alert('Please input wallet address');
     	return false;
     }
     var radios = form.elements['currencyType'];
@@ -99,7 +98,7 @@ function validate(form){
      }
     }
     if(!valid){
-    	alert('please choose Cryptocurrency type');
+    	alert('Please choose cryptocurrency type');
     	return false;
     }
 	return true
