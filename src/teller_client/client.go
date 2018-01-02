@@ -149,11 +149,35 @@ func Rate() []db.CryptocurrencyInfo {
 	rResp := new(rateResp)
 	err = json.Unmarshal(jsonObj.Data, &rResp)
 	panicErr(err)
-	res := make([]db.CryptocurrencyInfo, 0, 16)
+	res := make([]db.CryptocurrencyInfo, 0, len(rResp.AllCoin))
 	for _, coin := range rResp.AllCoin {
 		res = append(res, db.CryptocurrencyInfo{coin.Name, coin.Code, decimal.NewFromFloat(coin.Rate).String(), coin.UnitPower})
 	}
 	return res
+}
+
+func RateWithErr() ([]db.CryptocurrencyInfo, error) {
+	resp, err := httpGet(false, "/api/rate?tokenType=all")
+	if err != nil {
+		return nil, err
+	}
+	jsonObj := new(jsonResp)
+	err = json.Unmarshal(resp, &jsonObj)
+	if err != nil {
+		return nil, err
+	} else if jsonObj.Code != 0 {
+		return nil, errors.New((fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code)))
+	}
+	rResp := new(rateResp)
+	err = json.Unmarshal(jsonObj.Data, &rResp)
+	if err != nil {
+		return nil, err
+	}
+	slice := make([]db.CryptocurrencyInfo, 0, len(rResp.AllCoin))
+	for _, coin := range rResp.AllCoin {
+		slice = append(slice, db.CryptocurrencyInfo{coin.Name, coin.Code, decimal.NewFromFloat(coin.Rate).String(), coin.UnitPower})
+	}
+	return slice, nil
 }
 
 type DepositResp struct {
@@ -263,11 +287,11 @@ type sendCoinInfo struct {
 }
 
 func SendCoin(addrAndAmount []db.RewardRecord) {
-	arr := make([]sendCoinInfo, 0, len(addrAndAmount))
+	slice := make([]sendCoinInfo, 0, len(addrAndAmount))
 	for _, rr := range addrAndAmount {
-		arr = append(arr, sendCoinInfo{rr.Id, rr.Address, rr.SentAmount})
+		slice = append(slice, sendCoinInfo{rr.Id, rr.Address, rr.SentAmount})
 	}
-	body, err := json.Marshal(arr)
+	body, err := json.Marshal(slice)
 	if print_req_resp {
 		fmt.Printf(string(body))
 	}

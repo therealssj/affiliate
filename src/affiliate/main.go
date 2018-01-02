@@ -68,6 +68,7 @@ func main() {
 	http.HandleFunc("/", buyHandler)
 	http.HandleFunc("/get-address/", getAddrHandler)
 	http.HandleFunc("/check-status/", checkStatusHandler)
+	http.HandleFunc("/get-rate/", getRateHandler)
 	http.HandleFunc("/code/", codeHandler)
 	http.HandleFunc("/code/generate/", generateHandler)
 	http.HandleFunc("/code/my-invitation/", myInvitationHandler)
@@ -180,22 +181,30 @@ var allCryptocurrencyMap map[string]db.CryptocurrencyInfo
 var allCurrencyMapLastUpdated int64
 
 func getAllCryptocurrencyMap() map[string]db.CryptocurrencyInfo {
-	if allCryptocurrencyMap == nil || len(allCryptocurrencyMap) == 0 || time.Now().Unix()-allCurrencyMapLastUpdated > 3600 {
-		allCryptocurrencyMap = service.AllCryptocurrencyMap()
-		allCurrencyMapLastUpdated = time.Now().Unix()
-		return allCryptocurrencyMap
+	if allCryptocurrencyMap == nil || len(allCryptocurrencyMap) == 0 || time.Now().Unix()-allCurrencyMapLastUpdated > 120 {
+		allCryptocurrency()
 	}
 	return allCryptocurrencyMap
 }
 
-func allCryptocurrency() []db.CryptocurrencyInfo {
-	m := getAllCryptocurrencyMap()
-	res := make([]db.CryptocurrencyInfo, 0, len(m))
-	for _, value := range m {
-		res = append(res, value)
+func setAllCryptocurrencyMap(slice []db.CryptocurrencyInfo) {
+	m := make(map[string]db.CryptocurrencyInfo, len(slice))
+	for _, info := range slice {
+		m[info.ShortName] = info
 	}
-	sort.Sort(db.CryptocurrencyInfoSlice(res))
-	return res
+	allCryptocurrencyMap = m
+	allCurrencyMapLastUpdated = time.Now().Unix()
+}
+
+func allCryptocurrency() []db.CryptocurrencyInfo {
+	slice, err := client.RateWithErr()
+	if err != nil {
+		logger.Printf("client.RateWithErr() err: %s", err)
+		slice = service.AllCryptocurrency()
+	}
+	setAllCryptocurrencyMap(slice)
+	sort.Sort(db.CryptocurrencyInfoSlice(slice))
+	return slice
 }
 
 func buyHandler(w http.ResponseWriter, r *http.Request) {
@@ -262,4 +271,8 @@ func getAddrHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&JsonObj{0, "", &struct {
 		DepositAddr string `json:"depositAddr"`
 	}{depositAddr}})
+}
+
+func getRateHandler(w http.ResponseWriter, r *http.Request) {
+	json.NewEncoder(w).Encode(&JsonObj{0, "", allCryptocurrency()})
 }

@@ -5,10 +5,10 @@ import (
 )
 
 type CryptocurrencyInfo struct {
-	ShortName string
-	FullName  string
-	Rate      string
-	UnitPower int32
+	ShortName string `json:"code"`
+	FullName  string `json:"-"`
+	Rate      string `json:"rate"`
+	UnitPower int32  `json:"-"`
 }
 type CryptocurrencyInfoSlice []CryptocurrencyInfo
 

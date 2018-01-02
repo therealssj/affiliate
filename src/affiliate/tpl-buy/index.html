@@ -26,14 +26,14 @@ its privacy protection in relation to the current Internet.
 <form method="POST" name="form" action="" role="form">
 <input type="hidden" name="ref" value="{{.Ref}}"/>
 <div class="form-group">
-<label for="address">Please Input your wallet address:</label>
-<input type="text" name="address" value="" id="address" class="form-control" placeholder="wallet address" size="60" max-length="60"/>
+<label for="address">Please input your wallet address:</label>
+<input type="text" name="address" value="" id="address" class="form-control" placeholder="wallet address" size="60" maxlength="60"/>
 </div>
 <div class="form-group">
-<label style="display:block;">Please Choose Cryptocurrency type:</label>
+<label style="display:block;">Please choose cryptocurrency type:</label>
 {{range .AllCurrency}}
 <label class="radio-inline">
-<input type="radio" id="choice-{{.ShortName}}" name="currencyType" value="{{.ShortName}}">{{.FullName}} (1{{.FullName}}={{.Rate}} {{$.CoinName}})
+<input type="radio" id="choice-{{.ShortName}}" name="currencyType" value="{{.ShortName}}">{{.FullName}} (1{{.FullName}}=<span id="rate-{{.ShortName}}">{{.Rate}}</span> {{$.CoinName}})
 </label>
 {{end}}
 </div>
@@ -143,6 +143,25 @@ function checkStatus(){
     	}
       }});
 }
+
+window.setInterval(function(){
+	$.ajax({ url: './get-rate/', method: 'POST',  dataType: 'json', success: function(obj){
+    	if(obj){
+    		if(obj.code===0){
+    			for(var i=0;i<obj.data.length;i++){
+    				var node = $('#rate-'+obj.data[i].code);
+    				if(node&&obj.data[i].rate!=node.text()){
+						node.text(obj.data[i].rate);  					
+    				}
+    			}
+    		}else{
+    			console.log(obj.errmsg);
+    		}
+    	}else{
+    		console.log("error"); 		
+    	}
+      }});
+},60000)
 </script>
 </body>
 </html>
