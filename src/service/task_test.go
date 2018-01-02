@@ -2,7 +2,7 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
+	//	"fmt"
 	"github.com/spaco/affiliate/src/config"
 	"github.com/spaco/affiliate/src/service/db"
 	"testing"
@@ -49,8 +49,8 @@ func TestBuildRewardRecord(t *testing.T) {
 	if len(changedRemainMap) != 3 {
 		t.Errorf("Failed. Got len(changedRemainMap)=%d, expected %d", len(changedRemainMap), 3)
 	}
-	fmt.Println(rewardRecords)
-	fmt.Println(changedRemainMap)
+	//	fmt.Println(rewardRecords)
+	//	fmt.Println(changedRemainMap)
 	rewardConfig.BuyerRate = 0.2
 	rewardConfig.PromoterRatio = []float64{0.5, 0.7}
 	rewardConfig.SuperiorPromoterRatio = []float64{0.3, 0.5}
@@ -85,6 +85,76 @@ func TestBuildRewardRecord(t *testing.T) {
 	if len(changedRemainMap) != 3 {
 		t.Errorf("Failed. Got len(changedRemainMap)=%d, expected %d", len(changedRemainMap), 3)
 	}
-	fmt.Println(rewardRecords)
-	fmt.Println(changedRemainMap)
+	//	fmt.Println(rewardRecords)
+	//	fmt.Println(changedRemainMap)
+}
+
+func TestGetPromoterRatioBySalesVolume(t *testing.T) {
+	rewardConfig := config.RewardConfig{}
+	rewardConfig.BuyerRate = 0.2
+	rewardConfig.LadderLine = []int{0, 1000}
+	rewardConfig.PromoterRatio = []float64{0.5, 0.7}
+	rewardConfig.SuperiorPromoterRatio = []float64{0.3, 0.5}
+	pr, spr := getPromoterRatioBySalesVolume(&rewardConfig, 0)
+	if pr != 0.5 || spr != 0.3 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 999)
+	if pr != 0.5 || spr != 0.3 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 1000)
+	if pr != 0.7 || spr != 0.5 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 1001)
+	if pr != 0.7 || spr != 0.5 {
+		t.Errorf("Failed.")
+	}
+	rewardConfig.LadderLine = []int{0}
+	rewardConfig.PromoterRatio = []float64{0.2}
+	rewardConfig.SuperiorPromoterRatio = []float64{0.1}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 0)
+	if pr != 0.2 || spr != 0.1 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 999)
+	if pr != 0.2 || spr != 0.1 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
+	rewardConfig.LadderLine = []int{0, 100, 10000}
+	rewardConfig.PromoterRatio = []float64{0.2, 0.4, 0.6}
+	rewardConfig.SuperiorPromoterRatio = []float64{0.1, 0.3, 0.5}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 0)
+	if pr != 0.2 || spr != 0.1 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 1)
+	if pr != 0.2 || spr != 0.1 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 99)
+	if pr != 0.2 || spr != 0.1 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 100)
+	if pr != 0.4 || spr != 0.3 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 101)
+	if pr != 0.4 || spr != 0.3 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 9999)
+	if pr != 0.4 || spr != 0.3 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 10000)
+	if pr != 0.6 || spr != 0.5 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 10001)
+	if pr != 0.6 || spr != 0.5 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
 }

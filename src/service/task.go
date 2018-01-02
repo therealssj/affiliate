@@ -146,6 +146,10 @@ func buildSuperiorPromoterRewardRecord(tx *sql.Tx, dr *db.DepositRecord, rewardC
 
 func getPromoterRatio(tx *sql.Tx, rewardConfig *config.RewardConfig, address string) (float64, float64) {
 	sv := pg.SumSalesVolume(tx, address, rewardConfig.SuperiorDiscount)
+	return getPromoterRatioBySalesVolume(rewardConfig, sv)
+}
+
+func getPromoterRatioBySalesVolume(rewardConfig *config.RewardConfig, sv uint64) (float64, float64) {
 	i := len(rewardConfig.LadderLine) - 1
 	for ; i >= 0; i-- {
 		if sv >= uint64(rewardConfig.LadderLine[i]) {
