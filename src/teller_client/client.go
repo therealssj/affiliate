@@ -10,12 +10,13 @@ import (
 	"log"
 	//	"math/rand"
 	"crypto/md5"
-	"github.com/shopspring/decimal"
-	"github.com/spaco/affiliate/src/config"
-	"github.com/spaco/affiliate/src/service/db"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/shopspring/decimal"
+	"github.com/spaco/affiliate/src/config"
+	"github.com/spaco/affiliate/src/service/db"
 )
 
 const print_req_resp = false

@@ -3,9 +3,10 @@ package service
 import (
 	"encoding/json"
 	//	"fmt"
+	"testing"
+
 	"github.com/spaco/affiliate/src/config"
 	"github.com/spaco/affiliate/src/service/db"
-	"testing"
 )
 
 func TestBuildRewardRecord(t *testing.T) {
@@ -155,6 +156,13 @@ func TestGetPromoterRatioBySalesVolume(t *testing.T) {
 	}
 	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 10001)
 	if pr != 0.6 || spr != 0.5 {
+		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
+	}
+	rewardConfig.LadderLine = []int{10, 100, 10000}
+	rewardConfig.PromoterRatio = []float64{0.2, 0.4, 0.6}
+	rewardConfig.SuperiorPromoterRatio = []float64{0.1, 0.3, 0.5}
+	pr, spr = getPromoterRatioBySalesVolume(&rewardConfig, 5)
+	if pr != 0.2 || spr != 0.1 {
 		t.Errorf("Failed.pr:%g,spr:%g", pr, spr)
 	}
 }

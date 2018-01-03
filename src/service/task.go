@@ -34,6 +34,9 @@ func fillAndGetRewardRemain(tx *sql.Tx, batch []db.DepositRecord) map[string]uin
 	addrs := make([]string, 0, 2*len(batch))
 	for i, _ := range batch {
 		dr := &(batch[i])
+		if dr.CurrencyType == "Deprecated" || dr.Seq < 183 {
+			continue
+		}
 		mapping := pg.QueryMappingDepositAddr(tx, dr.BuyAddr, dr.CurrencyType)
 		if mapping == nil {
 			panic(fmt.Sprintf("not found BuyAddrMapping for address:%s CurrencyType:%s", dr.BuyAddr, dr.CurrencyType))
@@ -73,6 +76,9 @@ func ProcessDeposit(batch []db.DepositRecord, req int64) {
 	remainMap := fillAndGetRewardRemain(tx, batch)
 	changedRemainMap := make(map[string]uint64, len(remainMap))
 	for _, dr := range batch {
+		if dr.CurrencyType == "Deprecated" || dr.Seq < 183 {
+			continue
+		}
 		pg.SaveDepositRecord(tx, &dr)
 		if len(dr.RefAddr) > 0 {
 			rewardRecords = append(rewardRecords, buildBuyerRewardRecord(tx, &dr, &rewardConfig, remainMap, changedRemainMap))
@@ -155,6 +161,9 @@ func getPromoterRatioBySalesVolume(rewardConfig *config.RewardConfig, sv uint64)
 		if sv >= uint64(rewardConfig.LadderLine[i]) {
 			break
 		}
+	}
+	if i < 0 {
+		i = 0
 	}
 	return rewardConfig.PromoterRatio[i], rewardConfig.SuperiorPromoterRatio[i]
 }
