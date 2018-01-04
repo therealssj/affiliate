@@ -75,3 +75,19 @@ func QueryDepositRecord(address string, currencyType string) []db.DepositRecord 
 	commit = true
 	return res
 }
+
+func SyncCryptocurrency(slice []db.CryptocurrencyInfo) {
+	currencyMap := AllCryptocurrencyMap()
+	newCurrency := make([]db.CryptocurrencyInfo, 0, 4)
+	updateRateCur := make([]db.CryptocurrencyInfo, 0, 4)
+	for _, info := range slice {
+		if old, ok := currencyMap[info.ShortName]; ok {
+			if old.Rate != info.Rate {
+				updateRateCur = append(updateRateCur, info)
+			}
+		} else {
+			newCurrency = append(newCurrency, info)
+		}
+	}
+	syncCryptocurrency(newCurrency, updateRateCur)
+}

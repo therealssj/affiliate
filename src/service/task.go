@@ -10,7 +10,7 @@ import (
 	"github.com/spaco/affiliate/src/tracking_code"
 )
 
-func SyncCryptocurrency(newCurrency []db.CryptocurrencyInfo, updateRateCur []db.CryptocurrencyInfo) {
+func syncCryptocurrency(newCurrency []db.CryptocurrencyInfo, updateRateCur []db.CryptocurrencyInfo) {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
 	pg.AddBatchCryptocurrency(tx, newCurrency)

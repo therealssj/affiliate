@@ -3,13 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/shopspring/decimal"
-	"github.com/skycoin/skycoin/src/cipher"
-	"github.com/spaco/affiliate/src/config"
-	"github.com/spaco/affiliate/src/service"
-	"github.com/spaco/affiliate/src/service/db"
-	client "github.com/spaco/affiliate/src/teller_client"
-	"github.com/spaco/affiliate/src/tracking_code"
 	"html/template"
 	"log"
 	"net/http"
@@ -17,7 +10,15 @@ import (
 	"path"
 	"runtime/debug"
 	"sort"
-	"time"
+
+	"github.com/robfig/cron"
+	"github.com/shopspring/decimal"
+	"github.com/skycoin/skycoin/src/cipher"
+	"github.com/spaco/affiliate/src/config"
+	"github.com/spaco/affiliate/src/service"
+	"github.com/spaco/affiliate/src/service/db"
+	client "github.com/spaco/affiliate/src/teller_client"
+	"github.com/spaco/affiliate/src/tracking_code"
 )
 
 func checkErr(err error) {
@@ -65,6 +66,10 @@ func main() {
 			logger.Println(debug.Stack())
 		}
 	}()
+	c := cron.New()
+	c.AddFunc("0 * * * * *", updateAllCryptocurrencySlice)
+	c.AddFunc("10,20,30,40,50 40-42 11 * * *", updateAllCryptocurrencySlice)
+	c.Start()
 	http.HandleFunc("/", buyHandler)
 	http.HandleFunc("/get-address/", getAddrHandler)
 	http.HandleFunc("/check-status/", checkStatusHandler)
@@ -84,6 +89,7 @@ func main() {
 	if err != nil {
 		println("ListenAndServe Error： %s", err)
 	}
+	c.Start()
 }
 func serveFileHandler(w http.ResponseWriter, r *http.Request) {
 	fname := path.Base(r.URL.Path)
@@ -177,26 +183,34 @@ func renderBuyTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 
 }
 
-var allCryptocurrencyMap map[string]db.CryptocurrencyInfo
-var allCurrencyMapLastUpdated int64
+var allCryptocurrencySlice []db.CryptocurrencyInfo
+
+func updateAllCryptocurrencySlice() {
+	slice, err := client.RateWithErr()
+	if err != nil {
+		logger.Printf("client.RateWithErr() err: %s", err)
+		slice = service.AllCryptocurrency()
+	} else {
+		service.SyncCryptocurrency(slice)
+	}
+	sort.Sort(db.CryptocurrencyInfoSlice(slice))
+	allCryptocurrencySlice = slice
+}
 
 func getAllCryptocurrencyMap() map[string]db.CryptocurrencyInfo {
-	if allCryptocurrencyMap == nil || len(allCryptocurrencyMap) == 0 || time.Now().Unix()-allCurrencyMapLastUpdated > 60 {
-		allCryptocurrencyMap = service.AllCryptocurrencyMap()
-		allCurrencyMapLastUpdated = time.Now().Unix()
-		return allCryptocurrencyMap
+	slice := allCryptocurrency()
+	m := make(map[string]db.CryptocurrencyInfo, len(slice))
+	for _, info := range slice {
+		m[info.ShortName] = info
 	}
-	return allCryptocurrencyMap
+	return m
 }
 
 func allCryptocurrency() []db.CryptocurrencyInfo {
-	m := getAllCryptocurrencyMap()
-	res := make([]db.CryptocurrencyInfo, 0, len(m))
-	for _, value := range m {
-		res = append(res, value)
+	if allCryptocurrencySlice == nil || len(allCryptocurrencySlice) == 0 {
+		updateAllCryptocurrencySlice()
 	}
-	sort.Sort(db.CryptocurrencyInfoSlice(res))
-	return res
+	return allCryptocurrencySlice
 }
 
 func buyHandler(w http.ResponseWriter, r *http.Request) {

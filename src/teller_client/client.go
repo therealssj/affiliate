@@ -60,6 +60,7 @@ func setAuthHeaders(req *http.Request, teller *config.Teller) {
 	io.WriteString(h, timestamp+teller.ApiToken)
 	req.Header.Set("timestamp", timestamp)
 	req.Header.Set("auth", fmt.Sprintf("%x", h.Sum(nil)))
+	req.Header.Set("affiliate", "true")
 }
 
 func httpReq(tellerConf *config.Teller, errPanic bool, url string, method string, reqBody io.Reader, contentType string) ([]byte, error) {
@@ -99,7 +100,7 @@ type bindResp struct {
 }
 
 func Bind(currencyType string, address string) (string, error) {
-	resp, err := httpPost(&(config.GetServerConfig().Teller), false, "/api/bind", []byte(fmt.Sprintf(`{"affiliate":"true","address":"%s","tokenType":"%s"}`, address, currencyType)))
+	resp, err := httpPost(&(config.GetServerConfig().Teller), false, "/api/bind", []byte(fmt.Sprintf(`{"address":"%s","tokenType":"%s"}`, address, currencyType)))
 	if err != nil {
 		return "", err
 	}
