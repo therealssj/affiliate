@@ -181,30 +181,22 @@ var allCryptocurrencyMap map[string]db.CryptocurrencyInfo
 var allCurrencyMapLastUpdated int64
 
 func getAllCryptocurrencyMap() map[string]db.CryptocurrencyInfo {
-	if allCryptocurrencyMap == nil || len(allCryptocurrencyMap) == 0 || time.Now().Unix()-allCurrencyMapLastUpdated > 120 {
-		allCryptocurrency()
+	if allCryptocurrencyMap == nil || len(allCryptocurrencyMap) == 0 || time.Now().Unix()-allCurrencyMapLastUpdated > 60 {
+		allCryptocurrencyMap = service.AllCryptocurrencyMap()
+		allCurrencyMapLastUpdated = time.Now().Unix()
+		return allCryptocurrencyMap
 	}
 	return allCryptocurrencyMap
 }
 
-func setAllCryptocurrencyMap(slice []db.CryptocurrencyInfo) {
-	m := make(map[string]db.CryptocurrencyInfo, len(slice))
-	for _, info := range slice {
-		m[info.ShortName] = info
-	}
-	allCryptocurrencyMap = m
-	allCurrencyMapLastUpdated = time.Now().Unix()
-}
-
 func allCryptocurrency() []db.CryptocurrencyInfo {
-	slice, err := client.RateWithErr()
-	if err != nil {
-		logger.Printf("client.RateWithErr() err: %s", err)
-		slice = service.AllCryptocurrency()
+	m := getAllCryptocurrencyMap()
+	res := make([]db.CryptocurrencyInfo, 0, len(m))
+	for _, value := range m {
+		res = append(res, value)
 	}
-	setAllCryptocurrencyMap(slice)
-	sort.Sort(db.CryptocurrencyInfoSlice(slice))
-	return slice
+	sort.Sort(db.CryptocurrencyInfoSlice(res))
+	return res
 }
 
 func buyHandler(w http.ResponseWriter, r *http.Request) {
