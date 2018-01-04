@@ -19,8 +19,6 @@ import (
 	"github.com/spaco/affiliate/src/service/db"
 )
 
-const print_req_resp = false
-
 type jsonResp struct {
 	Code   int16           `json:"code"`
 	ErrMsg string          `json:"errmsg"`
@@ -64,17 +62,16 @@ func setAuthHeaders(req *http.Request, teller *config.Teller) {
 	req.Header.Set("auth", fmt.Sprintf("%x", h.Sum(nil)))
 }
 
-func httpReq(errPanic bool, url string, method string, reqBody io.Reader, contentType string) ([]byte, error) {
-	conf := config.GetServerConfig()
+func httpReq(tellerConf *config.Teller, errPanic bool, url string, method string, reqBody io.Reader, contentType string) ([]byte, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest(method, conf.Teller.ContextPath+url, reqBody)
+	req, err := http.NewRequest(method, tellerConf.ContextPath+url, reqBody)
 	if resErr := checkErr(err, errPanic); resErr != nil {
 		return nil, resErr
 	}
 	if len(contentType) > 0 {
 		req.Header.Set("Content-Type", contentType)
 	}
-	setAuthHeaders(req, &conf.Teller)
+	setAuthHeaders(req, tellerConf)
 	resp, err := client.Do(req)
 	if resErr := checkErr(err, errPanic); resErr != nil {
 		return nil, resErr
@@ -84,16 +81,16 @@ func httpReq(errPanic bool, url string, method string, reqBody io.Reader, conten
 	if resErr := checkErr(err, errPanic); resErr != nil {
 		return nil, resErr
 	}
-	if print_req_resp {
+	if tellerConf.Debug {
 		fmt.Printf(string(body))
 	}
 	return body, nil
 }
-func httpGet(errPanic bool, url string) ([]byte, error) {
-	return httpReq(errPanic, url, "GET", nil, "")
+func httpGet(tellerConf *config.Teller, errPanic bool, url string) ([]byte, error) {
+	return httpReq(tellerConf, errPanic, url, "GET", nil, "")
 }
-func httpPost(errPanic bool, url string, json []byte) ([]byte, error) {
-	return httpReq(errPanic, url, "POST", bytes.NewBuffer(json), "application/json")
+func httpPost(tellerConf *config.Teller, errPanic bool, url string, json []byte) ([]byte, error) {
+	return httpReq(tellerConf, errPanic, url, "POST", bytes.NewBuffer(json), "application/json")
 }
 
 type bindResp struct {
@@ -102,7 +99,7 @@ type bindResp struct {
 }
 
 func Bind(currencyType string, address string) (string, error) {
-	resp, err := httpPost(false, "/api/bind", []byte(fmt.Sprintf(`{"address":"%s","tokenType":"%s"}`, address, currencyType)))
+	resp, err := httpPost(&(config.GetServerConfig().Teller), false, "/api/bind", []byte(fmt.Sprintf(`{"affiliate":"true","address":"%s","tokenType":"%s"}`, address, currencyType)))
 	if err != nil {
 		return "", err
 	}
@@ -140,7 +137,7 @@ type coinResp struct {
 }
 
 func Rate() []db.CryptocurrencyInfo {
-	resp, _ := httpGet(true, "/api/rate?tokenType=all")
+	resp, _ := httpGet(&(config.GetDaemonConfig().Teller), true, "/api/rate?tokenType=all")
 	jsonObj := new(jsonResp)
 	err := json.Unmarshal(resp, &jsonObj)
 	panicErr(err)
@@ -158,7 +155,7 @@ func Rate() []db.CryptocurrencyInfo {
 }
 
 func RateWithErr() ([]db.CryptocurrencyInfo, error) {
-	resp, err := httpGet(false, "/api/rate?tokenType=all")
+	resp, err := httpGet(&(config.GetServerConfig().Teller), false, "/api/rate?tokenType=all")
 	if err != nil {
 		return nil, err
 	}
@@ -188,10 +185,11 @@ type DepositResp struct {
 }
 
 func Deposite(req int64) *DepositResp {
-	if print_req_resp {
+	tellerConf := config.GetDaemonConfig().Teller
+	if tellerConf.Debug {
 		fmt.Printf("seq:%d", req)
 	}
-	resp, _ := httpGet(true, fmt.Sprintf("/api/deposits?seq=%d", req))
+	resp, _ := httpGet(&tellerConf, true, fmt.Sprintf("/api/deposits?seq=%d", req))
 	//	resp, _ := httpPost(true, "/api/deposits", []byte(fmt.Sprintf(`{"req":"%d"}`, req)))
 	jsonObj := new(jsonResp)
 	err := json.Unmarshal(resp, &jsonObj)
@@ -237,7 +235,7 @@ const (
 )
 
 func Status(address string, currencyType string) ([]StatusResp, error) {
-	resp, err := httpGet(false, fmt.Sprintf("/api/status?address=%s&tokenType=%s", address, currencyType))
+	resp, err := httpGet(&(config.GetServerConfig().Teller), false, fmt.Sprintf("/api/status?address=%s&tokenType=%s", address, currencyType))
 	if err != nil {
 		return nil, err
 	}
@@ -273,8 +271,9 @@ var sendCoinLogger *log.Logger
 
 func getSendCoinLogger() *log.Logger {
 	if sendCoinLogger == nil {
-		os.MkdirAll(config.GetDaemonConfig().LogFolder, 0755)
-		f, err := os.OpenFile(config.GetDaemonConfig().LogFolder+"send-coin.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		logFolder := config.GetDaemonConfig().LogFolder
+		os.MkdirAll(logFolder, 0755)
+		f, err := os.OpenFile(logFolder+"send-coin.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		panicErr(err)
 		sendCoinLogger = log.New(f, "INFO", log.Ldate|log.Ltime)
 	}
@@ -293,12 +292,13 @@ func SendCoin(addrAndAmount []db.RewardRecord) {
 		slice = append(slice, sendCoinInfo{rr.Id, rr.Address, rr.SentAmount})
 	}
 	body, err := json.Marshal(slice)
-	if print_req_resp {
+	tellerConf := config.GetDaemonConfig().Teller
+	if tellerConf.Debug {
 		fmt.Printf(string(body))
 	}
 	getSendCoinLogger().Println(string(body))
 	panicErr(err)
-	resp, _ := httpPost(true, "/api/send-coin", body)
+	resp, _ := httpPost(&tellerConf, true, "/api/send-coin", body)
 	jsonObj := new(jsonResp)
 	err = json.Unmarshal(resp, &jsonObj)
 	panicErr(err)

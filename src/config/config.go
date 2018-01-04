@@ -40,6 +40,7 @@ type Server struct {
 type Teller struct {
 	ContextPath string `default:"http://localhost:7071"`
 	ApiToken    string
+	Debug       bool `default:"false"`
 }
 
 func GetServerConfig() *ServerConfig {
