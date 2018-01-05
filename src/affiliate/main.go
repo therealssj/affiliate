@@ -66,10 +66,6 @@ func main() {
 			logger.Println(debug.Stack())
 		}
 	}()
-	c := cron.New()
-	c.AddFunc("0 * * * * *", updateAllCryptocurrencySlice)
-	c.AddFunc("10,20,30,40,50 40-42 11 * * *", updateAllCryptocurrencySlice)
-	c.Start()
 	http.HandleFunc("/", buyHandler)
 	http.HandleFunc("/get-address/", getAddrHandler)
 	http.HandleFunc("/check-status/", checkStatusHandler)
@@ -84,12 +80,16 @@ func main() {
 	config := config.GetServerConfig()
 	db.OpenDb(&config.Db)
 	defer db.CloseDb()
+	c := cron.New()
+	c.AddFunc("0 * * * * *", updateAllCryptocurrencySlice)
+	c.AddFunc("10,20,30,40,50 40-42 11 * * *", updateAllCryptocurrencySlice)
+	c.Start()
 	fmt.Printf("Listening on :%d", config.Server.ListenPort)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Server.ListenPort), nil)
 	if err != nil {
 		println("ListenAndServe Error： %s", err)
 	}
-	c.Start()
+	c.Stop()
 }
 func serveFileHandler(w http.ResponseWriter, r *http.Request) {
 	fname := path.Base(r.URL.Path)
