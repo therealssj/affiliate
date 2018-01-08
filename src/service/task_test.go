@@ -16,7 +16,7 @@ func TestBuildRewardRecord(t *testing.T) {
 	tx, _ := dbo.Begin()
 	defer tx.Rollback()
 	rewardConfig := config.GetDaemonConfig().RewardConfig
-	rewardRecords := make([]db.RewardRecord, 0, 4)
+	rewardRecords := make([]db.RewardRecord, 0, 2)
 	remainMap := make(map[string]uint64, 8)
 	changedRemainMap := make(map[string]uint64, 8)
 	jsonStr := `{
@@ -38,10 +38,10 @@ func TestBuildRewardRecord(t *testing.T) {
 	}
 	dr.MappingId, dr.RefAddr, dr.SuperiorRefAddr = 110, "2Fo3oqg4c3ugewzi6ZUrFnAmp4AFLQ4bucQ", "mXY1Tu3Gb4tQ1wHUmbFUbbGQmBSZeuzFJc"
 	if len(dr.RefAddr) > 0 {
-		rewardRecords = append(rewardRecords, buildBuyerRewardRecord(tx, dr, &rewardConfig, remainMap, changedRemainMap))
-		rewardRecords = append(rewardRecords, buildPromoterRewardRecord(tx, dr, &rewardConfig, remainMap, changedRemainMap))
+		rewardRecords = appendBuyerRewardRecord(tx, rewardRecords, dr, &rewardConfig, remainMap, changedRemainMap)
+		rewardRecords = appendPromoterRewardRecord(tx, rewardRecords, dr, &rewardConfig, remainMap, changedRemainMap)
 		if len(dr.SuperiorRefAddr) > 0 {
-			rewardRecords = append(rewardRecords, buildSuperiorPromoterRewardRecord(tx, dr, &rewardConfig, remainMap, changedRemainMap))
+			rewardRecords = appendSuperiorPromoterRewardRecord(tx, rewardRecords, dr, &rewardConfig, remainMap, changedRemainMap)
 		}
 	}
 	if len(rewardRecords) != 3 {
@@ -74,10 +74,10 @@ func TestBuildRewardRecord(t *testing.T) {
 	}
 	dr.MappingId, dr.RefAddr, dr.SuperiorRefAddr = 110, "2Fo3oqg4c3ugewzi6ZUrFnAmp4AFLQ4bucQ", "mXY1Tu3Gb4tQ1wHUmbFUbbGQmBSZeuzFJc"
 	if len(dr.RefAddr) > 0 {
-		rewardRecords = append(rewardRecords, buildBuyerRewardRecord(tx, dr, &rewardConfig, remainMap, changedRemainMap))
-		rewardRecords = append(rewardRecords, buildPromoterRewardRecord(tx, dr, &rewardConfig, remainMap, changedRemainMap))
+		rewardRecords = appendBuyerRewardRecord(tx, rewardRecords, dr, &rewardConfig, remainMap, changedRemainMap)
+		rewardRecords = appendPromoterRewardRecord(tx, rewardRecords, dr, &rewardConfig, remainMap, changedRemainMap)
 		if len(dr.SuperiorRefAddr) > 0 {
-			rewardRecords = append(rewardRecords, buildSuperiorPromoterRewardRecord(tx, dr, &rewardConfig, remainMap, changedRemainMap))
+			rewardRecords = appendSuperiorPromoterRewardRecord(tx, rewardRecords, dr, &rewardConfig, remainMap, changedRemainMap)
 		}
 	}
 	if len(rewardRecords) != 6 {
@@ -88,6 +88,22 @@ func TestBuildRewardRecord(t *testing.T) {
 	}
 	//	fmt.Println(rewardRecords)
 	//	fmt.Println(changedRemainMap)
+	rewardConfig.BuyerRate = 0
+	rewardConfig.PromoterRatio = []float64{0, 0}
+	rewardConfig.SuperiorPromoterRatio = []float64{0, 0}
+	if len(dr.RefAddr) > 0 {
+		rewardRecords = appendBuyerRewardRecord(tx, rewardRecords, dr, &rewardConfig, remainMap, changedRemainMap)
+		rewardRecords = appendPromoterRewardRecord(tx, rewardRecords, dr, &rewardConfig, remainMap, changedRemainMap)
+		if len(dr.SuperiorRefAddr) > 0 {
+			rewardRecords = appendSuperiorPromoterRewardRecord(tx, rewardRecords, dr, &rewardConfig, remainMap, changedRemainMap)
+		}
+	}
+	if len(rewardRecords) != 6 {
+		t.Errorf("Failed. Got len(rewardRecords)=%d, expected %d", len(rewardRecords), 6)
+	}
+	if len(changedRemainMap) != 3 {
+		t.Errorf("Failed. Got len(changedRemainMap)=%d, expected %d", len(changedRemainMap), 3)
+	}
 }
 
 func TestGetPromoterRatioBySalesVolume(t *testing.T) {

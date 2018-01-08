@@ -65,14 +65,15 @@ func syncCryptocurrency() {
 
 func syncDeposit() {
 	defer deferFunc()
-	req := service.GetTellerReq()
+	oldReq := service.GetTellerReq()
+	req := oldReq
 	for {
 		depositResp := client.Deposite(req)
 		req = depositResp.NextSeq
 		if len(depositResp.Deposits) == 0 {
 			service.SaveTellerReq(req)
 		} else {
-			service.ProcessDeposit(depositResp.Deposits, req)
+			service.ProcessDeposit(depositResp.Deposits, oldReq, req)
 		}
 		if !depositResp.GoOn {
 			break
@@ -124,5 +125,5 @@ func testProcessDeposit() {
 	for i, _ := range drs {
 		drs[i].Rate = decimal.NewFromFloat(drs[i].RateFloat).String()
 	}
-	service.ProcessDeposit(drs, 3)
+	service.ProcessDeposit(drs, 0, 3)
 }

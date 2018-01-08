@@ -68,7 +68,7 @@ func SaveTellerReq(req int64) {
 	commit = true
 }
 
-func ProcessDeposit(batch []db.DepositRecord, req int64) {
+func ProcessDeposit(batch []db.DepositRecord, oldReq int64, req int64) {
 	rewardConfig := config.GetDaemonConfig().RewardConfig
 	rewardRecords := make([]db.RewardRecord, 0, 3*len(batch))
 	tx, commit := db.BeginTx()
@@ -81,10 +81,10 @@ func ProcessDeposit(batch []db.DepositRecord, req int64) {
 		}
 		pg.SaveDepositRecord(tx, &dr)
 		if len(dr.RefAddr) > 0 {
-			rewardRecords = append(rewardRecords, buildBuyerRewardRecord(tx, &dr, &rewardConfig, remainMap, changedRemainMap))
-			rewardRecords = append(rewardRecords, buildPromoterRewardRecord(tx, &dr, &rewardConfig, remainMap, changedRemainMap))
+			rewardRecords = appendBuyerRewardRecord(tx, rewardRecords, &dr, &rewardConfig, remainMap, changedRemainMap)
+			rewardRecords = appendPromoterRewardRecord(tx, rewardRecords, &dr, &rewardConfig, remainMap, changedRemainMap)
 			if len(dr.SuperiorRefAddr) > 0 {
-				rewardRecords = append(rewardRecords, buildSuperiorPromoterRewardRecord(tx, &dr, &rewardConfig, remainMap, changedRemainMap))
+				rewardRecords = appendSuperiorPromoterRewardRecord(tx, rewardRecords, &dr, &rewardConfig, remainMap, changedRemainMap)
 			}
 		}
 	}
@@ -94,13 +94,18 @@ func ProcessDeposit(batch []db.DepositRecord, req int64) {
 	if len(changedRemainMap) > 0 {
 		pg.UpdateRewardRemain(tx, changedRemainMap)
 	}
-	pg.SaveKvStore(tx, tellerReqName, req, "")
+	if oldReq != req {
+		pg.SaveKvStore(tx, tellerReqName, req, "")
+	}
 	checkErr(tx.Commit())
 	commit = true
 }
 
-func buildBuyerRewardRecord(tx *sql.Tx, dr *db.DepositRecord, rewardConfig *config.RewardConfig, remainMap, changedRemainMap map[string]uint64) db.RewardRecord {
+func appendBuyerRewardRecord(tx *sql.Tx, rewardRecords []db.RewardRecord, dr *db.DepositRecord, rewardConfig *config.RewardConfig, remainMap, changedRemainMap map[string]uint64) []db.RewardRecord {
 	rewardAmount := uint64(float64(dr.BuyAmount) * rewardConfig.BuyerRate)
+	if rewardAmount == 0 {
+		return rewardRecords
+	}
 	sentAmount := rewardAmount
 	if rm, ok := remainMap[dr.BuyAddr]; ok {
 		sentAmount += rm
@@ -108,16 +113,19 @@ func buildBuyerRewardRecord(tx *sql.Tx, dr *db.DepositRecord, rewardConfig *conf
 	remain := sentAmount % uint64(rewardConfig.MinSendAmount)
 	remainMap[dr.BuyAddr] = remain
 	changedRemainMap[dr.BuyAddr] = remain
-	return db.RewardRecord{DepositId: dr.Id,
+	return append(rewardRecords, db.RewardRecord{DepositId: dr.Id,
 		Address:    dr.BuyAddr,
 		CalAmount:  rewardAmount,
 		SentAmount: sentAmount - remain,
-		RewardType: db.RewardBuyer}
+		RewardType: db.RewardBuyer})
 }
 
-func buildPromoterRewardRecord(tx *sql.Tx, dr *db.DepositRecord, rewardConfig *config.RewardConfig, remainMap, changedRemainMap map[string]uint64) db.RewardRecord {
+func appendPromoterRewardRecord(tx *sql.Tx, rewardRecords []db.RewardRecord, dr *db.DepositRecord, rewardConfig *config.RewardConfig, remainMap, changedRemainMap map[string]uint64) []db.RewardRecord {
 	ratio, _ := getPromoterRatio(tx, rewardConfig, dr.RefAddr)
 	rewardAmount := uint64(float64(dr.BuyAmount) * ratio)
+	if rewardAmount == 0 {
+		return rewardRecords
+	}
 	sentAmount := rewardAmount
 	if rm, ok := remainMap[dr.RefAddr]; ok {
 		sentAmount += rm
@@ -125,17 +133,19 @@ func buildPromoterRewardRecord(tx *sql.Tx, dr *db.DepositRecord, rewardConfig *c
 	remain := sentAmount % uint64(rewardConfig.MinSendAmount)
 	remainMap[dr.RefAddr] = remain
 	changedRemainMap[dr.RefAddr] = remain
-	return db.RewardRecord{DepositId: dr.Id,
+	return append(rewardRecords, db.RewardRecord{DepositId: dr.Id,
 		Address:    dr.RefAddr,
 		CalAmount:  rewardAmount,
 		SentAmount: sentAmount - remain,
-		RewardType: db.RewardPromoter}
-
+		RewardType: db.RewardPromoter})
 }
 
-func buildSuperiorPromoterRewardRecord(tx *sql.Tx, dr *db.DepositRecord, rewardConfig *config.RewardConfig, remainMap, changedRemainMap map[string]uint64) db.RewardRecord {
+func appendSuperiorPromoterRewardRecord(tx *sql.Tx, rewardRecords []db.RewardRecord, dr *db.DepositRecord, rewardConfig *config.RewardConfig, remainMap, changedRemainMap map[string]uint64) []db.RewardRecord {
 	_, ratio := getPromoterRatio(tx, rewardConfig, dr.SuperiorRefAddr)
 	rewardAmount := uint64(float64(dr.BuyAmount) * ratio)
+	if rewardAmount == 0 {
+		return rewardRecords
+	}
 	sentAmount := rewardAmount
 	if rm, ok := remainMap[dr.SuperiorRefAddr]; ok {
 		sentAmount += rm
@@ -143,11 +153,11 @@ func buildSuperiorPromoterRewardRecord(tx *sql.Tx, dr *db.DepositRecord, rewardC
 	remain := sentAmount % uint64(rewardConfig.MinSendAmount)
 	remainMap[dr.SuperiorRefAddr] = remain
 	changedRemainMap[dr.SuperiorRefAddr] = remain
-	return db.RewardRecord{DepositId: dr.Id,
+	return append(rewardRecords, db.RewardRecord{DepositId: dr.Id,
 		Address:    dr.SuperiorRefAddr,
 		CalAmount:  rewardAmount,
 		SentAmount: sentAmount - remain,
-		RewardType: db.RewardSuperiorPromoter}
+		RewardType: db.RewardSuperiorPromoter})
 }
 
 func getPromoterRatio(tx *sql.Tx, rewardConfig *config.RewardConfig, address string) (float64, float64) {
