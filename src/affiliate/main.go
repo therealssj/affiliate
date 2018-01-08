@@ -74,7 +74,7 @@ func main() {
 	http.HandleFunc("/code/generate/", generateHandler)
 	http.HandleFunc("/code/my-invitation/", myInvitationHandler)
 	fsh := http.FileServer(http.Dir("s"))
-	http.Handle("/s/", http.StripPrefix("/s/", fsh))
+	http.Handle("/s/", cache(http.StripPrefix("/s/", fsh)))
 	http.HandleFunc("/favicon.ico", serveFileHandler)
 	http.HandleFunc("/robots.txt", serveFileHandler)
 	config := config.GetServerConfig()
@@ -93,8 +93,17 @@ func main() {
 }
 func serveFileHandler(w http.ResponseWriter, r *http.Request) {
 	fname := path.Base(r.URL.Path)
+	w.Header().Set("Cache-Control", "max-age=604800") //7days
 	http.ServeFile(w, r, "./s/"+fname)
 }
+func cache(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "max-age=7776000") //90days
+		h.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
+}
+
 func codeHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	renderCodeTemplate(w, "index", struct {
