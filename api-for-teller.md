@@ -8,7 +8,7 @@
 Method: POST  
 Content-Type: application/json  
 Request Body:  
-[{"seq":3,"updated_at":1513210524, "spo_address":"6v7gu8WP2V9aggo","deposit_address":"5fa2f213f18690bc","coin_type":"bitcoin", "txid":"3486ca63d6169536c4552bm "sent":12000000,"rate":25, "deposit_value":0.48,"height":105948},{"seq":4,"updated_at":1513220524, "spo_address":"6v7gu8WP2V9aggp","deposit_address":"5fa2f213f18690bd","coin_type":"bitcoin", "txid":"3486ca63d6169536c4552bn "sent":2000000,"rate":25, "deposit_value":0.48,"height":105949}]
+[{"seq":3,"updated_at":1513210524, "address":"6v7gu8WP2V9aggo","deposit_address":"5fa2f213f18690bc","coin_type":"bitcoin", "txid":"3486ca63d6169536c4552bm "sent":12000000,"rate":25, "deposit_value":0.48,"height":105948},{"seq":4,"updated_at":1513220524, "address":"6v7gu8WP2V9aggp","deposit_address":"5fa2f213f18690bd","coin_type":"bitcoin", "txid":"3486ca63d6169536c4552bn "sent":2000000,"rate":25, "deposit_value":0.48,"height":105949}]
 Response:  
 成功：{"code":0}  
 失败：{"code":1,"errmsg":"errmsg"}  
