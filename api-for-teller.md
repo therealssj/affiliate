@@ -3,7 +3,8 @@
   
 
 1. /api/deposit/  
-发送存入信息  
+发送存入信息，要么整体全部失败，要么整体全部成功  
+```bash
 Method: POST  
 Content-Type: application/json  
 Request Body:  
@@ -11,17 +12,20 @@ Request Body:  
 Response:  
 成功：{"code":0}  
 失败：{"code":1,"errmsg":"errmsg"}  
-要么整体全部失败，要么整体全部成功  
-  
+```
+
 2. /api/reward/  
 获取奖励信息  
+```bash
 Method: GET  
 Request Body:  
 成功：{"code":0,"data": [{"id":29,"address":"nF5xC41ZBh7vXQqMLSnLPRc68jDXMy9GL6","amount":1000000},{"id":30,"address":"k9QgadMDxisLfj2CLgNrwgzZZSEmZMeUpK","amount":1000000}]}  
 失败：{"code":1,"errmsg":"errmsg"}  
-  
+```
+
 3. /api/reward-status/  
-更新奖励完成状态，接收到的id将都被标记为已打币状态  
+更新奖励完成状态，接收到的id将都被标记为已打币状态，要么整体全部失败，要么整体全部成功  
+```bash
 Method: POST  
 Content-Type: application/json  
 Request Body:  
@@ -29,5 +33,3 @@ Request Body:  
 Response:  
 成功：{"code":0}  
 失败：{"code":1,"errmsg":"errmsg"}  
-要么整体全部失败，要么整体全部成功  
-  
