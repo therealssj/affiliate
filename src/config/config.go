@@ -9,14 +9,13 @@ import (
 var initServerConfig = false
 var serverConfig *ServerConfig
 
-const BUY_COIN_UNIT_POWER int32 = 6
-
 type ServerConfig struct {
-	CoinName  string `default:"SPO TOKEN"`
-	LogFolder string `default:"/tmp/affiliate/"`
-	Db        Db
-	Server    Server
-	Teller    Teller
+	CoinName      string `default:"SPO TOKEN"`
+	LogFolder     string `default:"/tmp/affiliate/"`
+	Db            Db
+	Server        Server
+	Teller        Teller
+	CoinUnitPower int `default:"6"`
 }
 
 type Db struct {
@@ -33,6 +32,7 @@ type Db struct {
 type Server struct {
 	Domain     string `default:"localhost"`
 	Port       int    `default:"80"`
+	ListenIp   string `default:"127.0.0.1"`
 	ListenPort int    `default:"6060"`
 	Https      bool   `default:"false"`
 }
@@ -59,14 +59,18 @@ func GetServerConfig() *ServerConfig {
 	return serverConfig
 }
 
-var initDaemonConfig = false
-var daemonConfig *DaemonConfig
+var initApiForTellerConfig = false
+var apiForTellerConfig *ApiForTellerConfig
 
-type DaemonConfig struct {
+type ApiForTellerConfig struct {
 	LogFolder    string `default:"/tmp/affiliate/"`
 	Db           Db
 	RewardConfig RewardConfig
-	Teller       Teller
+	ListenIp     string `default:"127.0.0.1"`
+	ListenPort   int    `default:"6010"`
+	AuthToken    string
+	AuthValidSec int  `default:"15"`
+	Debug        bool `default:"false"`
 }
 
 type RewardConfig struct {
@@ -78,30 +82,30 @@ type RewardConfig struct {
 	MinSendAmount         int       `default:"1000000"`
 }
 
-func GetDaemonConfig() *DaemonConfig {
-	if initDaemonConfig {
-		return daemonConfig
+func GetApiForTellerConfig() *ApiForTellerConfig {
+	if initApiForTellerConfig {
+		return apiForTellerConfig
 	}
 	m := multiconfig.NewWithPath("config.toml") // supports TOML, JSON and YAML
-	daemonConfig = new(DaemonConfig)
-	err := m.Load(daemonConfig) // Check for error
+	apiForTellerConfig = new(ApiForTellerConfig)
+	err := m.Load(apiForTellerConfig) // Check for error
 	if err != nil {
-		fmt.Printf("GetDaemonConfig Error: %s", err)
+		fmt.Printf("GetApiForTellerConfig Error: %s", err)
 	}
-	m.MustLoad(daemonConfig) // Panic's if there is any error
-	if len(daemonConfig.RewardConfig.LadderLine) == 0 {
-		daemonConfig.RewardConfig.LadderLine = []int{0}
+	m.MustLoad(apiForTellerConfig) // Panic's if there is any error
+	if len(apiForTellerConfig.RewardConfig.LadderLine) == 0 {
+		apiForTellerConfig.RewardConfig.LadderLine = []int{0}
 	}
-	if len(daemonConfig.RewardConfig.PromoterRatio) == 0 {
-		daemonConfig.RewardConfig.PromoterRatio = []float64{0.05}
+	if len(apiForTellerConfig.RewardConfig.PromoterRatio) == 0 {
+		apiForTellerConfig.RewardConfig.PromoterRatio = []float64{0.05}
 	}
-	if len(daemonConfig.RewardConfig.SuperiorPromoterRatio) == 0 {
-		daemonConfig.RewardConfig.SuperiorPromoterRatio = []float64{0.03}
+	if len(apiForTellerConfig.RewardConfig.SuperiorPromoterRatio) == 0 {
+		apiForTellerConfig.RewardConfig.SuperiorPromoterRatio = []float64{0.03}
 	}
-	//	fmt.Printf("%+v\n", daemonConfig)
-	if len(daemonConfig.RewardConfig.LadderLine) != len(daemonConfig.RewardConfig.PromoterRatio) || len(daemonConfig.RewardConfig.LadderLine) != len(daemonConfig.RewardConfig.SuperiorPromoterRatio) {
+	//	fmt.Printf("%+v\n", apiForTellerConfig)
+	if len(apiForTellerConfig.RewardConfig.LadderLine) != len(apiForTellerConfig.RewardConfig.PromoterRatio) || len(apiForTellerConfig.RewardConfig.LadderLine) != len(apiForTellerConfig.RewardConfig.SuperiorPromoterRatio) {
 		panic("RewardConfig LadderLine, PromoterRatio, SuperiorPromoterRatio length not same")
 	}
-	initDaemonConfig = true
-	return daemonConfig
+	initApiForTellerConfig = true
+	return apiForTellerConfig
 }

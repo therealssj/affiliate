@@ -19,16 +19,16 @@ func syncCryptocurrency(newCurrency []db.CryptocurrencyInfo, updateRateCur []db.
 	commit = true
 }
 
-const tellerReqName = "teller:req"
+//const tellerReqName = "teller:req"
 
-func GetTellerReq() int64 {
-	tx, commit := db.BeginTx()
-	defer db.Rollback(tx, &commit)
-	intVal, _, _ := pg.GetKvStore(tx, tellerReqName)
-	checkErr(tx.Commit())
-	commit = true
-	return intVal
-}
+//func GetTellerReq() int64 {
+//	tx, commit := db.BeginTx()
+//	defer db.Rollback(tx, &commit)
+//	intVal, _, _ := pg.GetKvStore(tx, tellerReqName)
+//	checkErr(tx.Commit())
+//	commit = true
+//	return intVal
+//}
 
 func fillAndGetRewardRemain(tx *sql.Tx, batch []db.DepositRecord) map[string]uint64 {
 	addrs := make([]string, 0, 2*len(batch))
@@ -60,16 +60,16 @@ func fillAndGetRewardRemain(tx *sql.Tx, batch []db.DepositRecord) map[string]uin
 	return make(map[string]uint64, 0)
 }
 
-func SaveTellerReq(req int64) {
-	tx, commit := db.BeginTx()
-	defer db.Rollback(tx, &commit)
-	pg.SaveKvStore(tx, tellerReqName, req, "")
-	checkErr(tx.Commit())
-	commit = true
-}
+//func SaveTellerReq(req int64) {
+//	tx, commit := db.BeginTx()
+//	defer db.Rollback(tx, &commit)
+//	pg.SaveKvStore(tx, tellerReqName, req, "")
+//	checkErr(tx.Commit())
+//	commit = true
+//}
 
-func ProcessDeposit(batch []db.DepositRecord, oldReq int64, req int64) {
-	rewardConfig := config.GetDaemonConfig().RewardConfig
+func ProcessDeposit(batch []db.DepositRecord /*, oldReq int64, req int64*/) {
+	rewardConfig := config.GetApiForTellerConfig().RewardConfig
 	rewardRecords := make([]db.RewardRecord, 0, 3*len(batch))
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
@@ -94,9 +94,9 @@ func ProcessDeposit(batch []db.DepositRecord, oldReq int64, req int64) {
 	if len(changedRemainMap) > 0 {
 		pg.UpdateRewardRemain(tx, changedRemainMap)
 	}
-	if oldReq != req {
-		pg.SaveKvStore(tx, tellerReqName, req, "")
-	}
+	//	if oldReq != req {
+	//		pg.SaveKvStore(tx, tellerReqName, req, "")
+	//	}
 	checkErr(tx.Commit())
 	commit = true
 }

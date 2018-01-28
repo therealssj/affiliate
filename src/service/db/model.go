@@ -37,17 +37,17 @@ type DepositRecord struct {
 	MappingId       uint64
 	RefAddr         string
 	SuperiorRefAddr string
-	Seq             int64   `json:"seq"`
-	UpdatedAt       int64   `json:"update_at"`
-	TransactionId   string  `json:"txid"`
-	DepositAmount   uint64  `json:"deposit_value"`
-	BuyAmount       uint64  `json:"sent"`
-	RateFloat       float64 `json:"rate"`
-	Rate            string
-	Height          uint64 `json:"height"`
-	BuyAddr         string `json:"address"`
-	CurrencyType    string `json:"coin_type"`
-	DepositAddr     string `json:"deposit_address"`
+	Seq             int64  `json:"seq"`
+	UpdatedAt       int64  `json:"update_at"`
+	TransactionId   string `json:"txid"`
+	DepositAmount   uint64 `json:"deposit_value"`
+	BuyAmount       uint64 `json:"sent"`
+	//	RateFloat       float64 `json:"rate"`
+	Rate         string `json:"rate"`
+	Height       uint64 `json:"height"`
+	BuyAddr      string `json:"address"`
+	CurrencyType string `json:"coin_type"`
+	DepositAddr  string `json:"deposit_address"`
 }
 
 type RewardRecord struct {

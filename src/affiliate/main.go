@@ -41,7 +41,7 @@ func convertUnitPower(val uint64, unitPower int32) string {
 }
 
 func convertUnit(val uint64) string {
-	return convertUnitPower(val, config.BUY_COIN_UNIT_POWER)
+	return convertUnitPower(val, int32(config.GetServerConfig().CoinUnitPower))
 }
 
 func convertOfCurrency(val uint64, currencyType string) string {
@@ -84,8 +84,8 @@ func main() {
 	c.AddFunc("0 * * * * *", updateAllCryptocurrencySlice)
 	c.AddFunc("10,20,30,40,50 40-42 11 * * *", updateAllCryptocurrencySlice)
 	c.Start()
-	fmt.Printf("Listening on :%d", config.Server.ListenPort)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Server.ListenPort), nil)
+	fmt.Printf("Listening on %s:%d", config.Server.ListenIp, config.Server.ListenPort)
+	err := http.ListenAndServe(fmt.Sprintf("%s:%d", config.Server.ListenIp, config.Server.ListenPort), nil)
 	if err != nil {
 		println("ListenAndServe Error： %s", err)
 	}

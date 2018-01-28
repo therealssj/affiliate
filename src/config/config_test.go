@@ -15,14 +15,14 @@ func TestGetServerConfig(t *testing.T) {
 	}
 }
 
-func TestGetDaemonConfig(t *testing.T) {
-	initDaemonConfig = false
+func TestGetApiForTellerConfig(t *testing.T) {
+	initApiForTellerConfig = false
 	writeConfigFile("")
 	defer removeConfigFile()
-	if GetDaemonConfig() == nil {
+	if GetApiForTellerConfig() == nil {
 		t.Errorf("Failed. got nil")
 	}
-	rc := GetDaemonConfig().RewardConfig
+	rc := GetApiForTellerConfig().RewardConfig
 	if len(rc.LadderLine) != 1 || rc.LadderLine[0] != 0 {
 		t.Errorf("Failed. LadderLine wrong")
 	}
@@ -34,17 +34,17 @@ func TestGetDaemonConfig(t *testing.T) {
 	}
 }
 
-func TestGetDaemonConfig2(t *testing.T) {
-	initDaemonConfig = false
+func TestGetApiForTellerConfig2(t *testing.T) {
+	initApiForTellerConfig = false
 	writeConfigFile(`[RewardConfig]
 LadderLine      =[0,1000,10000]
 PromoterRatio   =[0.05,0.06,0.07]
 SuperiorPromoterRatio =[0.03,0.04,0.05]`)
 	defer removeConfigFile()
-	if GetDaemonConfig() == nil {
+	if GetApiForTellerConfig() == nil {
 		t.Errorf("Failed. got nil")
 	}
-	rc := GetDaemonConfig().RewardConfig
+	rc := GetApiForTellerConfig().RewardConfig
 	if len(rc.LadderLine) != 3 || rc.LadderLine[0] != 0 || rc.LadderLine[1] != 1000 || rc.LadderLine[2] != 10000 {
 		t.Errorf("Failed. LadderLine wrong")
 	}

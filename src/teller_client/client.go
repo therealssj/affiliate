@@ -7,14 +7,15 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
+	"math"
 	//	"math/rand"
-	"crypto/md5"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"net/http"
-	"os"
 	"time"
 
-	"github.com/shopspring/decimal"
+	//	"github.com/shopspring/decimal"
 	"github.com/spaco/affiliate/src/config"
 	"github.com/spaco/affiliate/src/service/db"
 )
@@ -55,11 +56,16 @@ func checkErr(err error, errPanic bool) error {
 }
 
 func setAuthHeaders(req *http.Request, teller *config.Teller) {
+	//	timestamp := strconv.Itoa(time.Now().Unix())
 	timestamp := fmt.Sprintf("%d", time.Now().Unix())
-	h := md5.New()
-	io.WriteString(h, timestamp+teller.ApiToken)
+	//	hash := md5.New()
+	//	io.WriteString(hash, timestamp+teller.ApiToken)
+	hash := hmac.New(sha256.New, []byte(teller.ApiToken))
+	hash.Write([]byte(timestamp))
+
 	req.Header.Set("timestamp", timestamp)
-	req.Header.Set("auth", fmt.Sprintf("%x", h.Sum(nil)))
+	//	req.Header.Set("auth", fmt.Sprintf("%x", hash.Sum(nil)))
+	req.Header.Set("auth", hex.EncodeToString(hash.Sum(nil)))
 	req.Header.Set("affiliate", "true")
 }
 
@@ -124,90 +130,90 @@ func Bind(currencyType string, address string) (string, error) {
 	//	return randStringRunes(32)
 }
 
-type rateResp struct {
-	TokenType string     `json:"tokenType"`
-	Rate      float32    `json:"rate"`
-	AllCoin   []coinResp `json:"allcoin"`
-}
+//type rateResp struct {
+//	TokenType string     `json:"tokenType"`
+//	Rate      float32    `json:"rate"`
+//	AllCoin   []coinResp `json:"allcoin"`
+//}
+//
+//type coinResp struct {
+//	Name      string  `json:"coin_name"`
+//	Code      string  `json:"coin_code"`
+//	Rate      float64 `json:"coin_rate"`
+//	UnitPower int32   `json:"unit"`
+//}
 
-type coinResp struct {
-	Name      string  `json:"coin_name"`
-	Code      string  `json:"coin_code"`
-	Rate      float64 `json:"coin_rate"`
-	UnitPower int32   `json:"unit"`
-}
+//func Rate() []db.CryptocurrencyInfo {
+//	resp, _ := httpGet(&(config.GetDaemonConfig().Teller), true, "/api/rate?tokenType=all")
+//	jsonObj := new(jsonResp)
+//	err := json.Unmarshal(resp, &jsonObj)
+//	panicErr(err)
+//	if jsonObj.Code != 0 {
+//		panic(fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code))
+//	}
+//	rResp := new(rateResp)
+//	err = json.Unmarshal(jsonObj.Data, &rResp)
+//	panicErr(err)
+//	res := make([]db.CryptocurrencyInfo, 0, len(rResp.AllCoin))
+//	for _, coin := range rResp.AllCoin {
+//		res = append(res, db.CryptocurrencyInfo{coin.Name, coin.Code, decimal.NewFromFloat(coin.Rate).String(), coin.UnitPower})
+//	}
+//	return res
+//}
 
-func Rate() []db.CryptocurrencyInfo {
-	resp, _ := httpGet(&(config.GetDaemonConfig().Teller), true, "/api/rate?tokenType=all")
-	jsonObj := new(jsonResp)
-	err := json.Unmarshal(resp, &jsonObj)
-	panicErr(err)
-	if jsonObj.Code != 0 {
-		panic(fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code))
-	}
-	rResp := new(rateResp)
-	err = json.Unmarshal(jsonObj.Data, &rResp)
-	panicErr(err)
-	res := make([]db.CryptocurrencyInfo, 0, len(rResp.AllCoin))
-	for _, coin := range rResp.AllCoin {
-		res = append(res, db.CryptocurrencyInfo{coin.Name, coin.Code, decimal.NewFromFloat(coin.Rate).String(), coin.UnitPower})
-	}
-	return res
-}
+//func RateWithErr() ([]db.CryptocurrencyInfo, error) {
+//	resp, err := httpGet(&(config.GetServerConfig().Teller), false, "/api/rate?tokenType=all")
+//	if err != nil {
+//		return nil, err
+//	}
+//	jsonObj := new(jsonResp)
+//	err = json.Unmarshal(resp, &jsonObj)
+//	if err != nil {
+//		return nil, err
+//	} else if jsonObj.Code != 0 {
+//		return nil, errors.New((fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code)))
+//	}
+//	rResp := new(rateResp)
+//	err = json.Unmarshal(jsonObj.Data, &rResp)
+//	if err != nil {
+//		return nil, err
+//	}
+//	slice := make([]db.CryptocurrencyInfo, 0, len(rResp.AllCoin))
+//	for _, coin := range rResp.AllCoin {
+//		slice = append(slice, db.CryptocurrencyInfo{coin.Name, coin.Code, decimal.NewFromFloat(coin.Rate).String(), coin.UnitPower})
+//	}
+//	return slice, nil
+//}
 
-func RateWithErr() ([]db.CryptocurrencyInfo, error) {
-	resp, err := httpGet(&(config.GetServerConfig().Teller), false, "/api/rate?tokenType=all")
-	if err != nil {
-		return nil, err
-	}
-	jsonObj := new(jsonResp)
-	err = json.Unmarshal(resp, &jsonObj)
-	if err != nil {
-		return nil, err
-	} else if jsonObj.Code != 0 {
-		return nil, errors.New((fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code)))
-	}
-	rResp := new(rateResp)
-	err = json.Unmarshal(jsonObj.Data, &rResp)
-	if err != nil {
-		return nil, err
-	}
-	slice := make([]db.CryptocurrencyInfo, 0, len(rResp.AllCoin))
-	for _, coin := range rResp.AllCoin {
-		slice = append(slice, db.CryptocurrencyInfo{coin.Name, coin.Code, decimal.NewFromFloat(coin.Rate).String(), coin.UnitPower})
-	}
-	return slice, nil
-}
-
-type DepositResp struct {
-	GoOn     bool               `json:"goon"`
-	NextSeq  int64              `json:"nextseq"`
-	Deposits []db.DepositRecord `json:"deposits"`
-}
-
-func Deposite(req int64) *DepositResp {
-	tellerConf := config.GetDaemonConfig().Teller
-	if tellerConf.Debug {
-		fmt.Printf("seq:%d", req)
-	}
-	resp, _ := httpGet(&tellerConf, true, fmt.Sprintf("/api/deposits?seq=%d", req))
-	//	resp, _ := httpPost(true, "/api/deposits", []byte(fmt.Sprintf(`{"req":"%d"}`, req)))
-	jsonObj := new(jsonResp)
-	err := json.Unmarshal(resp, &jsonObj)
-	panicErr(err)
-	if jsonObj.Code != 0 {
-		panic(fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code))
-	}
-	res := new(DepositResp)
-	err = json.Unmarshal(jsonObj.Data, &res)
-	panicErr(err)
-	if len(res.Deposits) > 0 {
-		for i, _ := range res.Deposits {
-			res.Deposits[i].Rate = decimal.NewFromFloat(res.Deposits[i].RateFloat).String()
-		}
-	}
-	return res
-}
+//type DepositResp struct {
+//	GoOn     bool               `json:"goon"`
+//	NextSeq  int64              `json:"nextseq"`
+//	Deposits []db.DepositRecord `json:"deposits"`
+//}
+//
+//func Deposite(req int64) *DepositResp {
+//	tellerConf := config.GetDaemonConfig().Teller
+//	if tellerConf.Debug {
+//		fmt.Printf("seq:%d", req)
+//	}
+//	resp, _ := httpGet(&tellerConf, true, fmt.Sprintf("/api/deposits?seq=%d", req))
+//	//	resp, _ := httpPost(true, "/api/deposits", []byte(fmt.Sprintf(`{"req":"%d"}`, req)))
+//	jsonObj := new(jsonResp)
+//	err := json.Unmarshal(resp, &jsonObj)
+//	panicErr(err)
+//	if jsonObj.Code != 0 {
+//		panic(fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code))
+//	}
+//	res := new(DepositResp)
+//	err = json.Unmarshal(jsonObj.Data, &res)
+//	panicErr(err)
+//	if len(res.Deposits) > 0 {
+//		for i, _ := range res.Deposits {
+//			res.Deposits[i].Rate = decimal.NewFromFloat(res.Deposits[i].RateFloat).String()
+//		}
+//	}
+//	return res
+//}
 
 type statusesResp struct {
 	Statuses []StatusResp `json:"statuses"`
@@ -268,42 +274,81 @@ func Status(address string, currencyType string) ([]StatusResp, error) {
 	return res.Statuses, nil
 }
 
-var sendCoinLogger *log.Logger
-
-func getSendCoinLogger() *log.Logger {
-	if sendCoinLogger == nil {
-		logFolder := config.GetDaemonConfig().LogFolder
-		os.MkdirAll(logFolder, 0755)
-		f, err := os.OpenFile(logFolder+"send-coin.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-		panicErr(err)
-		sendCoinLogger = log.New(f, "INFO", log.Ldate|log.Ltime)
-	}
-	return sendCoinLogger
+//var sendCoinLogger *log.Logger
+//
+//func getSendCoinLogger() *log.Logger {
+//	if sendCoinLogger == nil {
+//		logFolder := config.GetDaemonConfig().LogFolder
+//		os.MkdirAll(logFolder, 0755)
+//		f, err := os.OpenFile(logFolder+"send-coin.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+//		panicErr(err)
+//		sendCoinLogger = log.New(f, "INFO", log.Ldate|log.Ltime)
+//	}
+//	return sendCoinLogger
+//}
+//
+//type sendCoinInfo struct {
+//	Id         uint64 `json:"id"`
+//	Address    string `json:"address"`
+//	SentAmount uint64 `json:"amount"`
+//}
+//
+//func SendCoin(addrAndAmount []db.RewardRecord) {
+//	slice := make([]sendCoinInfo, 0, len(addrAndAmount))
+//	for _, rr := range addrAndAmount {
+//		slice = append(slice, sendCoinInfo{rr.Id, rr.Address, rr.SentAmount})
+//	}
+//	body, err := json.Marshal(slice)
+//	tellerConf := config.GetDaemonConfig().Teller
+//	if tellerConf.Debug {
+//		fmt.Printf(string(body))
+//	}
+//	getSendCoinLogger().Println(string(body))
+//	panicErr(err)
+//	resp, _ := httpPost(&tellerConf, true, "/api/send-coin", body)
+//	jsonObj := new(jsonResp)
+//	err = json.Unmarshal(resp, &jsonObj)
+//	panicErr(err)
+//	if jsonObj.Code != 0 {
+//		panic(fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code))
+//	}
+//}
+type configResp struct {
+	Enabled       bool                `json:"enabled"`
+	MaxBoundAddrs uint32              `json:"max_bound_addrs"`
+	MaxDecimals   uint32              `json:"max_decimals"`
+	AllCoins      map[string]coinInfo `json:"allcoins"`
 }
 
-type sendCoinInfo struct {
-	Id         uint64 `json:"id"`
-	Address    string `json:"address"`
-	SentAmount uint64 `json:"amount"`
+type coinInfo struct {
+	Name                  string `json:"coin_name"`
+	Rate                  string `json:"rate"`
+	Unit                  uint64 `json:"unit"`
+	Enabled               bool   `json:"enabled"`
+	ConfirmationsRequired uint32 `json:"confirmations_required"`
 }
 
-func SendCoin(addrAndAmount []db.RewardRecord) {
-	slice := make([]sendCoinInfo, 0, len(addrAndAmount))
-	for _, rr := range addrAndAmount {
-		slice = append(slice, sendCoinInfo{rr.Id, rr.Address, rr.SentAmount})
+func Config() (*configResp, error) {
+	resp, err := httpGet(&(config.GetServerConfig().Teller), false, "/api/config")
+	if err != nil {
+		return nil, err
 	}
-	body, err := json.Marshal(slice)
-	tellerConf := config.GetDaemonConfig().Teller
-	if tellerConf.Debug {
-		fmt.Printf(string(body))
-	}
-	getSendCoinLogger().Println(string(body))
-	panicErr(err)
-	resp, _ := httpPost(&tellerConf, true, "/api/send-coin", body)
-	jsonObj := new(jsonResp)
+	jsonObj := new(configResp)
 	err = json.Unmarshal(resp, &jsonObj)
-	panicErr(err)
-	if jsonObj.Code != 0 {
-		panic(fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code))
+	if err != nil {
+		return nil, err
 	}
+	return jsonObj, nil
+}
+
+func RateWithErr() ([]db.CryptocurrencyInfo, error) {
+	configResp, err := Config()
+	if err != nil {
+		return nil, err
+	}
+	slice := make([]db.CryptocurrencyInfo, 0, len(configResp.AllCoins))
+	for _, coin := range configResp.AllCoins {
+		slice = append(slice, db.CryptocurrencyInfo{coin.Name, coin.Name, coin.Rate, int32(math.Log10(float64(coin.Unit)))})
+	}
+	return slice, nil
 }
