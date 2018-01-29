@@ -102,7 +102,7 @@ func ProcessDeposit(batch []db.DepositRecord /*, oldReq int64, req int64*/) {
 }
 
 func appendBuyerRewardRecord(tx *sql.Tx, rewardRecords []db.RewardRecord, dr *db.DepositRecord, rewardConfig *config.RewardConfig, remainMap, changedRemainMap map[string]uint64) []db.RewardRecord {
-	rewardAmount := uint64(float64(dr.BuyAmount) * rewardConfig.BuyerRate)
+	rewardAmount := uint64(float64(dr.BuyAmount) * rewardConfig.BuyerRatio)
 	if rewardAmount == 0 {
 		return rewardRecords
 	}

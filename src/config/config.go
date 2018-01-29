@@ -74,7 +74,7 @@ type ApiForTellerConfig struct {
 }
 
 type RewardConfig struct {
-	BuyerRate             float64   `default:"0.02"`
+	BuyerRatio            float64   `default:"0.02"`
 	LadderLine            []int     // default [0]
 	PromoterRatio         []float64 //default [0.05]
 	SuperiorPromoterRatio []float64 // default [0.03]

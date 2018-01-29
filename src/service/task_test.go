@@ -52,7 +52,7 @@ func TestBuildRewardRecord(t *testing.T) {
 	}
 	//	fmt.Println(rewardRecords)
 	//	fmt.Println(changedRemainMap)
-	rewardConfig.BuyerRate = 0.2
+	rewardConfig.BuyerRatio = 0.2
 	rewardConfig.PromoterRatio = []float64{0.5, 0.7}
 	rewardConfig.SuperiorPromoterRatio = []float64{0.3, 0.5}
 	jsonStr = `{
@@ -88,7 +88,7 @@ func TestBuildRewardRecord(t *testing.T) {
 	}
 	//	fmt.Println(rewardRecords)
 	//	fmt.Println(changedRemainMap)
-	rewardConfig.BuyerRate = 0
+	rewardConfig.BuyerRatio = 0
 	rewardConfig.PromoterRatio = []float64{0, 0}
 	rewardConfig.SuperiorPromoterRatio = []float64{0, 0}
 	if len(dr.RefAddr) > 0 {
@@ -108,7 +108,7 @@ func TestBuildRewardRecord(t *testing.T) {
 
 func TestGetPromoterRatioBySalesVolume(t *testing.T) {
 	rewardConfig := config.RewardConfig{}
-	rewardConfig.BuyerRate = 0.2
+	rewardConfig.BuyerRatio = 0.2
 	rewardConfig.LadderLine = []int{0, 1000}
 	rewardConfig.PromoterRatio = []float64{0.5, 0.7}
 	rewardConfig.SuperiorPromoterRatio = []float64{0.3, 0.5}
