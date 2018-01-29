@@ -38,6 +38,47 @@ func TestChechAuthHeader(t *testing.T) {
 	if !chechAuthHeader(w, r) {
 		t.Errorf("Failed. check error")
 	}
+
+	timestamp = fmt.Sprintf("%d", time.Now().Unix()-15)
+	conf = config.GetApiForTellerConfig()
+	hash = hmac.New(sha256.New, []byte(conf.AuthToken))
+	hash.Write([]byte(timestamp))
+	r.Header.Set("timestamp", timestamp)
+	r.Header.Set("auth", hex.EncodeToString(hash.Sum(nil)))
+	if !chechAuthHeader(w, r) {
+		t.Errorf("Failed. check error")
+	}
+
+	timestamp = fmt.Sprintf("%d", time.Now().Unix()-16)
+	conf = config.GetApiForTellerConfig()
+	hash = hmac.New(sha256.New, []byte(conf.AuthToken))
+	hash.Write([]byte(timestamp))
+	r.Header.Set("timestamp", timestamp)
+	r.Header.Set("auth", hex.EncodeToString(hash.Sum(nil)))
+	if chechAuthHeader(w, r) {
+		t.Errorf("Failed. check error")
+	}
+
+	timestamp = fmt.Sprintf("%d", time.Now().Unix()+3)
+	conf = config.GetApiForTellerConfig()
+	hash = hmac.New(sha256.New, []byte(conf.AuthToken))
+	hash.Write([]byte(timestamp))
+	r.Header.Set("timestamp", timestamp)
+	r.Header.Set("auth", hex.EncodeToString(hash.Sum(nil)))
+	if !chechAuthHeader(w, r) {
+		t.Errorf("Failed. check error")
+	}
+
+	timestamp = fmt.Sprintf("%d", time.Now().Unix()+4)
+	conf = config.GetApiForTellerConfig()
+	hash = hmac.New(sha256.New, []byte(conf.AuthToken))
+	hash.Write([]byte(timestamp))
+	r.Header.Set("timestamp", timestamp)
+	r.Header.Set("auth", hex.EncodeToString(hash.Sum(nil)))
+	if chechAuthHeader(w, r) {
+		t.Errorf("Failed. check error")
+	}
+
 	hash = hmac.New(sha256.New, []byte("test-not-right"))
 	hash.Write([]byte(timestamp))
 	r.Header.Set("timestamp", timestamp)
