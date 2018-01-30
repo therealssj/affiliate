@@ -333,12 +333,20 @@ func Config() (*configResp, error) {
 	if err != nil {
 		return nil, err
 	}
-	jsonObj := new(configResp)
+	jsonObj := new(jsonResp)
 	err = json.Unmarshal(resp, &jsonObj)
 	if err != nil {
 		return nil, err
 	}
-	return jsonObj, nil
+	if jsonObj.Code != 0 {
+		return nil, errors.New(fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code))
+	}
+	configResp := new(configResp)
+	err = json.Unmarshal(jsonObj.Data, &configResp)
+	if err != nil {
+		return nil, err
+	}
+	return configResp, nil
 }
 
 func RateWithErr() ([]db.CryptocurrencyInfo, error) {
