@@ -34,7 +34,7 @@ func fillAndGetRewardRemain(tx *sql.Tx, batch []db.DepositRecord) map[string]uin
 	addrs := make([]string, 0, 2*len(batch))
 	for i, _ := range batch {
 		dr := &(batch[i])
-		if dr.CurrencyType == "Deprecated" || dr.Seq < 183 {
+		if dr.CurrencyType == "Deprecated" {
 			continue
 		}
 		mapping := pg.QueryMappingDepositAddr(tx, dr.BuyAddr, dr.CurrencyType)
@@ -76,7 +76,7 @@ func ProcessDeposit(batch []db.DepositRecord /*, oldReq int64, req int64*/) {
 	remainMap := fillAndGetRewardRemain(tx, batch)
 	changedRemainMap := make(map[string]uint64, len(remainMap))
 	for _, dr := range batch {
-		if dr.CurrencyType == "Deprecated" || dr.Seq < 183 {
+		if dr.CurrencyType == "Deprecated" {
 			continue
 		}
 		pg.SaveDepositRecord(tx, &dr)
