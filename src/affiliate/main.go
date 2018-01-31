@@ -239,6 +239,10 @@ func checkStatusHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	currencyType := r.PostFormValue("currencyType")
+	if _, ok := getAllCryptocurrencyMap()[currencyType]; !ok {
+		json.NewEncoder(w).Encode(&JsonObj{2, "Cryptocurrency type is not valid: " + currencyType, nil})
+		return
+	}
 	var data string
 	res := service.QueryDepositRecord(addr, currencyType)
 	if len(res) > 0 {

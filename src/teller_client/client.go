@@ -220,9 +220,8 @@ type statusesResp struct {
 }
 type StatusResp struct {
 	Seq       int64  `json:"seq"`
-	UpdateAt  uint64 `json:"update_at"`
-	Address   string `json:"address"`
-	TokenType string `json:"tokenType"`
+	UpdateAt  uint64 `json:"updated_at"`
+	TokenType string `json:"coin_type"`
 	StatusStr string `json:"status"`
 	Status    int    `json:"-"`
 }
@@ -246,18 +245,47 @@ func Status(address string, currencyType string) ([]StatusResp, error) {
 	if err != nil {
 		return nil, err
 	}
+	return statusRespProcess(resp, currencyType)
+
+}
+
+func statusRespTidy(arr []StatusResp) string {
+	var waitingDeposit, waitingSend, waitingConfirm, done uint32
+	for _, s := range arr {
+		switch s.Status {
+		case StatusWaitingDeposit:
+			waitingDeposit++
+		case StatusWaitingSend:
+			waitingSend++
+		case StatusWaitingConfirm:
+			waitingConfirm++
+		case StatusDone:
+			done++
+		}
+	}
+	if done =0{
+		return "";
+	}
+	return "";
+	
+}
+func statusRespProcess(response []byte, currencyType string) ([]StatusResp, error) {
 	jsonObj := new(jsonResp)
-	err = json.Unmarshal(resp, &jsonObj)
+	err := json.Unmarshal(response, &jsonObj)
 	if err != nil {
 		return nil, err
 	}
 	if jsonObj.Code != 0 {
 		return nil, errors.New(fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code))
 	}
-	res := new(statusesResp)
-	err = json.Unmarshal(jsonObj.Data, &res)
+	resp := new(statusesResp)
+	err = json.Unmarshal(jsonObj.Data, &resp)
 	panicErr(err)
-	for _, s := range res.Statuses {
+	res := make([]StatusResp, 0, len(resp.Statuses))
+	for _, s := range resp.Statuses {
+		if s.TokenType != currencyType {
+			continue
+		}
 		switch s.StatusStr {
 		case str_waiting_deposit:
 			s.Status = StatusWaitingDeposit
@@ -268,10 +296,11 @@ func Status(address string, currencyType string) ([]StatusResp, error) {
 		case str_done:
 			s.Status = StatusDone
 		default:
-			return nil, errors.New("wrong status string")
+			return nil, errors.New("wrong status: " + s.StatusStr)
 		}
+		res = append(res, s)
 	}
-	return res.Statuses, nil
+	return res, nil
 }
 
 //var sendCoinLogger *log.Logger
