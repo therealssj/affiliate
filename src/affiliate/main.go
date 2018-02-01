@@ -253,17 +253,17 @@ func checkStatusHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		data = fmt.Sprintf("found %d deposit, Total amount is %s, buy %s %s", len(res),
 			convertOfCurrency(totalDeposit, currencyType), convertUnit(totalBuy), config.GetServerConfig().CoinName)
-	} else if service.CheckMappingAddr(addr, currencyType) {
-		status, err := client.Status(addr, currencyType)
-		if err != nil {
-			json.NewEncoder(w).Encode(&JsonObj{2, "Teller api error: " + err.Error(), nil})
-			return
-		}
-		if len(status) > 0 {
-			data = fmt.Sprintf("found %d deposit, please waiting for confirm", len(status))
-		} else {
-			data = "Not found deposit record."
-		}
+		//	} else if service.CheckMappingAddr(addr, currencyType) {
+		//		status, err := client.Status(addr, currencyType)
+		//		if err != nil {
+		//			json.NewEncoder(w).Encode(&JsonObj{2, "Teller api error: " + err.Error(), nil})
+		//			return
+		//		}
+		//		if len(status) > 0 {
+		//			data = fmt.Sprintf("found %d deposit, please waiting for confirm", len(status))
+		//		} else {
+		//			data = "Not found deposit record."
+		//		}
 	} else {
 		data = "Not found deposit record."
 	}

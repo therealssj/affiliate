@@ -249,26 +249,26 @@ func Status(address string, currencyType string) ([]StatusResp, error) {
 
 }
 
-func statusRespTidy(arr []StatusResp) string {
-	var waitingDeposit, waitingSend, waitingConfirm, done uint32
-	for _, s := range arr {
-		switch s.Status {
-		case StatusWaitingDeposit:
-			waitingDeposit++
-		case StatusWaitingSend:
-			waitingSend++
-		case StatusWaitingConfirm:
-			waitingConfirm++
-		case StatusDone:
-			done++
-		}
-	}
-	if done =0{
-		return "";
-	}
-	return "";
-	
-}
+//func statusRespTidy(arr []StatusResp) string {
+//	var waitingDeposit, waitingSend, waitingConfirm, done uint32
+//	for _, s := range arr {
+//		switch s.Status {
+//		case StatusWaitingDeposit:
+//			waitingDeposit++
+//		case StatusWaitingSend:
+//			waitingSend++
+//		case StatusWaitingConfirm:
+//			waitingConfirm++
+//		case StatusDone:
+//			done++
+//		}
+//	}
+//	if done =0{
+//		return "";
+//	}
+//	return "";
+//}
+
 func statusRespProcess(response []byte, currencyType string) ([]StatusResp, error) {
 	jsonObj := new(jsonResp)
 	err := json.Unmarshal(response, &jsonObj)
