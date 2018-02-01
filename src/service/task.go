@@ -10,15 +10,6 @@ import (
 	"github.com/spaco/affiliate/src/tracking_code"
 )
 
-func syncCryptocurrency(newCurrency []db.CryptocurrencyInfo, updateRateCur []db.CryptocurrencyInfo) {
-	tx, commit := db.BeginTx()
-	defer db.Rollback(tx, &commit)
-	pg.AddBatchCryptocurrency(tx, newCurrency)
-	pg.UpdateBatchRate(tx, updateRateCur)
-	checkErr(tx.Commit())
-	commit = true
-}
-
 //const tellerReqName = "teller:req"
 
 //func GetTellerReq() int64 {

@@ -19,7 +19,7 @@ func TestBuyAddrMapping(t *testing.T) {
 		depositAddr  = "testdepositAddr"
 	)
 	if GetCryptocurrency(tx, currencyType) == nil {
-		AddBatchCryptocurrency(tx, []db.CryptocurrencyInfo{db.CryptocurrencyInfo{currencyType, currencyType, "100", 6}})
+		AddBatchCryptocurrency(tx, []db.CryptocurrencyInfo{db.CryptocurrencyInfo{currencyType, currencyType, "100", 6, true}})
 	}
 	id := SaveDepositAddrMapping(tx, address, currencyType, ref, depositAddr)
 	if id < 1 {

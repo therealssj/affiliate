@@ -110,8 +110,12 @@ func Bind(currencyType string, address string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	return bindRespProcess(resp, currencyType)
+}
+
+func bindRespProcess(response []byte, currencyType string) (string, error) {
 	jsonObj := new(jsonResp)
-	err = json.Unmarshal(resp, &jsonObj)
+	err := json.Unmarshal(response, &jsonObj)
 	if err != nil {
 		return "", err
 	}
@@ -127,7 +131,6 @@ func Bind(currencyType string, address string) (string, error) {
 		return "", errors.New("return not same currency type")
 	}
 	return bResp.Address, nil
-	//	return randStringRunes(32)
 }
 
 //type rateResp struct {
@@ -362,30 +365,38 @@ func Config() (*configResp, error) {
 	if err != nil {
 		return nil, err
 	}
+	return configRespProcess(resp)
+}
+
+func configRespProcess(response []byte) (*configResp, error) {
 	jsonObj := new(jsonResp)
-	err = json.Unmarshal(resp, &jsonObj)
+	err := json.Unmarshal(response, &jsonObj)
 	if err != nil {
 		return nil, err
 	}
 	if jsonObj.Code != 0 {
 		return nil, errors.New(fmt.Sprintf("%s code:%d", jsonObj.ErrMsg, jsonObj.Code))
 	}
-	configResp := new(configResp)
-	err = json.Unmarshal(jsonObj.Data, &configResp)
+	confResp := new(configResp)
+	err = json.Unmarshal(jsonObj.Data, &confResp)
 	if err != nil {
 		return nil, err
 	}
-	return configResp, nil
+	return confResp, nil
 }
 
 func RateWithErr() ([]db.CryptocurrencyInfo, error) {
-	configResp, err := Config()
+	confResp, err := Config()
 	if err != nil {
 		return nil, err
 	}
-	slice := make([]db.CryptocurrencyInfo, 0, len(configResp.AllCoins))
-	for _, coin := range configResp.AllCoins {
-		slice = append(slice, db.CryptocurrencyInfo{coin.Name, coin.Name, coin.Rate, int32(math.Log10(float64(coin.Unit)))})
+	return rateWithErrProcess(confResp)
+}
+
+func rateWithErrProcess(confResp *configResp) ([]db.CryptocurrencyInfo, error) {
+	slice := make([]db.CryptocurrencyInfo, 0, len(confResp.AllCoins))
+	for _, coin := range confResp.AllCoins {
+		slice = append(slice, db.CryptocurrencyInfo{coin.Name, coin.Name, coin.Rate, int32(math.Log10(float64(coin.Unit))), coin.Enabled})
 	}
 	return slice, nil
 }

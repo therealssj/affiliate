@@ -31,14 +31,6 @@ func AllCryptocurrency() []db.CryptocurrencyInfo {
 	return all
 }
 
-func AddBatchCryptocurrency(batch []db.CryptocurrencyInfo) {
-	tx, commit := db.BeginTx()
-	defer db.Rollback(tx, &commit)
-	pg.AddBatchCryptocurrency(tx, batch)
-	checkErr(tx.Commit())
-	commit = true
-}
-
 func MappingDepositAddr(address string, currencyType string, ref string) (string, error) {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
@@ -79,15 +71,24 @@ func QueryDepositRecord(address string, currencyType string) []db.DepositRecord 
 func SyncCryptocurrency(slice []db.CryptocurrencyInfo) {
 	currencyMap := AllCryptocurrencyMap()
 	newCurrency := make([]db.CryptocurrencyInfo, 0, 4)
-	updateRateCur := make([]db.CryptocurrencyInfo, 0, 4)
+	updateCur := make([]db.CryptocurrencyInfo, 0, 4)
 	for _, info := range slice {
 		if old, ok := currencyMap[info.ShortName]; ok {
-			if old.Rate != info.Rate {
-				updateRateCur = append(updateRateCur, info)
+			if old.Rate != info.Rate || old.Enabled != info.Enabled {
+				updateCur = append(updateCur, info)
 			}
 		} else {
 			newCurrency = append(newCurrency, info)
 		}
 	}
-	syncCryptocurrency(newCurrency, updateRateCur)
+	syncCryptocurrency(newCurrency, updateCur)
+}
+
+func syncCryptocurrency(newCurrency []db.CryptocurrencyInfo, updateCur []db.CryptocurrencyInfo) {
+	tx, commit := db.BeginTx()
+	defer db.Rollback(tx, &commit)
+	pg.AddBatchCryptocurrency(tx, newCurrency)
+	pg.UpdateBatchRateAndEnabled(tx, updateCur)
+	checkErr(tx.Commit())
+	commit = true
 }

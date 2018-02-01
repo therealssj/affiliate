@@ -32,9 +32,11 @@ its privacy protection in relation to the current Internet.
 <div class="form-group">
 <label style="display:block;">Please choose cryptocurrency type:</label>
 {{range .AllCurrency}}
-<label class="radio-inline">
-<input type="radio" id="choice-{{.ShortName}}" name="currencyType" value="{{.ShortName}}">{{.FullName}} (1{{.FullName}}=<span id="rate-{{.ShortName}}">{{.Rate}}</span> {{$.CoinName}})
+{{if .Enabled}}
+<label class="radio-inline" id="label-{{.ShortName}}">
+<input type="radio" id="choice-{{.ShortName}}" name="currencyType" value="{{.ShortName}}">{{.FullName}} (1{{.ShortName}}=<span id="rate-{{.ShortName}}">{{.Rate}}</span> {{$.CoinName}})
 </label>
+{{end}}
 {{end}}
 </div>
 </form>
@@ -133,7 +135,12 @@ window.setInterval(function(){
     		if(obj.code===0){
     			for(var i=0;i<obj.data.length;i++){
     				var node = $('#rate-'+obj.data[i].code);
-    				if(node&&obj.data[i].rate!=node.text()){
+    				if(!obj.data[i].enabled){
+    					var labelNode = $('#label-'+obj.data[i].code);
+    					if(labelNode){
+    						labelNode.hide();
+    					}
+    				}else if(node&&obj.data[i].rate!=node.text()){
 						node.text(obj.data[i].rate);  					
     				}
     			}

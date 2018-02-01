@@ -12,6 +12,7 @@ create table ALL_CRYPTOCURRENCY(
 	FULL_NAME varchar(128) not null,
 	RATE varchar(64) not null,
 	UNIT_POWER smallint not null,
+	ENABLED boolean not null,
 	primary key(SHORT_NAME)
 );
 

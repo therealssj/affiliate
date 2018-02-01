@@ -9,6 +9,7 @@ type CryptocurrencyInfo struct {
 	FullName  string `json:"-"`
 	Rate      string `json:"rate"`
 	UnitPower int32  `json:"-"`
+	Enabled   bool   `json:"enabled"`
 }
 type CryptocurrencyInfoSlice []CryptocurrencyInfo
 
