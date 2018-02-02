@@ -47,10 +47,11 @@ its privacy protection in relation to the current Internet.
 <div id="depositAddrDiv" class="alert alert-success" role="alert" style="display:none;">
 <div class="input-group" style="width: 80%;">
 <label for="depositAddr" style="display:block;">Deposit Address:</label>
-<input id="depositAddr" value="" type="text" style="width: 80%;"/><button 
+<input id="depositAddr" value="" type="text" style="width: 60%;"/><button 
 class="clipboardBtn" data-clipboard-target="#depositAddr" data-toggle="tooltip" data-placement="right" title="Copy to clipboard"><img 
-src="/s/svg/clippy.svg" alt="Copy to clipboard" width="13">
-</button>
+src="/s/svg/clippy.svg" alt="Copy to clipboard" width="13"></button>
+<span id="depositAddrQr"></span>
+<div id="depositAddrInfo"></div>
 </div>
 </div>
 <div id="statusDiv" class="alert alert-success" role="alert" style="display:none;">
@@ -99,6 +100,8 @@ function getAddress(){
     		if(obj.code===0){
 				$('#depositAddr').removeAttr("readonly");
 				$('#depositAddr').val(obj.data.depositAddr);
+				$('#depositAddrInfo').html(obj.data.first?'Your wallet address is the first time getting address.':'Your wallet address have already got the address.')
+				$('#depositAddrQr').html('<img src="../qr-code/?content='+encodeURIComponent(obj.data.depositAddr)+'"/>')
 				$('#depositAddr').attr("readonly","readonly");
     			$('#depositAddrDiv').show();
     			$("[data-toggle='tooltip']").tooltip(); 

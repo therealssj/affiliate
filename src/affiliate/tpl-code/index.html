@@ -38,16 +38,17 @@ its privacy protection in relation to the current Internet.
 <div id="shareUrlDiv" class="alert alert-success" role="alert" style="display:none;">
 <div class="input-group" style="width: 80%;">
 <label for="buyUrl" style="display:block;">Buy {{$.CoinName}} URL:</label>
-<input id="buyUrl" value="" type="text" style="width: 80%;"/><button 
+<input id="buyUrl" value="" type="text" style="width: 50%;"/><button 
 class="clipboardBtn btn btn-default" data-clipboard-target="#buyUrl" data-toggle="tooltip" data-placement="right" title="Copy to clipboard"><img 
-src="/s/svg/clippy.svg" alt="Copy to clipboard" width="14">
-</button>
+src="/s/svg/clippy.svg" alt="Copy to clipboard" width="14"></button>
+<span id="buyUrlQr"></span>
 </div>
 <div class="input-group" style="width: 80%;">
 <label for="joinUrl" style="display:block;">Join affiliate program URL:</label>
-<input id="joinUrl" value="" type="text" style="width: 80%;"/><button 
+<input id="joinUrl" value="" type="text" style="width: 50%;"/><button 
 class="clipboardBtn btn btn-default" data-clipboard-target="#joinUrl" data-toggle="tooltip" data-placement="right" title="Copy to clipboard"><img 
 src="/s/svg/clippy.svg" alt="Copy to clipboard" width="14"></button>
+<span id="joinUrlQr"></span>
 </div>
 </div>
 <div id="myInvitationDiv" class="alert alert-success" role="alert" style="display:none;">
@@ -105,6 +106,8 @@ function generate(){
 				$('#joinUrl').removeAttr("readonly");
 				$('#buyUrl').val(obj.data.buyUrl);
 				$('#joinUrl').val(obj.data.joinUrl);
+				$('#buyUrlQr').html('<img src="../qr-code/?content='+encodeURIComponent(obj.data.buyUrl)+'"/>')
+				$('#joinUrlQr').html('<img src="../qr-code/?content='+encodeURIComponent(obj.data.joinUrl)+'"/>')
 				$('#buyUrl').attr("readonly","readonly");
 				$('#joinUrl').attr("readonly","readonly");
 				$('#shareUrlDiv').show();

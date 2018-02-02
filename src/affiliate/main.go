@@ -13,6 +13,7 @@ import (
 
 	"github.com/robfig/cron"
 	"github.com/shopspring/decimal"
+	qrcode "github.com/skip2/go-qrcode"
 	"github.com/skycoin/skycoin/src/cipher"
 	"github.com/spaco/affiliate/src/config"
 	"github.com/spaco/affiliate/src/service"
@@ -67,6 +68,7 @@ func main() {
 		}
 	}()
 	http.HandleFunc("/", buyHandler)
+	http.HandleFunc("/qr-code/", qrCodehandler)
 	http.HandleFunc("/get-address/", getAddrHandler)
 	http.HandleFunc("/check-status/", checkStatusHandler)
 	http.HandleFunc("/get-rate/", getRateHandler)
@@ -282,16 +284,34 @@ func getAddrHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(&JsonObj{2, "Cryptocurrency type is not valid: " + currencyType, nil})
 		return
 	}
-	depositAddr, err := service.MappingDepositAddr(addr, currencyType, r.PostFormValue("ref"))
+	depositAddr, first, err := service.MappingDepositAddr(addr, currencyType, r.PostFormValue("ref"))
 	if err != nil {
 		json.NewEncoder(w).Encode(&JsonObj{2, "Teller api error: " + err.Error(), nil})
 		return
 	}
 	json.NewEncoder(w).Encode(&JsonObj{0, "", &struct {
 		DepositAddr string `json:"depositAddr"`
-	}{depositAddr}})
+		First       bool   `json:"first"`
+	}{depositAddr, first}})
 }
 
 func getRateHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&JsonObj{0, "", allCryptocurrency()})
+}
+
+func qrCodehandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	content := r.FormValue("content")
+	if len(content) == 0 {
+		http.Error(w, "parameter content is blank", http.StatusInternalServerError)
+		return
+	}
+	png, err := qrcode.Encode(content, qrcode.Medium, 80)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "image/png")
+	w.Header().Set("Cache-Control", "max-age=2592000") //30days
+	w.Write(png)
 }

@@ -31,23 +31,23 @@ func AllCryptocurrency() []db.CryptocurrencyInfo {
 	return all
 }
 
-func MappingDepositAddr(address string, currencyType string, ref string) (string, error) {
+func MappingDepositAddr(address string, currencyType string, ref string) (string, bool, error) {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
 	buyAddrMapping := pg.QueryMappingDepositAddr(tx, address, currencyType)
 	if buyAddrMapping != nil {
 		checkErr(tx.Commit())
 		commit = true
-		return buyAddrMapping.DepositAddr, nil
+		return buyAddrMapping.DepositAddr, false, nil
 	}
 	depositAddr, err := client.Bind(currencyType, address)
 	if err != nil {
-		return "", err
+		return "", true, err
 	}
 	pg.SaveDepositAddrMapping(tx, address, currencyType, ref, depositAddr)
 	checkErr(tx.Commit())
 	commit = true
-	return depositAddr, nil
+	return depositAddr, true, nil
 }
 
 func CheckMappingAddr(address string, currencyType string) bool {
