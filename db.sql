@@ -70,6 +70,7 @@ create table REWARD_RECORD(
 	SENT_TIME timestamp default NULL,
 	SENT boolean not null,
 	REWARD_TYPE varchar(32) not null,
+	CHECKSUM varchar(255) not null,
 	primary key(ID),
 	UNIQUE (DEPOSIT_ID, ADDRESS, REWARD_TYPE)
 );
@@ -83,6 +84,7 @@ create table REWARD_REMAIN(
 	CREATION timestamp NOT NULL,
 	LAST_MODIFIED timestamp NOT NULL,
 	AMOUNT bigint not null,
+	CHECKSUM varchar(255) not null,
 	primary key(ADDRESS)
 );
 
