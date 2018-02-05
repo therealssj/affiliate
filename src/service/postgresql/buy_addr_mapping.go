@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/spaco/affiliate/src/service/db"
+	"github.com/spolabs/affiliate/src/service/db"
 )
 
 func QueryMappingDepositAddr(tx *sql.Tx, address string, currencyType string) *db.BuyAddrMapping {

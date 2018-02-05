@@ -1,8 +1,8 @@
 package postgresql
 
 import (
-	"github.com/spaco/affiliate/src/config"
-	"github.com/spaco/affiliate/src/service/db"
+	"github.com/spolabs/affiliate/src/config"
+	"github.com/spolabs/affiliate/src/service/db"
 	"testing"
 	"time"
 )

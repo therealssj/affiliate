@@ -6,7 +6,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	_ "github.com/lib/pq"
-	"github.com/spaco/affiliate/src/config"
+	"github.com/spolabs/affiliate/src/config"
 	"strconv"
 	"time"
 )

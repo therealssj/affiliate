@@ -3,7 +3,7 @@ package postgresql
 import (
 	"database/sql"
 
-	"github.com/spaco/affiliate/src/service/db"
+	"github.com/spolabs/affiliate/src/service/db"
 )
 
 func AllCryptocurrency(tx *sql.Tx) []db.CryptocurrencyInfo {

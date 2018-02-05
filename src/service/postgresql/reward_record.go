@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/spaco/affiliate/src/service/db"
+	"github.com/spolabs/affiliate/src/service/db"
 )
 
 func SaveBatchRewardRecord(tx *sql.Tx, batch []db.RewardRecord) []uint64 {

@@ -15,11 +15,11 @@ import (
 	"github.com/shopspring/decimal"
 	qrcode "github.com/skip2/go-qrcode"
 	"github.com/skycoin/skycoin/src/cipher"
-	"github.com/spaco/affiliate/src/config"
-	"github.com/spaco/affiliate/src/service"
-	"github.com/spaco/affiliate/src/service/db"
-	client "github.com/spaco/affiliate/src/teller_client"
-	"github.com/spaco/affiliate/src/tracking_code"
+	"github.com/spolabs/affiliate/src/config"
+	"github.com/spolabs/affiliate/src/service"
+	"github.com/spolabs/affiliate/src/service/db"
+	client "github.com/spolabs/affiliate/src/teller_client"
+	"github.com/spolabs/affiliate/src/tracking_code"
 )
 
 func checkErr(err error) {

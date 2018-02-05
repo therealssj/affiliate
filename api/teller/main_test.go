@@ -5,7 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/spaco/affiliate/src/config"
+	"github.com/spolabs/affiliate/src/config"
 	"net/http/httptest"
 	"testing"
 	"time"

@@ -2,7 +2,7 @@ package postgresql
 
 import (
 	"database/sql"
-	"github.com/spaco/affiliate/src/service/db"
+	"github.com/spolabs/affiliate/src/service/db"
 )
 
 func UpdateRewardRemain(tx *sql.Tx, data map[string]uint64) {

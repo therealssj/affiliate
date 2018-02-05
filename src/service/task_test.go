@@ -5,8 +5,8 @@ import (
 	//	"fmt"
 	"testing"
 
-	"github.com/spaco/affiliate/src/config"
-	"github.com/spaco/affiliate/src/service/db"
+	"github.com/spolabs/affiliate/src/config"
+	"github.com/spolabs/affiliate/src/service/db"
 )
 
 func TestBuildRewardRecord(t *testing.T) {

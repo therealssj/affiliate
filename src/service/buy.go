@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/spaco/affiliate/src/service/db"
-	pg "github.com/spaco/affiliate/src/service/postgresql"
-	client "github.com/spaco/affiliate/src/teller_client"
+	"github.com/spolabs/affiliate/src/service/db"
+	pg "github.com/spolabs/affiliate/src/service/postgresql"
+	client "github.com/spolabs/affiliate/src/teller_client"
 )
 
 func AllCryptocurrencyMap() map[string]db.CryptocurrencyInfo {

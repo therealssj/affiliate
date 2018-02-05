@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/spaco/affiliate/src/service/db"
-	pg "github.com/spaco/affiliate/src/service/postgresql"
-	"github.com/spaco/affiliate/src/tracking_code"
+	"github.com/spolabs/affiliate/src/service/db"
+	pg "github.com/spolabs/affiliate/src/service/postgresql"
+	"github.com/spolabs/affiliate/src/tracking_code"
 )
 
 func checkErr(err error) {

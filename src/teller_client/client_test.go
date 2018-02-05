@@ -5,7 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"github.com/spaco/affiliate/src/config"
+	"github.com/spolabs/affiliate/src/config"
 	"net/http/httptest"
 	"testing"
 )
