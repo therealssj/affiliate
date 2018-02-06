@@ -4,11 +4,11 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/spaco/affiliate/src/service/db"
+	"github.com/spolabs/affiliate/src/service/db"
 )
 
-func QueryMappingDepositAddr(tx *sql.Tx, address string, currencyType string) (*db.BuyAddrMapping, bool) {
-	rows, err := tx.Query("select ID,CREATION,DEPOSIT_ADDR,REF from BUY_ADDR_MAPPING where CURRENCY_TYPE=$1 and DEPOSIT_ADDR=$2", currencyType, address)
+func QueryMappingDepositAddr(tx *sql.Tx, address string, currencyType string) *db.BuyAddrMapping {
+	rows, err := tx.Query("select ID,CREATION,DEPOSIT_ADDR,REF from BUY_ADDR_MAPPING where CURRENCY_TYPE=$1 and ADDRESS=$2", currencyType, address)
 	checkErr(err)
 	defer rows.Close()
 	for rows.Next() {
@@ -22,14 +22,14 @@ func QueryMappingDepositAddr(tx *sql.Tx, address string, currencyType string) (*
 		if refNullable.Valid {
 			ref = refNullable.String
 		}
-		return &db.BuyAddrMapping{id, creation, address, currencyType, depositAddr, ref}, true
+		return &db.BuyAddrMapping{id, creation, address, currencyType, depositAddr, ref}
 	}
-	return &db.BuyAddrMapping{}, false
+	return nil
 }
 
 func SaveDepositAddrMapping(tx *sql.Tx, address string, currencyType string, ref string, depositAddr string) uint64 {
 	var lastInsertId uint64
-	err := tx.QueryRow("insert into BUY_ADDR_MAPPING(CREATION,ADDRESS,CURRENCY_TYPE,DEPOSIT_ADDR,REF) values (now(),$1, $2, $3, $4) returning id;", address, currencyType, depositAddr, ref).Scan(&lastInsertId)
+	err := tx.QueryRow("insert into BUY_ADDR_MAPPING(CREATION,ADDRESS,CURRENCY_TYPE,DEPOSIT_ADDR,REF) values (now(),$1, $2, $3, $4) returning ID", address, currencyType, depositAddr, ref).Scan(&lastInsertId)
 	checkErr(err)
 	return lastInsertId
 

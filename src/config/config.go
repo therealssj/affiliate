@@ -10,11 +10,12 @@ var initServerConfig = false
 var serverConfig *ServerConfig
 
 type ServerConfig struct {
-	CoinName  string `default:"SPO TOKEN"`
-	LogFolder string `default:"/tmp/affiliate/"`
-	Db        Db
-	Server    Server
-	Teller    Teller
+	CoinName      string `default:"SPO TOKEN"`
+	LogFolder     string `default:"/tmp/affiliate/"`
+	Db            Db
+	Server        Server
+	Teller        Teller
+	CoinUnitPower int `default:"6"`
 }
 
 type Db struct {
@@ -29,13 +30,17 @@ type Db struct {
 }
 
 type Server struct {
-	Domain string `default:"localhost"`
-	Port   int    `default:"6060"`
-	Https  bool   `default:"false"`
+	Domain     string `default:"localhost"`
+	Port       int    `default:"80"`
+	ListenIp   string `default:"127.0.0.1"`
+	ListenPort int    `default:"6060"`
+	Https      bool   `default:"false"`
 }
 
 type Teller struct {
 	ContextPath string `default:"http://localhost:7071"`
+	ApiToken    string
+	Debug       bool `default:"false"`
 }
 
 func GetServerConfig() *ServerConfig {
@@ -54,34 +59,53 @@ func GetServerConfig() *ServerConfig {
 	return serverConfig
 }
 
-var initDaemonConfig = false
-var daemonConfig *DaemonConfig
+var initApiForTellerConfig = false
+var apiForTellerConfig *ApiForTellerConfig
 
-type DaemonConfig struct {
+type ApiForTellerConfig struct {
 	LogFolder    string `default:"/tmp/affiliate/"`
 	Db           Db
 	RewardConfig RewardConfig
-	Teller       Teller
+	ListenIp     string `default:"127.0.0.1"`
+	ListenPort   int    `default:"6010"`
+	AuthToken    string
+	AuthValidSec int  `default:"15"`
+	Debug        bool `default:"false"`
 }
 
 type RewardConfig struct {
-	BuyerRate     float32
-	PromoterRate  []float32
-	MinSendAmount int
+	BuyerRatio            float64   `default:"0.02"`
+	LadderLine            []int     // default [0]
+	PromoterRatio         []float64 //default [0.05]
+	SuperiorPromoterRatio []float64 // default [0.03]
+	SuperiorDiscount      float64   `default:"0.5"`
+	MinSendAmount         int       `default:"1000000"`
 }
 
-func GetDaemonConfig() *DaemonConfig {
-	if initDaemonConfig {
-		return daemonConfig
+func GetApiForTellerConfig() *ApiForTellerConfig {
+	if initApiForTellerConfig {
+		return apiForTellerConfig
 	}
 	m := multiconfig.NewWithPath("config.toml") // supports TOML, JSON and YAML
-	daemonConfig = new(DaemonConfig)
-	err := m.Load(daemonConfig) // Check for error
+	apiForTellerConfig = new(ApiForTellerConfig)
+	err := m.Load(apiForTellerConfig) // Check for error
 	if err != nil {
-		fmt.Printf("GetDaemonConfig Error: %s", err)
+		fmt.Printf("GetApiForTellerConfig Error: %s", err)
 	}
-	m.MustLoad(daemonConfig) // Panic's if there is any error
-	//	fmt.Printf("%+v\n", daemonConfig)
-	initDaemonConfig = true
-	return daemonConfig
+	m.MustLoad(apiForTellerConfig) // Panic's if there is any error
+	if len(apiForTellerConfig.RewardConfig.LadderLine) == 0 {
+		apiForTellerConfig.RewardConfig.LadderLine = []int{0}
+	}
+	if len(apiForTellerConfig.RewardConfig.PromoterRatio) == 0 {
+		apiForTellerConfig.RewardConfig.PromoterRatio = []float64{0.05}
+	}
+	if len(apiForTellerConfig.RewardConfig.SuperiorPromoterRatio) == 0 {
+		apiForTellerConfig.RewardConfig.SuperiorPromoterRatio = []float64{0.03}
+	}
+	//	fmt.Printf("%+v\n", apiForTellerConfig)
+	if len(apiForTellerConfig.RewardConfig.LadderLine) != len(apiForTellerConfig.RewardConfig.PromoterRatio) || len(apiForTellerConfig.RewardConfig.LadderLine) != len(apiForTellerConfig.RewardConfig.SuperiorPromoterRatio) {
+		panic("RewardConfig LadderLine, PromoterRatio, SuperiorPromoterRatio length not same")
+	}
+	initApiForTellerConfig = true
+	return apiForTellerConfig
 }

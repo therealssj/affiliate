@@ -1,7 +1,7 @@
 package tracking_code
 
 import (
-	"github.com/spaco/affiliate/src/duotricenary"
+	"github.com/spolabs/affiliate/src/duotricenary"
 )
 
 func GenerateCode(id uint64) string {

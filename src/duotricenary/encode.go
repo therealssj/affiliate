@@ -21,13 +21,13 @@ func DecodeUint64(str string) uint64 {
 	if len(str) == 0 {
 		panic("blank string")
 	}
-	arr := []byte(str)
-	for i, j := 0, len(arr)-1; i < j; i, j = i+1, j-1 {
-		arr[i], arr[j] = arr[j], arr[i]
+	slice := []byte(str)
+	for i, j := 0, len(slice)-1; i < j; i, j = i+1, j-1 {
+		slice[i], slice[j] = slice[j], slice[i]
 	}
 	var res uint64 = 0
-	for i := 0; i < len(arr); i++ {
-		b := arr[i]
+	for i := 0; i < len(slice); i++ {
+		b := slice[i]
 		if b < 58 {
 			if b < 48 {
 				panic("参数str中" + string(b) + "为非法字符")

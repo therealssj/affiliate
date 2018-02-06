@@ -5,57 +5,143 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Affiliate Portal</title>
-    <script src="/s/jquery.js"></script>
+    <link href="/s/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<div class="container">
 <h1>Affiliate Portal</h1>
-<form method="POST" name="form" id="form" action="">
+<p>
+</p>
+<p>
+SPACO, is a distributed next-generation network protocol,
+which significantly improves on the current HTTP/HTTPS internet protocols.
+SPACO opens the floodgates and allows anyone to be a network operator,
+Instead of all resources being controlled by few industry giants.
+Network resources and integrity are protected using our redundancy and smart contracts.
+SPACO have a great advantage being distributed along with its reliability and also
+its privacy protection in relation to the current Internet.
+</p>
+<p>
+</p>
+<form method="POST" name="form" id="form" action="" role="form">
 <input type="hidden" name="ref" value="{{.Ref}}"/>
-Please Input your wallet address:
-<br />
-<input type="text" name="address" value=""/>
+<div class="form-group">
+<label for="address">Please input your wallet address:</label>
+<input type="text" name="address" value="" id="address" class="form-control" placeholder="wallet address" size="60" maxlength="60"/>
+</div>
 </form>
 <br />
-<button onclick="generate()">Generate Tracking Code</button>
-<button onclick="myInvitation()">My Invitation</button> 
+<div>
+<button type="button" class="btn btn-primary" onclick="generate()">Generate Tracking URL</button>
+<button type="button" class="btn btn-default" onclick="myInvitation()">My Invitation</button> 
+</div>
+<div id="shareUrlDiv" class="alert alert-success" role="alert" style="display:none;">
+<div class="input-group" style="width: 80%;">
+<label for="buyUrl" style="display:block;">Buy {{$.CoinName}} URL:</label>
+<input id="buyUrl" value="" type="text" style="width: 50%;"/><button 
+class="clipboardBtn btn btn-default" data-clipboard-target="#buyUrl" data-toggle="tooltip" data-placement="right" title="Copy to clipboard"><img 
+src="/s/svg/clippy.svg" alt="Copy to clipboard" width="14"></button>
+<span id="buyUrlQr"></span>
+</div>
+<div class="input-group" style="width: 80%;">
+<label for="joinUrl" style="display:block;">Join affiliate program URL:</label>
+<input id="joinUrl" value="" type="text" style="width: 50%;"/><button 
+class="clipboardBtn btn btn-default" data-clipboard-target="#joinUrl" data-toggle="tooltip" data-placement="right" title="Copy to clipboard"><img 
+src="/s/svg/clippy.svg" alt="Copy to clipboard" width="14"></button>
+<span id="joinUrlQr"></span>
+</div>
+</div>
+<div id="myInvitationDiv" class="alert alert-success" role="alert" style="display:none;">
+</div>
+</div>
+<script type="text/x-jsrender" id="tmpl">
+<span>got [[:records.length]] times reward.</span>
+[[if records.length>0]]
+<table class="table">
+	<caption>Remain [[:remain]] [[:coinName]]</caption>
+	<thead>
+	<tr> <th>#</th> <th>Reward</th> <th>Send</th>
+		 <th>Status</th> <th>Time</th> <th>Type</th> </tr>
+	</thead> 
+	<tbody> 
+	[[for records]]
+	<tr> <th scope="row">r[[:id]]</th> <td>[[:rewardAmount]]</td> <td>[[:sentAmount]]</td>
+		 <td>[[if sent]] done [[else sentAmount=='0']] remain [[else]] waiting [[/if]]</td><td>[[if sent]][[:sentTime]][[/if]]</td><td>[[:type]]</td> </tr>
+	[[/for]]
+	</tbody> 
+	</table>
+[[/if]]
+</script>
+<script src="/s/jquery.js"></script>
+<script src="/s/jsrender.js"></script>
+<script src="/s/bootstrap/js/bootstrap.min.js"></script>
+<script src="/s/clipboard.js"></script>
+<script src="/s/common.js"></script>
 <script>
+var clipboard = new Clipboard('.clipboardBtn');
+clipboard.on('success',function(e){
+	showTooltip(e.trigger,'Copied!');
+});
+clipboard.on('error',function(e){
+	showTooltip(e.trigger,fallbackMessage(e.action));
+});
+
+function validate(form){
+	if(!form.elements['address'].value){
+		alert('Please input wallet address');
+		return false;
+	}
+	return true
+}
+
 function generate(){
-    var form = document.forms['form'];
-    if(!form.elements['address'].value){
-    	alert('请输入地址');
-    	return;
-    }
-    $.ajax({ url: "./generate/", data: $(form).serialize(), dataType: "json", success: function(obj){
-    	if(obj){
-    		if(obj.code===0){
-    			$('#buyUrl').text(obj.data.buyUrl);
-    			$('#joinUrl').text(obj.data.joinUrl);
-    			$('#shareUrlDiv').show();
-    		}else{
-    			alert(obj.errmsg);
-    		}
-    	}else{
-    		alert("出现错误"); 		
-    	}
-      }});
+	var form = document.forms['form'];
+	if(!validate(form)){
+		return;
+	}
+	$.ajax({ url: './generate/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
+		if(obj){
+			if(obj.code===0){
+				$('#buyUrl').removeAttr("readonly");
+				$('#joinUrl').removeAttr("readonly");
+				$('#buyUrl').val(obj.data.buyUrl);
+				$('#joinUrl').val(obj.data.joinUrl);
+				$('#buyUrlQr').html('<img src="../qr-code/?content='+encodeURIComponent(obj.data.buyUrl)+'"/>')
+				$('#joinUrlQr').html('<img src="../qr-code/?content='+encodeURIComponent(obj.data.joinUrl)+'"/>')
+				$('#buyUrl').attr("readonly","readonly");
+				$('#joinUrl').attr("readonly","readonly");
+				$('#shareUrlDiv').show();
+				$("[data-toggle='tooltip']").tooltip(); 
+			}else{
+				alert(obj.errmsg);
+			}
+		}else{
+			alert("error"); 		
+		}
+		}});
 }
 function myInvitation(){
-    var form = document.forms['form'];
-    if(!form.elements['address'].value){
-    	alert('请输入地址');
-    	return;
-    }
-    //form.action = './my-invitation/';
+	var form = document.forms['form'];
+	if(!validate(form)){
+		return;
+	}
+	$.ajax({ url: './my-invitation/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
+		if(obj){
+			if(obj.code===0){
+				$.views.settings.delimiters("[[", "]]");
+				var tmpl = $.templates('#tmpl')
+				$("#myInvitationDiv").html(tmpl.render(obj.data));
+				$('#myInvitationDiv').show();
+			}else{
+				alert(obj.errmsg);
+			}
+		}else{
+			alert("error"); 		
+		}
+		}});
 }
-</script>
-<div id="shareUrlDiv" style="display:none;">
-<br /><br /><br />
-    Buy skycoin URL:
-    <span id="buyUrl"></span>
-    <br />
-    Join affiliate program URL:
-    <span id="joinUrl"></span>
-</div>
 
+$('#address').focus();
+</script>
 </body>
 </html>
