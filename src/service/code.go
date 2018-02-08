@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/spolabs/affiliate/src/config"
 	"github.com/spolabs/affiliate/src/service/db"
 	pg "github.com/spolabs/affiliate/src/service/postgresql"
 	"github.com/spolabs/affiliate/src/tracking_code"
@@ -37,7 +38,7 @@ func GetTrackingCodeOrGenerate(address string, refCode string) uint64 {
 func QueryRewardRecord(address string) []db.RewardRecord {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
-	res := pg.QueryRewardRecord(tx, address)
+	res := pg.QueryRewardRecord(tx, config.GetServerConfig().Db.ChecksumToken, address)
 	checkErr(tx.Commit())
 	commit = true
 	return res

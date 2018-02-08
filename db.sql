@@ -70,7 +70,7 @@ create table REWARD_RECORD(
 	SENT_TIME timestamp default NULL,
 	SENT boolean not null,
 	REWARD_TYPE varchar(32) not null,
-	CHECKSUM varchar(255) not null,
+	CHECKSUM varchar(255) default null,
 	primary key(ID),
 	UNIQUE (DEPOSIT_ID, ADDRESS, REWARD_TYPE)
 );

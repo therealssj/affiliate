@@ -1,9 +1,10 @@
 package postgresql
 
 import (
+	"testing"
+
 	"github.com/spolabs/affiliate/src/config"
 	"github.com/spolabs/affiliate/src/service/db"
-	"testing"
 )
 
 func TestRewardRemain(t *testing.T) {
@@ -16,8 +17,8 @@ func TestRewardRemain(t *testing.T) {
 	m["testaddress1"] = 101
 	m["testaddress2"] = 234
 	m["testaddress3"] = 382
-	UpdateRewardRemain(tx, m)
-	m2 := QueryRewardRemain(tx, mapKeySlice(m)...)
+	UpdateRewardRemain(tx, config.Db.ChecksumToken, m)
+	m2 := QueryRewardRemain(tx, config.Db.ChecksumToken, mapKeySlice(m)...)
 	for k, v := range m {
 		if m2[k] != v {
 			t.Errorf("Failed. key %s, expect:%d, actual:%d", k, v, m2[k])
@@ -25,8 +26,8 @@ func TestRewardRemain(t *testing.T) {
 	}
 	m["testaddress3"] = 395
 	m["testaddress4"] = 428
-	UpdateRewardRemain(tx, m)
-	m2 = QueryRewardRemain(tx, mapKeySlice(m)...)
+	UpdateRewardRemain(tx, config.Db.ChecksumToken, m)
+	m2 = QueryRewardRemain(tx, config.Db.ChecksumToken, mapKeySlice(m)...)
 	for k, v := range m {
 		if m2[k] != v {
 			t.Errorf("Failed. key %s, expect:%d, actual:%d", k, v, m2[k])

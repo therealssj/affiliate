@@ -21,7 +21,7 @@ import (
 //	return intVal
 //}
 
-func fillAndGetRewardRemain(tx *sql.Tx, batch []db.DepositRecord) map[string]uint64 {
+func fillAndGetRewardRemain(tx *sql.Tx, checksumToken string, batch []db.DepositRecord) map[string]uint64 {
 	addrs := make([]string, 0, 2*len(batch))
 	for i, _ := range batch {
 		dr := &(batch[i])
@@ -46,7 +46,7 @@ func fillAndGetRewardRemain(tx *sql.Tx, batch []db.DepositRecord) map[string]uin
 		}
 	}
 	if len(addrs) > 0 {
-		return pg.QueryRewardRemain(tx, addrs...)
+		return pg.QueryRewardRemain(tx, checksumToken, addrs...)
 	}
 	return make(map[string]uint64, 0)
 }
@@ -60,11 +60,13 @@ func fillAndGetRewardRemain(tx *sql.Tx, batch []db.DepositRecord) map[string]uin
 //}
 
 func ProcessDeposit(batch []db.DepositRecord /*, oldReq int64, req int64*/) {
-	rewardConfig := config.GetApiForTellerConfig().RewardConfig
+	conf := config.GetApiForTellerConfig()
+	rewardConfig := conf.RewardConfig
+	checksumToken := conf.Db.ChecksumToken
 	rewardRecords := make([]db.RewardRecord, 0, 3*len(batch))
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
-	remainMap := fillAndGetRewardRemain(tx, batch)
+	remainMap := fillAndGetRewardRemain(tx, checksumToken, batch)
 	changedRemainMap := make(map[string]uint64, len(remainMap))
 	for _, dr := range batch {
 		if dr.CurrencyType == "Deprecated" {
@@ -80,10 +82,10 @@ func ProcessDeposit(batch []db.DepositRecord /*, oldReq int64, req int64*/) {
 		}
 	}
 	if len(rewardRecords) > 0 {
-		pg.SaveBatchRewardRecord(tx, rewardRecords)
+		pg.SaveBatchRewardRecord(tx, checksumToken, rewardRecords)
 	}
 	if len(changedRemainMap) > 0 {
-		pg.UpdateRewardRemain(tx, changedRemainMap)
+		pg.UpdateRewardRemain(tx, checksumToken, changedRemainMap)
 	}
 	//	if oldReq != req {
 	//		pg.SaveKvStore(tx, tellerReqName, req, "")
@@ -172,7 +174,7 @@ func getPromoterRatioBySalesVolume(rewardConfig *config.RewardConfig, sv uint64)
 func GetUnsentRewardRecord() []db.RewardRecord {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
-	rrs := pg.GetUnsentRewardRecord(tx)
+	rrs := pg.GetUnsentRewardRecord(tx, config.GetApiForTellerConfig().Db.ChecksumToken)
 	checkErr(tx.Commit())
 	commit = true
 	return rrs
@@ -181,7 +183,7 @@ func GetUnsentRewardRecord() []db.RewardRecord {
 func UpdateBatchRewardRecord(ids ...uint64) {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
-	pg.UpdateBatchRewardRecord(tx, ids...)
+	pg.UpdateBatchSentRewardRecord(tx, config.GetApiForTellerConfig().Db.ChecksumToken, ids...)
 	checkErr(tx.Commit())
 	commit = true
 }

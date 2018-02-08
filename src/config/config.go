@@ -19,14 +19,15 @@ type ServerConfig struct {
 }
 
 type Db struct {
-	Host         string `default:"localhost"`
-	Port         int    `default:"5432"`
-	User         string `default:"lijt"`
-	Password     string `default:"lijtlijt"`
-	Name         string `default:"affiliate"`
-	SslMode      string `default:"disable"`
-	MaxOpenConns int    `default:"500"`
-	MaxIdleConns int    `default:"50"`
+	Host          string `default:"localhost"`
+	Port          int    `default:"5432"`
+	User          string `default:"lijt"`
+	Password      string `default:"lijtlijt"`
+	Name          string `default:"affiliate"`
+	SslMode       string `default:"disable"`
+	MaxOpenConns  int    `default:"500"`
+	MaxIdleConns  int    `default:"50"`
+	ChecksumToken string `default:"test-checksum-token"`
 }
 
 type Server struct {

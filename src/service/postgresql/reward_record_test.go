@@ -1,10 +1,11 @@
 package postgresql
 
 import (
-	"github.com/spolabs/affiliate/src/config"
-	"github.com/spolabs/affiliate/src/service/db"
 	"testing"
 	"time"
+
+	"github.com/spolabs/affiliate/src/config"
+	"github.com/spolabs/affiliate/src/service/db"
 )
 
 func TestRewardRecord(t *testing.T) {
@@ -35,21 +36,21 @@ func TestRewardRecord(t *testing.T) {
 	data := make([]db.RewardRecord, 0, 4)
 	data = append(data, db.RewardRecord{DepositId: depositId, Address: "testBuyAddr", CalAmount: 1100000, SentAmount: 1000000, RewardType: db.RewardBuyer})
 	data = append(data, db.RewardRecord{DepositId: depositId, Address: "testBuyAddr", CalAmount: 2100000, SentAmount: 2000000, RewardType: db.RewardPromoter})
-	ids := SaveBatchRewardRecord(tx, data)
+	ids := SaveBatchRewardRecord(tx, config.Db.ChecksumToken, data)
 	if len(ids) != len(data) || ids[0] < 1 || ids[1] < 1 {
 		t.Errorf("Failed. SaveBatchRewardRecord error")
 	}
-	if len(QueryRewardRecord(tx, data[0].Address)) != 2 {
+	if len(QueryRewardRecord(tx, config.Db.ChecksumToken, data[0].Address)) != 2 {
 		t.Errorf("Failed. QueryRewardRecord error")
 	}
-	if len(GetUnsentRewardRecord(tx)) != 2 {
+	if len(GetUnsentRewardRecord(tx, config.Db.ChecksumToken)) != 2 {
 		t.Errorf("Failed. GetUnsentRewardRecord error")
 	}
-	UpdateBatchRewardRecord(tx, ids...)
-	if len(GetUnsentRewardRecord(tx)) != 0 {
+	UpdateBatchSentRewardRecord(tx, config.Db.ChecksumToken, ids...)
+	if len(GetUnsentRewardRecord(tx, config.Db.ChecksumToken)) != 0 {
 		t.Errorf("Failed. GetUnsentRewardRecord error")
 	}
-	data = QueryRewardRecord(tx, data[0].Address)
+	data = QueryRewardRecord(tx, config.Db.ChecksumToken, data[0].Address)
 	if len(data) != 2 || !data[0].Sent || !data[1].Sent {
 		t.Errorf("Failed. QueryRewardRecord error")
 	}
