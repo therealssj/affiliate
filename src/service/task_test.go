@@ -10,12 +10,12 @@ import (
 )
 
 func TestBuildRewardRecord(t *testing.T) {
-	conf := config.GetDaemonConfig()
+	conf := config.GetApiForTellerConfig()
 	dbo := db.OpenDb(&conf.Db)
 	defer dbo.Close()
 	tx, _ := dbo.Begin()
 	defer tx.Rollback()
-	rewardConfig := config.GetDaemonConfig().RewardConfig
+	rewardConfig := config.GetApiForTellerConfig().RewardConfig
 	rewardRecords := make([]db.RewardRecord, 0, 2)
 	remainMap := make(map[string]uint64, 8)
 	changedRemainMap := make(map[string]uint64, 8)
@@ -26,7 +26,7 @@ func TestBuildRewardRecord(t *testing.T) {
                 "deposit_address": "2do3K1YLMy3Aq6EcPMdncEurP5BfAUdFPJj",
                 "txid": "2a6ccb1dbfd9ed65bcd74ee7a2c7877d110812ba7cf496cbcdb034bd671e1490",
                 "sent": 10000000,
-                "rate": 100,
+                "rate": "100",
                 "coin_type": "skycoin",
                 "deposit_value": 100000,
                 "height": 7455
@@ -62,7 +62,7 @@ func TestBuildRewardRecord(t *testing.T) {
 		              "deposit_address": "2do3K1YLMy3Aq6EcPMdncEurP5BfAUdFPJj",
 		              "txid": "fa92485d739e64e55f7a4beab9f5d7e6e23aa6f7e289bd5a5e7597f5e1fa4cf9",
 		              "sent": 20000000,
-		              "rate": 100,
+		              "rate": "100",
 		              "coin_type": "skycoin",
 		              "deposit_value": 200000,
 		              "height": 7456
