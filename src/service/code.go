@@ -47,7 +47,7 @@ func QueryRewardRecord(address string) []db.RewardRecord {
 func QueryRewardRemain(address string) uint64 {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
-	m := pg.QueryRewardRemain(tx, address)
+	m := pg.QueryRewardRemain(tx, config.GetServerConfig().Db.ChecksumToken, address)
 	checkErr(tx.Commit())
 	commit = true
 	if rm, ok := m[address]; ok {
