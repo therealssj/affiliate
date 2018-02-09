@@ -5,9 +5,8 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
-	"time"
-
 	"github.com/spolabs/affiliate/src/service/db"
+	"time"
 )
 
 func rewardRecordCheckSum(checksumToken string, reward *db.RewardRecord) string {
@@ -23,6 +22,7 @@ func rewardRecordCheckSum(checksumToken string, reward *db.RewardRecord) string 
 		hash.Write([]byte{byte(0)})
 	}
 	return hex.EncodeToString(hash.Sum(nil))
+	//	fmt.Printf("Id:%d, DepositId:%d, Address:%s, SentAmount:%d, Sent:%t, res:%s\n", reward.Id, reward.DepositId, reward.Address, reward.SentAmount, reward.Sent, res)
 }
 
 func updatRewardRecordChecksum(tx *sql.Tx, checksumToken string, reward *db.RewardRecord) {
@@ -95,6 +95,7 @@ func updateRewardRecordSentAndChecksum(tx *sql.Tx, checksumToken string, reward 
 	stmt, err := tx.Prepare("update REWARD_RECORD set SENT_TIME=now(),SENT=true,CHECKSUM=$1 where ID=$2")
 	defer stmt.Close()
 	checkErr(err)
+	reward.Sent = true
 	_, err = stmt.Exec(rewardRecordCheckSum(checksumToken, reward), reward.Id)
 	checkErr(err)
 }
@@ -107,7 +108,6 @@ func getRewardRecord(tx *sql.Tx, id uint64) (*db.RewardRecord, string) {
 		return buildRewardRecord(rows)
 	}
 	return nil, ""
-
 }
 
 func buildRewardRecord(rows *sql.Rows) (*db.RewardRecord, string) {
@@ -144,5 +144,5 @@ func QueryRewardRecord(tx *sql.Tx, checksumToken string, address string) []db.Re
 			res = append(res, *reward)
 		}
 	}
-	return nil
+	return res
 }

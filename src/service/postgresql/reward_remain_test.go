@@ -33,6 +33,22 @@ func TestRewardRemain(t *testing.T) {
 			t.Errorf("Failed. key %s, expect:%d, actual:%d", k, v, m2[k])
 		}
 	}
+	if len(m2) != 4 {
+		t.Errorf("Failed.")
+	}
+	stmt, err := tx.Prepare("update REWARD_REMAIN set CHECKSUM=$1 where ADDRESS=$2")
+	checkErr(err)
+
+	_, err = stmt.Exec("wrong-checksum", "testaddress3")
+	checkErr(err)
+	stmt.Close()
+	m2 = QueryRewardRemain(tx, config.Db.ChecksumToken, mapKeySlice(m)...)
+	if len(m2) != 3 {
+		t.Errorf("Failed.")
+	}
+	if _, ok := m2["testaddress3"]; ok {
+		t.Errorf("Failed.")
+	}
 }
 
 func mapKeySlice(m map[string]uint64) []string {

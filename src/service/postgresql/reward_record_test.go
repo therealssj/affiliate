@@ -54,4 +54,9 @@ func TestRewardRecord(t *testing.T) {
 	if len(data) != 2 || !data[0].Sent || !data[1].Sent {
 		t.Errorf("Failed. QueryRewardRecord error")
 	}
+	updatRewardRecordChecksum(tx, "wrong-checksum-token", &(data[0]))
+	data = QueryRewardRecord(tx, config.Db.ChecksumToken, data[0].Address)
+	if len(data) != 1 {
+		t.Errorf("Failed. QueryRewardRecord error")
+	}
 }
