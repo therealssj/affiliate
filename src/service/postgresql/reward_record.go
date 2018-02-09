@@ -5,8 +5,9 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
-	"github.com/spolabs/affiliate/src/service/db"
 	"time"
+
+	"github.com/spolabs/affiliate/src/service/db"
 )
 
 func rewardRecordCheckSum(checksumToken string, reward *db.RewardRecord) string {
@@ -113,14 +114,18 @@ func getRewardRecord(tx *sql.Tx, id uint64) (*db.RewardRecord, string) {
 func buildRewardRecord(rows *sql.Rows) (*db.RewardRecord, string) {
 	var id, depositId, calAmount, sentAmount uint64
 	var address, rewardType, checksum string
+	var checksumNullable sql.NullString
 	var creation time.Time
 	var sentTime db.Time
 	var sentTimeNullable db.NullTime
 	var sent bool
-	err := rows.Scan(&id, &creation, &depositId, &address, &calAmount, &sentAmount, &sentTimeNullable, &sent, &rewardType, &checksum)
+	err := rows.Scan(&id, &creation, &depositId, &address, &calAmount, &sentAmount, &sentTimeNullable, &sent, &rewardType, &checksumNullable)
 	checkErr(err)
 	if sentTimeNullable.Valid {
 		sentTime = sentTimeNullable.Time
+	}
+	if checksumNullable.Valid {
+		checksum = checksumNullable.String
 	}
 	return &db.RewardRecord{Id: id,
 		Creation:   creation,
