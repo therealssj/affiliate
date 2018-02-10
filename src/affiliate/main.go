@@ -306,7 +306,7 @@ func qrCodehandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "parameter content is blank", http.StatusInternalServerError)
 		return
 	}
-	png, err := qrcode.Encode(content, qrcode.Medium, 80)
+	png, err := qrcode.Encode(content, qrcode.Medium, -5)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

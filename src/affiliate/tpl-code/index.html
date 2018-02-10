@@ -106,8 +106,8 @@ function generate(){
 				$('#joinUrl').removeAttr("readonly");
 				$('#buyUrl').val(obj.data.buyUrl);
 				$('#joinUrl').val(obj.data.joinUrl);
-				$('#buyUrlQr').html('<img src="../qr-code/?content='+encodeURIComponent(obj.data.buyUrl)+'"/>')
-				$('#joinUrlQr').html('<img src="../qr-code/?content='+encodeURIComponent(obj.data.joinUrl)+'"/>')
+				$('#buyUrlQr').html('<img width="80px" height="80px" src="../qr-code/?v=2&content='+encodeURIComponent(obj.data.buyUrl)+'"/>')
+				$('#joinUrlQr').html('<img width="80px" height="80px" src="../qr-code/?v=2&content='+encodeURIComponent(obj.data.joinUrl)+'"/>')
 				$('#buyUrl').attr("readonly","readonly");
 				$('#joinUrl').attr("readonly","readonly");
 				$('#shareUrlDiv').show();

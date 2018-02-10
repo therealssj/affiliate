@@ -27,7 +27,7 @@ type Db struct {
 	SslMode       string `default:"disable"`
 	MaxOpenConns  int    `default:"500"`
 	MaxIdleConns  int    `default:"50"`
-	ChecksumToken string `default:"test-checksum-token"`
+	ChecksumToken string `default:"test-checksum-token"` // for testing convenience, must be specified other string in config.toml
 }
 
 type Server struct {
