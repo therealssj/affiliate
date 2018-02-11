@@ -106,7 +106,11 @@ type bindResp struct {
 }
 
 func Bind(currencyType string, address string) (string, error) {
-	resp, err := httpPost(&(config.GetServerConfig().Teller), false, "/api/bind", []byte(fmt.Sprintf(`{"address":"%s","tokenType":"%s"}`, address, currencyType)))
+	conf := config.GetServerConfig()
+	if conf.TestMode {
+		return address + "-" + currencyType + "-bind-mock-result", nil
+	}
+	resp, err := httpPost(&(conf.Teller), false, "/api/bind", []byte(fmt.Sprintf(`{"address":"%s","tokenType":"%s"}`, address, currencyType)))
 	if err != nil {
 		return "", err
 	}
@@ -386,6 +390,50 @@ func configRespProcess(response []byte) (*configResp, error) {
 }
 
 func RateWithErr() ([]db.CryptocurrencyInfo, error) {
+	conf := config.GetServerConfig()
+	if conf.TestMode {
+		json := `{
+			"errmsg": "",
+			"code": 0,
+			"Data": {
+				"enabled": true,
+				"max_bound_addrs": 4,
+				"max_decimals": 3,
+				"allcoins": {
+					"BTC": {
+						"coin_name": "BTC",
+						"rate": "55556",
+						"enabled": true,
+						"unit": 100000000,
+						"confirmations_required": 1
+					},
+					"ETH": {
+						"coin_name": "ETH",
+						"rate": "5912",
+						"enabled": true,
+						"unit": 1000000000,
+						"confirmations_required": 4
+					},
+					"SKY": {
+						"coin_name": "SKY",
+						"rate": "126",
+						"enabled": true,
+						"unit": 1000000,
+						"confirmations_required": 0
+					},
+					"XMR": {
+						"coin_name": "XMR",
+						"rate": "1601",
+						"enabled": true,
+						"unit": 1000000000000,
+						"confirmations_required": 4
+					}
+				}
+			}
+		}`
+		confResp, _ := configRespProcess([]byte(json))
+		return rateWithErrProcess(confResp)
+	}
 	confResp, err := Config()
 	if err != nil {
 		return nil, err

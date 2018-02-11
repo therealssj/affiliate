@@ -15,7 +15,8 @@ type ServerConfig struct {
 	Db            Db
 	Server        Server
 	Teller        Teller
-	CoinUnitPower int `default:"6"`
+	CoinUnitPower int  `default:"6"`
+	TestMode      bool `default:"false"`
 }
 
 type Db struct {

@@ -2,12 +2,14 @@ package teller_client
 
 import (
 	//	"fmt"
+
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"github.com/spolabs/affiliate/src/config"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/spolabs/affiliate/src/config"
 )
 
 func TestSetAuthHeaders(t *testing.T) {
@@ -257,5 +259,24 @@ func TestBindRespProcess(t *testing.T) {
 	}
 	if res != "2do3K1YLMy3Aq6EcPMdncEurP5BfAUdFPJj" {
 		t.Errorf("Failed.")
+	}
+}
+
+func TestBindTestMode(t *testing.T) {
+	res, err := Bind("SKY", "WzSyJKxEdRwZfgV1Sjo1J72KgVCfqqTJLe")
+	if "WzSyJKxEdRwZfgV1Sjo1J72KgVCfqqTJLe"+"-"+"SKY"+"-bind-mock-result" != res || err != nil {
+		t.Errorf("Failed.")
+	}
+}
+
+func TestRateWithErrTestMode(t *testing.T) {
+	arr, err := RateWithErr()
+	if len(arr) != 4 || err != nil {
+		t.Errorf("Failed.")
+	}
+	for _, currency := range arr {
+		if !currency.Enabled || len(currency.ShortName) < 3 || len(currency.FullName) < 3 || len(currency.Rate) < 2 || currency.UnitPower < 5 {
+			t.Errorf("Failed.")
+		}
 	}
 }
