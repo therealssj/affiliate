@@ -87,7 +87,9 @@ clipboard.on('error',function(e){
 });
 
 function validate(form){
-	if(!form.elements['address'].value){
+	var addrInput = form.elements['address'];
+	$(addrInput).val($.trim($(addrInput).val()));
+	if(!$(addrInput).val()){
 		alert('Please input wallet address');
 		return false;
 	}

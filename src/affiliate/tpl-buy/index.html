@@ -73,10 +73,12 @@ clipboard.on('error',function(e){
 });
 
 function validate(form){
-	if(!form.elements['address'].value){
-    	alert('Please input wallet address');
-    	return false;
-    }
+	var addrInput = form.elements['address'];
+	$(addrInput).val($.trim($(addrInput).val()));
+	if(!$(addrInput).val()){
+		alert('Please input wallet address');
+		return false;
+	}
     var radios = form.elements['currencyType'];
     var valid = false;
     for (var i = 0; i < radios.length; i++){
