@@ -34,3 +34,4 @@ dist/
 *~
 /target
 src/affiliate/gui/node_modules/
+vendor/
