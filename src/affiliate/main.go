@@ -196,7 +196,7 @@ func renderBuyTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 
 }
 
-var allCryptocurrencySlice []db.CryptocurrencyInfo
+var allCryptocurrencySlice []Cryptocurrency
 
 func updateAllCryptocurrencySlice() {
 	slice, err := client.RateWithErr()
@@ -207,19 +207,33 @@ func updateAllCryptocurrencySlice() {
 		service.SyncCryptocurrency(slice)
 	}
 	sort.Sort(db.CryptocurrencyInfoSlice(slice))
-	allCryptocurrencySlice = slice
+	sl := make([]Cryptocurrency, 0, len(slice))
+	for _, info := range slice {
+		sl = append(sl, newCryptocurrency(&info))
+	}
+	allCryptocurrencySlice = sl
 }
 
 func getAllCryptocurrencyMap() map[string]db.CryptocurrencyInfo {
 	slice := allCryptocurrency()
 	m := make(map[string]db.CryptocurrencyInfo, len(slice))
 	for _, info := range slice {
-		m[info.ShortName] = info
+		m[info.ShortName] = info.CryptocurrencyInfo
 	}
 	return m
 }
 
-func allCryptocurrency() []db.CryptocurrencyInfo {
+type Cryptocurrency struct {
+	db.CryptocurrencyInfo
+	ReverseRate string `json:"reverse_rate"`
+}
+
+func newCryptocurrency(info *db.CryptocurrencyInfo) Cryptocurrency {
+	de, _ := decimal.NewFromString(info.Rate)
+	return Cryptocurrency{*info, decimal.NewFromFloat(1).DivRound(de, info.UnitPower).String()}
+}
+
+func allCryptocurrency() []Cryptocurrency {
 	if allCryptocurrencySlice == nil || len(allCryptocurrencySlice) == 0 {
 		updateAllCryptocurrencySlice()
 	}
@@ -230,7 +244,7 @@ func buyHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	renderBuyTemplate(w, "index", struct {
 		CoinName    string
-		AllCurrency []db.CryptocurrencyInfo
+		AllCurrency []Cryptocurrency
 		Ref         string
 	}{config.GetServerConfig().CoinName, allCryptocurrency(), r.FormValue("ref")})
 }

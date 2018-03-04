@@ -34,7 +34,9 @@ its privacy protection in relation to the current Internet.
 {{range .AllCurrency}}
 {{if .Enabled}}
 <label class="radio-inline" id="label-{{.ShortName}}">
-<input type="radio" id="choice-{{.ShortName}}" name="currencyType" value="{{.ShortName}}">{{.FullName}} (1{{.ShortName}}=<span id="rate-{{.ShortName}}">{{.Rate}}</span> {{$.CoinName}})
+<input type="radio" id="choice-{{.ShortName}}" name="currencyType" value="{{.ShortName}}">{{.FullName}}
+<!--(1{{.ShortName}}=<span id="rate-{{.ShortName}}">{{.Rate}}</span> {{$.CoinName}})-->
+(1{{$.CoinName}}=<span id="rate-{{.ShortName}}">{{.ReverseRate}}</span> {{.ShortName}})
 </label>
 {{end}}
 {{end}}
@@ -146,8 +148,8 @@ window.setInterval(function(){
     					if(labelNode){
     						labelNode.hide();
     					}
-    				}else if(node&&obj.data[i].rate!=node.text()){
-						node.text(obj.data[i].rate);  					
+    				}else if(node&&obj.data[i].reverse_rate!=node.text()){
+						node.text(obj.data[i].reverse_rate);  					
     				}
     			}
     		}else{

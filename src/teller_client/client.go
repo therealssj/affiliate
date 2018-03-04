@@ -450,9 +450,9 @@ func rateWithErrProcess(confResp *configResp) ([]db.CryptocurrencyInfo, error) {
 }
 
 type StatsLeftInfo struct {
-	TotalHours   string  `json:"total_hours"`
+	TotalHours   string  `json:"-"` //`json:"total_hours"`
 	SoldRatio    float64 `json:"sold_ratio"`
-	RewardHours  string  `json:"reward_hours"`
+	RewardHours  string  `json:"-"` //`json:"reward_hours"`
 	TotalAmount  string  `json:"total_amount"`
 	RewardAmount string  `json:"reward_amount"`
 }
