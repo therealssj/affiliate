@@ -448,3 +448,33 @@ func rateWithErrProcess(confResp *configResp) ([]db.CryptocurrencyInfo, error) {
 	}
 	return slice, nil
 }
+
+type StatsLeftInfo struct {
+	TotalHours   string  `json:"total_hours"`
+	SoldRatio    float64 `json:"sold_ratio"`
+	RewardHours  string  `json:"reward_hours"`
+	TotalAmount  string  `json:"total_amount"`
+	RewardAmount string  `json:"reward_amount"`
+}
+
+func StatsLeft() (*StatsLeftInfo, error) {
+	conf := config.GetServerConfig()
+	if conf.TestMode {
+		return statsLeftRespProcess([]byte(`{"total_hours": "18751304", "sold_ratio": 0.98, "reward_hours": "18751304", "total_amount": "110357.663000", "reward_amount": "110357.663000"}`))
+	} else {
+		json, err := httpGet(&(config.GetServerConfig().Teller), false, "/stats/left")
+		if err != nil {
+			return nil, err
+		}
+		return statsLeftRespProcess(json)
+	}
+}
+
+func statsLeftRespProcess(response []byte) (*StatsLeftInfo, error) {
+	statsLeftInfo := new(StatsLeftInfo)
+	err := json.Unmarshal(response, &statsLeftInfo)
+	if err != nil {
+		return nil, err
+	}
+	return statsLeftInfo, nil
+}

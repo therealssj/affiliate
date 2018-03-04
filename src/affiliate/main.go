@@ -68,6 +68,7 @@ func main() {
 		}
 	}()
 	http.HandleFunc("/", buyHandler)
+	http.HandleFunc("/stats-left/", statsLefthandler)
 	http.HandleFunc("/qr-code/", qrCodehandler)
 	http.HandleFunc("/get-address/", getAddrHandler)
 	http.HandleFunc("/check-status/", checkStatusHandler)
@@ -84,6 +85,7 @@ func main() {
 	defer db.CloseDb()
 	c := cron.New()
 	c.AddFunc("0 * * * * *", updateAllCryptocurrencySlice)
+	c.AddFunc("0 * * * * *", refreshSoldRatio)
 	c.AddFunc("10,20,30,40,50 40-42 11 * * *", updateAllCryptocurrencySlice)
 	c.Start()
 	fmt.Printf("Listening on %s:%d", config.Server.ListenIp, config.Server.ListenPort)
@@ -314,4 +316,24 @@ func qrCodehandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/png")
 	w.Header().Set("Cache-Control", "max-age=2592000") //30days
 	w.Write(png)
+}
+
+var statsLeftInfo *client.StatsLeftInfo
+var statsLeftInit = false
+
+func refreshSoldRatio() {
+	info, err := client.StatsLeft()
+	if err != nil {
+		logger.Printf("client.StatsLeft() err: %s", err)
+	} else {
+		statsLeftInfo = info
+	}
+}
+
+func statsLefthandler(w http.ResponseWriter, r *http.Request) {
+	if !statsLeftInit {
+		refreshSoldRatio()
+		statsLeftInit = true
+	}
+	json.NewEncoder(w).Encode(&JsonObj{0, "", statsLeftInfo})
 }
