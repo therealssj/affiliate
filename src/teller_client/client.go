@@ -450,17 +450,18 @@ func rateWithErrProcess(confResp *configResp) ([]db.CryptocurrencyInfo, error) {
 }
 
 type StatsLeftInfo struct {
-	TotalHours   string  `json:"-"` //`json:"total_hours"`
+	TotalHours   string  `json:"total_hours"`
 	SoldRatio    float64 `json:"sold_ratio"`
-	RewardHours  string  `json:"-"` //`json:"reward_hours"`
+	RewardHours  string  `json:"reward_hours"`
 	TotalAmount  string  `json:"total_amount"`
 	RewardAmount string  `json:"reward_amount"`
+	Round        uint32  `json:"round"`
 }
 
 func StatsLeft() (*StatsLeftInfo, error) {
 	conf := config.GetServerConfig()
 	if conf.TestMode {
-		return statsLeftRespProcess([]byte(`{"total_hours": "18751304", "sold_ratio": 0.98, "reward_hours": "18751304", "total_amount": "110357.663000", "reward_amount": "110357.663000"}`))
+		return statsLeftRespProcess([]byte(`{"reward_hours": "6120417", "total_amount": "110000.0", "reward_amount": "10856.663000", "total_hours": "9586194", "sold_ratio": 0.98, "round": 1}`))
 	} else {
 		json, err := httpGet(&(config.GetServerConfig().Teller), false, "/stats/left")
 		if err != nil {

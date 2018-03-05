@@ -282,11 +282,11 @@ func TestRateWithErrTestMode(t *testing.T) {
 }
 
 func TestStatsLeftRespProcess(t *testing.T) {
-	info, err := statsLeftRespProcess([]byte(`{"total_hours": "18751304", "sold_ratio": 0.98, "reward_hours": "18751304", "total_amount": "110357.663000", "reward_amount": "110357.663000"}`))
+	info, err := statsLeftRespProcess([]byte(`{"reward_hours": "6120417", "total_amount": "110000.0", "reward_amount": "10856.663000", "total_hours": "9586194", "sold_ratio": 0.98, "round": 1}`))
 	if err != nil {
 		t.Errorf("Failed.")
 	}
-	if info.SoldRatio != 0.98 {
+	if info.SoldRatio != 0.98 || info.Round != 1 || info.TotalAmount != "110000.0" {
 		t.Errorf("Failed.")
 	}
 }
