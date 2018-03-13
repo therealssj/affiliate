@@ -280,9 +280,11 @@ func allCryptocurrency() []Cryptocurrency {
 
 func buyHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	ref := r.FormValue("ref")
-	if len(ref) > 0 {
-		setRefCookie(w, ref)
+	if len(getRefCookie(r)) == 0 {
+		ref := r.FormValue("ref")
+		if len(ref) > 0 {
+			setRefCookie(w, ref)
+		}
 	}
 	if !statsLeftInit {
 		refreshSoldRatio()
