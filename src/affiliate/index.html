@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no, address=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <title>SPO Teller Service</title>
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <link rel="stylesheet" href="/s/styles/common.css" />
+    <link rel="stylesheet" href="/s/styles/layout.css" />
+</head>
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <div class="top-bar">
+                <a class="logo" href="#">spo</a>
+                <ul class="nav">
+                    <li>
+                        <a href="#">SPO Roadmap</a>
+                    </li>
+                    <li>
+                        <a href="#">SPO Teller</a>
+                    </li>
+                    <li>
+                        <a href="#">SPO Wallet</a>
+                    </li>
+                    <li>
+                        <a href="#">Sign Up Newsletter</a>
+                    </li>
+                </ul>
+                <div class="top-links">
+                    <a class="c1" href="#"></a>
+                    <a class="c2" href="#"></a>
+                    <a class="c3" href="#"></a>
+                    <a class="c4" href="#"></a>
+                    <a class="c5" href="#"></a>
+                    <a class="c6" href="#"></a>
+                    <a class="c7" href="#"></a>
+                </div>
+            </div>
+            <div class="text">
+                <p>Welcome to</p>
+                <h1>SPO Teller Service</h1>
+                SPO is aiming at developing a Smart Network, of which especially focused on<br/> application-based networking.<br/>
+                SPO is Secure, Smart, Distributed and with its own distinction!<br/><br/>
+
+                SPO Teller is our main method when distributing SPO Tokens which can let our<br/> users achieve instant-trading with BTC, ETH, SKY, while our Teller Affiliate will<br/> provide a complimentary bonus for those purchasing SPO.
+            </div>
+        </div>
+        <div class="progress-bar clearfix">
+            <div class="item item1 item-current">
+                <div class="title">1<span>st. Round</span></div>
+                <div class="desc">5million SPO Token Available</div>
+                <div class="progress">
+                    <div class="bar"></div>
+                </div>
+                <div class="off">
+                    <span>on a discount of</span>35%off
+                </div>
+            </div>
+            <div class="item item2">
+                <div class="title">2<span>st. Round</span></div>
+                <div class="desc">5million SPO Token Available</div>
+                <div class="progress">
+                    <div class="bar"></div>
+                </div>
+                <div class="off">
+                    <span>on a discount of</span>35%off
+                </div>
+            </div>
+            <div class="item item3">
+                <div class="title">3<span>st. Round</span></div>
+                <div class="desc">5million SPO Token Available</div>
+                <div class="progress">
+                    <div class="bar"></div>
+                </div>
+                <div class="off">
+                    <span>on a discount of</span>35%off
+                </div>
+            </div>
+            <div class="item item4">
+                <div class="title">4<span>st. Round</span></div>
+                <div class="desc">5million SPO Token Available</div>
+                <div class="progress">
+                    <div class="bar"></div>
+                </div>
+                <div class="off">
+                    <span>on a discount of</span>35%off
+                </div>
+            </div>
+        </div>
+        <div class="module module-bg clearfix">
+            <div class="item">
+                <div class="explain">
+                    <h2>
+                        <img src="/s/images/teller-affiliate.png" alt="spo teller affiliate" />
+                    </h2>
+                    <div class="content">
+                        <p>SPO Teller Affiliate provides a complimentary bonus when users share a SPO Teller Affiliate link to their friends, it is a secure and smart program invented by SPO.</p>
+                        <p>If your referral purchases SPO via your affiliate link, you will receive a complimentary bonus.</p>
+                        <p>When purchases coming from you or your affiliate accumulate to a certain level, you will receive <a href="">different levels of bonuses.</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <div class="form-list">
+                    <form method="POST" name="joinForm" id="joinForm" action="">
+                        <div class="wallet-address mb20 wallet-address-box">
+                            <label class="label-title" for="joinAddress">Input SPO Wallet Address:</label>
+                            <input type="text" class="form-control" id="joinAddress" name="address"/>
+                        </div>
+                        <div class="clearfix">
+                            <input class="btn btn1" type="button" name="" value="Generating Tracking URL" onclick="generate()"/>
+                            <input class="btn btn2" type="button" name="" value="My Invitation" onclick="myInvitation()"/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="module clearfix">
+            <div class="item">
+                <div class="explain">
+                    <h2>
+                        <img src="/s/images/network.png" alt="spo network" />
+                    </h2>
+                    <div class="content">
+                        <p><strong>SPO Teller is our main method when distributing SPO Tokens, please check our <a href="#">Teller Distribution Plan.</a></strong></p>
+                        <p><strong>SPO Teller system can let our users achieve instant-trading with BTC,ETH,SKY, etc.</strong></p>
+                        <p><img src="/s/images/img1.jpg" /></p>
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <div class="form-list">
+                    <form method="POST" name="buyForm" id="buyForm" action="">
+                        <div class="title mb40">
+                            <img src="/s/images/tokens.png" />
+                        </div>
+                        <div class="wallet-address mb20">
+                            <label class="label-title" for="buyAddress">Input Your Wallet Address :</label>
+                            <input type="text" class="form-control" id="buyAddress" name="address"/>
+                        </div>
+                        <label class="label-title">Choose Crypto-currency type：</label>
+                        <ul class="currency">
+                            {{range .AllCurrency}}{{if .Enabled}}
+                            <li id="li-{{.ShortName}}">
+                                <input id="choice-{{.ShortName}}" type="radio" name="currencyType" value="{{.ShortName}}">
+                                <label for="choice-{{.ShortName}}">
+                                    <img src="/s/images/{{.ShortName}}.jpg" />
+                                    (1{{$.CoinName}}=<span id="rate-{{.ShortName}}">{{.ReverseRate}}</span> {{.ShortName}})
+                                </label>
+                            </li>
+                            {{end}}{{end}}
+                        </ul>
+                        <div class="clearfix">
+                            <input class="btn btn1" type="button" name="" value="Get Address" onclick="getAddress()"/>
+                        </div>
+                   </form>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <img src="/s/images/footer.jpg" />
+        </div>
+    </div>
+    <!-- Please input wallet address -->
+    <div class="layer-mask hide" id="commonAlert">
+        <div class="layer layer-tips">
+            <a class="close-btn" href="javascript:hideLayer('commonAlert');"></a>
+            <div class="bd">
+                <span id="commonAlertMsg"></span>
+                <div class="clearfix tc">
+                    <input class="btn" type="button" value="Okay" onclick="hideLayer('commonAlert')"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Generate Tracking Address -->
+    <div class="layer-mask hide" id="generateTrackingUrl">
+        <div class="layer">
+            <div class="hd">Generate Tracking Address</div>
+            <a class="close-btn" href="javascript:hideLayer('generateTrackingUrl');"></a>
+            <div class="bd">
+                <div class="form-group">
+                    <label for="buyUrl">Buy SPO Token URL :</label>
+                    <input type="text" class="form-control" id="buyUrl" />
+                </div>
+                <div class="clearfix btn-box tc">
+                    <input class="btn" type="button" value="Copy Address" onclick="copyToClipboard('buyUrl', 'buyUrlRes')"/>
+                    <span id="buyUrlRes"></span>
+                </div>
+                <div class="qr-code-box" id="buyUrlQr">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- My Invitation -->
+    <div class="layer-mask hide" id="myInvitation">
+        <div class="layer">
+            <div class="hd">My Invitation</div>
+            <a class="close-btn" href="javascript:hideLayer('myInvitation');"></a>
+            <div class="bd" id="myInvitationDiv">
+                
+            </div>
+        </div>
+    </div>
+    <!-- Deposit Address -->
+    <div class="layer-mask hide" id="depositAddress">
+        <div class="layer">
+            <div class="hd">Deposit Address</div>
+            <a class="close-btn" href="javascript:hideLayer('depositAddress');"></a>
+            <div class="bd">
+                <div class="form-group">
+                    <label for="depositAddr">Send Crypto-currency to this  Address :</label>
+                    <input type="text" class="form-control" id="depositAddr" />
+                </div>
+                <div class="clearfix btn-box">
+                    <input class="btn fl" type="button" value="Copy Address" onclick="copyToClipboard('depositAddr', 'depositAddrRes')"/>
+                    <input class="btn btn1 fr" type="button" value="Check Status" onclick="checkStatus()"/>
+                    <span id="depositAddrRes"></span>
+                </div>
+                <div class="qr-code-box" id="depositAddrQr">
+                </div>
+                <div class="qr-code-text" id="statusRes" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+<script type="text/x-jsrender" id="tmpl">
+<p class="mb15">You got [[:times]] times reward. Remain [[:remain]] [[:coinName]]</p>
+[[if records.length>0]]
+<div class="table-box">
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Reward</th>
+                <th>Sent</th>
+                <th>Status</th>
+                <th>Time</th>
+                <th>Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            [[for records]]
+            <tr>
+                <td>r[[:id]]</td>
+                <td>[[:rewardAmount]]</td>
+                <td>[[:sentAmount]]</td>
+                <td>[[if sent]] done [[else sentAmount=='0']] remain [[else]] waiting [[/if]]</td>
+                <td>[[if sent]][[:sentTime]][[/if]]</td>
+                <td>[[:type]]</td>
+            </tr>
+            [[/for]]
+        </tbody>
+    </table>
+</div>
+[[/if]]
+[[if times>4]]
+<div class="clearfix"><a class="table-more" href="/more-invitation/?address=[[:address]]">More</a></div>
+[[/if]]
+</script>
+<script src="/s/jquery.js"></script>
+<script src="/s/jsrender.js"></script>
+<script src="/s/j.js"></script>
+</body>
+</html>

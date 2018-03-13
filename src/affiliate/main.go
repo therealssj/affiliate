@@ -10,6 +10,7 @@ import (
 	"path"
 	"runtime/debug"
 	"sort"
+	"time"
 
 	"github.com/robfig/cron"
 	"github.com/shopspring/decimal"
@@ -68,14 +69,15 @@ func main() {
 		}
 	}()
 	http.HandleFunc("/", buyHandler)
-	http.HandleFunc("/stats-left/", statsLefthandler)
+	// http.HandleFunc("/stats-left/", statsLefthandler)
 	http.HandleFunc("/qr-code/", qrCodehandler)
 	http.HandleFunc("/get-address/", getAddrHandler)
 	http.HandleFunc("/check-status/", checkStatusHandler)
 	http.HandleFunc("/get-rate/", getRateHandler)
-	http.HandleFunc("/code/", codeHandler)
-	http.HandleFunc("/code/generate/", generateHandler)
-	http.HandleFunc("/code/my-invitation/", myInvitationHandler)
+	// http.HandleFunc("/code/", codeHandler)
+	http.HandleFunc("/generate/", generateHandler)
+	http.HandleFunc("/my-invitation/", myInvitationHandler)
+	http.HandleFunc("/more-invitation/", moreInvitationHandler)
 	fsh := http.FileServer(http.Dir("s"))
 	http.Handle("/s/", cache(http.StripPrefix("/s/", fsh)))
 	http.HandleFunc("/favicon.ico", serveFileHandler)
@@ -108,13 +110,13 @@ func cache(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func codeHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	renderCodeTemplate(w, "index", struct {
-		CoinName string
-		Ref      string
-	}{config.GetServerConfig().CoinName, r.FormValue("ref")})
-}
+// func codeHandler(w http.ResponseWriter, r *http.Request) {
+// 	r.ParseForm()
+// 	renderCodeTemplate(w, "index", struct {
+// 		CoinName string
+// 		Ref      string
+// 	}{config.GetServerConfig().CoinName, r.FormValue("ref")})
+// }
 
 type JsonObj struct {
 	Code   uint8       `json:"code"`
@@ -129,8 +131,7 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(&JsonObj{1, addr + " is not valid. " + err.Error(), nil})
 		return
 	}
-	refCode := r.PostFormValue("ref")
-	id := service.GetTrackingCodeOrGenerate(addr, refCode)
+	id := service.GetTrackingCodeOrGenerate(addr, getRefCookie(r))
 	code := tracking_code.GenerateCode(id)
 	server := config.GetServerConfig().Server
 	contextPath := "http"
@@ -162,6 +163,10 @@ func myInvitationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	records := service.QueryRewardRecord(addr)
+	times := len(records)
+	if times > 4 {
+		records = records[0:4]
+	}
 	if len(records) > 0 {
 		for i, _ := range records {
 			records[i].CalAmountStr = convertUnit(records[i].CalAmount)
@@ -170,26 +175,49 @@ func myInvitationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	data := &struct {
 		CoinName      string            `json:"coinName"`
+		Address       string            `json:"address"`
+		Times         int               `json:"times"`
 		RewardRecords []db.RewardRecord `json:"records"`
 		RewardRemain  string            `json:"remain"`
-	}{config.GetServerConfig().CoinName, records, convertUnit(service.QueryRewardRemain(addr))}
+	}{config.GetServerConfig().CoinName, addr, times, records, convertUnit(service.QueryRewardRemain(addr))}
 	json.NewEncoder(w).Encode(&JsonObj{0, "", data})
+}
+
+func moreInvitationHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	addr := r.FormValue("address")
+	if _, err := cipher.DecodeBase58Address(addr); err != nil {
+		json.NewEncoder(w).Encode(&JsonObj{1, addr + " is not valid. " + err.Error(), nil})
+		return
+	}
+	records := service.QueryRewardRecord(addr)
+	if len(records) > 0 {
+		for i, _ := range records {
+			records[i].CalAmountStr = convertUnit(records[i].CalAmount)
+			records[i].SentAmountStr = convertUnit(records[i].SentAmount)
+		}
+	}
+	renderTemplate(w, "more_invitation", struct {
+		CoinName      string
+		Times         int
+		RewardRecords []db.RewardRecord
+		RewardRemain  string
+	}{config.GetServerConfig().CoinName, len(records), records, convertUnit(service.QueryRewardRemain(addr))})
 }
 
 var codeTemplates = template.Must(template.ParseGlob("tpl-code/*.html"))
 
-func renderCodeTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	err := codeTemplates.ExecuteTemplate(w, tmpl+".html", data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+// func renderCodeTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
+// 	err := codeTemplates.ExecuteTemplate(w, tmpl+".html", data)
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 	}
+// }
 
-}
+var templates = template.Must(template.ParseGlob("*.html"))
 
-var buyTemplates = template.Must(template.ParseGlob("tpl-buy/*.html"))
-
-func renderBuyTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	err := buyTemplates.ExecuteTemplate(w, tmpl+".html", data)
+func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
+	err := templates.ExecuteTemplate(w, tmpl+".html", data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -242,11 +270,19 @@ func allCryptocurrency() []Cryptocurrency {
 
 func buyHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	renderBuyTemplate(w, "index", struct {
+	ref := r.FormValue("ref")
+	if len(ref) > 0 {
+		setRefCookie(w, ref)
+	}
+	if !statsLeftInit {
+		refreshSoldRatio()
+		statsLeftInit = true
+	}
+	renderTemplate(w, "index", struct {
 		CoinName    string
 		AllCurrency []Cryptocurrency
-		Ref         string
-	}{config.GetServerConfig().CoinName, allCryptocurrency(), r.FormValue("ref")})
+		StatsLeft   client.StatsLeftInfo
+	}{config.GetServerConfig().CoinName, allCryptocurrency(), *statsLeftInfo})
 }
 
 func checkStatusHandler(w http.ResponseWriter, r *http.Request) {
@@ -300,7 +336,7 @@ func getAddrHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(&JsonObj{2, "Cryptocurrency type is not valid: " + currencyType, nil})
 		return
 	}
-	depositAddr, first, err := service.MappingDepositAddr(addr, currencyType, r.PostFormValue("ref"))
+	depositAddr, first, err := service.MappingDepositAddr(addr, currencyType, getRefCookie(r))
 	if err != nil {
 		json.NewEncoder(w).Encode(&JsonObj{2, "Teller api error: " + err.Error(), nil})
 		return
@@ -350,4 +386,26 @@ func statsLefthandler(w http.ResponseWriter, r *http.Request) {
 		statsLeftInit = true
 	}
 	json.NewEncoder(w).Encode(&JsonObj{0, "", statsLeftInfo})
+}
+
+const cookie_name = "ref"
+
+func setRefCookie(w http.ResponseWriter, ref string) {
+	// cookie will get expired after 1 year
+	expires := time.Now().AddDate(1, 0, 0)
+	cookie := http.Cookie{
+		Name:    cookie_name,
+		Value:   ref,
+		Path:    "/",
+		Expires: expires,
+	}
+	http.SetCookie(w, &cookie)
+}
+
+func getRefCookie(r *http.Request) string {
+	var cookie, err = r.Cookie(cookie_name)
+	if err == nil {
+		return cookie.Value
+	}
+	return ""
 }
