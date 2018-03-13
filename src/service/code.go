@@ -55,3 +55,13 @@ func QueryRewardRemain(address string) uint64 {
 	}
 	return 0
 }
+
+func SaveNewsletterEmail(email string) bool {
+	tx, commit := db.BeginTx()
+	defer db.Rollback(tx, &commit)
+	if pg.ExistNewsletterEmail(tx, email) {
+		return true
+	}
+	pg.SaveNewsletterEmail(tx, email)
+	return false
+}

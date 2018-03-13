@@ -69,7 +69,10 @@ func main() {
 			logger.Println(debug.Stack())
 		}
 	}()
-	http.HandleFunc("/", buyHandler)
+	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/wallet/", walletHandler)
+	http.HandleFunc("/sign-up-newsletter/", signUpNewsletterHandler)
+	http.HandleFunc("/teller/", buyHandler)
 	// http.HandleFunc("/stats-left/", statsLefthandler)
 	http.HandleFunc("/qr-code/", qrCodehandler)
 	http.HandleFunc("/get-address/", getAddrHandler)
@@ -79,6 +82,8 @@ func main() {
 	http.HandleFunc("/generate/", generateHandler)
 	http.HandleFunc("/my-invitation/", myInvitationHandler)
 	http.HandleFunc("/more-invitation/", moreInvitationHandler)
+	http.HandleFunc("/record-newsletter-email/", recordNewsletterEmailHandler)
+
 	fsh := http.FileServer(http.Dir("s"))
 	http.Handle("/s/", cache(http.StripPrefix("/s/", fsh)))
 	http.HandleFunc("/favicon.ico", serveFileHandler)
@@ -161,7 +166,7 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	data := &struct {
 		BuyUrl  string `json:"buyUrl"`
 		JoinUrl string `json:"joinUrl"`
-	}{contextPath + "/?ref=" + code, contextPath + "/code/?ref=" + code}
+	}{contextPath + "/teller/?ref=" + code, contextPath + "/teller/?ref=" + code}
 	json.NewEncoder(w).Encode(&JsonObj{0, "", data})
 }
 
@@ -290,7 +295,7 @@ func buyHandler(w http.ResponseWriter, r *http.Request) {
 		refreshSoldRatio()
 		statsLeftInit = true
 	}
-	renderTemplate(w, "index", struct {
+	renderTemplate(w, "teller", struct {
 		CoinName    string
 		AllCurrency []Cryptocurrency
 		StatsLeft   client.StatsLeftInfo
@@ -420,4 +425,39 @@ func getRefCookie(r *http.Request) string {
 		return cookie.Value
 	}
 	return ""
+}
+
+func recordNewsletterEmailHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	email := r.PostFormValue("email")
+	if _, err := cipher.DecodeBase58Address(addr); err != nil {
+		json.NewEncoder(w).Encode(&JsonObj{1, addr + " is not valid. " + err.Error(), nil})
+		return
+	}
+	currencyType := r.PostFormValue("currencyType")
+	if _, ok := getAllCryptocurrencyMap()[currencyType]; !ok {
+		json.NewEncoder(w).Encode(&JsonObj{2, "Cryptocurrency type is not valid: " + currencyType, nil})
+		return
+	}
+	depositAddr, first, err := service.MappingDepositAddr(addr, currencyType, getRefCookie(r))
+	if err != nil {
+		json.NewEncoder(w).Encode(&JsonObj{2, "Teller api error: " + err.Error(), nil})
+		return
+	}
+	json.NewEncoder(w).Encode(&JsonObj{0, "", &struct {
+		DepositAddr string `json:"depositAddr"`
+		First       bool   `json:"first"`
+	}{depositAddr, first}})
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	renderTemplate(w, "index", nil)
+}
+
+func walletHandler(w http.ResponseWriter, r *http.Request) {
+	renderTemplate(w, "wallet", nil)
+}
+
+func signUpNewsletterHandler(w http.ResponseWriter, r *http.Request) {
+	renderTemplate(w, "newsletter", nil)
 }

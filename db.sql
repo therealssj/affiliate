@@ -95,4 +95,12 @@ create table KV_STORE(
 	primary key(NAME)
 );
 
+create table NEWSLETTER(
+	EMAIL varchar(256) not null,
+	CONCERN_MINER boolean not null,
+	CREATION timestamp NOT NULL,
+	primary key(EMAIL)
+);
+
+
 
