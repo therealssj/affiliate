@@ -19,6 +19,7 @@ import (
 	"github.com/spolabs/affiliate/src/config"
 	"github.com/spolabs/affiliate/src/service"
 	"github.com/spolabs/affiliate/src/service/db"
+	spo "github.com/spolabs/affiliate/src/spo_client"
 	client "github.com/spolabs/affiliate/src/teller_client"
 	"github.com/spolabs/affiliate/src/tracking_code"
 )
@@ -129,6 +130,15 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	addr := r.PostFormValue("address")
 	if _, err := cipher.DecodeBase58Address(addr); err != nil {
 		json.NewEncoder(w).Encode(&JsonObj{1, addr + " is not valid. " + err.Error(), nil})
+		return
+	}
+	balance, err := spo.Balance(addr)
+	if err != nil {
+		json.NewEncoder(w).Encode(&JsonObj{2, "Check balance error: " + err.Error(), nil})
+		return
+	}
+	if balance < 1000000000 {
+		json.NewEncoder(w).Encode(&JsonObj{1, "Balance is less than 1000, can not generating tracking URL.", nil})
 		return
 	}
 	id := service.GetTrackingCodeOrGenerate(addr, getRefCookie(r))
