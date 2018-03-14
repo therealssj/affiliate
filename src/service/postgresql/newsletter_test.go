@@ -14,8 +14,9 @@ func TestNewsletter(t *testing.T) {
 	tx, _ := dbo.Begin()
 	defer tx.Rollback()
 	email := "admin@test.com"
-	SaveNewsletterEmail(tx, email)
-	if !ExistNewsletterEmail(tx, email) {
+	SaveNewsletterEmail(tx, email, true)
+	exist, concernMiner := ExistNewsletterEmail(tx, email)
+	if !exist || !concernMiner {
 		t.Errorf("Failed. ")
 	}
 

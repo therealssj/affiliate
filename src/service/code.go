@@ -56,12 +56,13 @@ func QueryRewardRemain(address string) uint64 {
 	return 0
 }
 
-func SaveNewsletterEmail(email string) bool {
+func SaveNewsletterEmail(email string, concernMiner bool) bool {
 	tx, commit := db.BeginTx()
 	defer db.Rollback(tx, &commit)
-	if pg.ExistNewsletterEmail(tx, email) {
+	exist, _ := pg.ExistNewsletterEmail(tx, email)
+	if exist {
 		return true
 	}
-	pg.SaveNewsletterEmail(tx, email)
+	pg.SaveNewsletterEmail(tx, email, concernMiner)
 	return false
 }

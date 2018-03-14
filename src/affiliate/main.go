@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"regexp"
 	"runtime/debug"
 	"sort"
 	"time"
@@ -427,27 +428,26 @@ func getRefCookie(r *http.Request) string {
 	return ""
 }
 
+var email_re = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+// var email_re = regexp.MustCompile(`^(([^<>()\[\]\.,;:\s@"]+(\.[^<>()\[\]\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$`)
+
 func recordNewsletterEmailHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	email := r.PostFormValue("email")
-	if _, err := cipher.DecodeBase58Address(addr); err != nil {
-		json.NewEncoder(w).Encode(&JsonObj{1, addr + " is not valid. " + err.Error(), nil})
+	concernMiner := r.PostFormValue("concernMiner")
+	if len(email) == 0 {
+		json.NewEncoder(w).Encode(&JsonObj{1, "Email is required.", nil})
 		return
 	}
-	currencyType := r.PostFormValue("currencyType")
-	if _, ok := getAllCryptocurrencyMap()[currencyType]; !ok {
-		json.NewEncoder(w).Encode(&JsonObj{2, "Cryptocurrency type is not valid: " + currencyType, nil})
+	if !email_re.MatchString(email) {
+		json.NewEncoder(w).Encode(&JsonObj{2, "Email is not valid.", nil})
 		return
 	}
-	depositAddr, first, err := service.MappingDepositAddr(addr, currencyType, getRefCookie(r))
-	if err != nil {
-		json.NewEncoder(w).Encode(&JsonObj{2, "Teller api error: " + err.Error(), nil})
-		return
+	if service.SaveNewsletterEmail(email, concernMiner == "1") {
+		json.NewEncoder(w).Encode(&JsonObj{2, "This Email is already subscribed.", nil})
 	}
-	json.NewEncoder(w).Encode(&JsonObj{0, "", &struct {
-		DepositAddr string `json:"depositAddr"`
-		First       bool   `json:"first"`
-	}{depositAddr, first}})
+	json.NewEncoder(w).Encode(&JsonObj{0, "", nil})
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
