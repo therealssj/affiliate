@@ -71,9 +71,7 @@ func main() {
 		}
 	}()
 	http.HandleFunc("/", indexHandler)
-	http.HandleFunc("/wallet/", walletHandler)
-	http.HandleFunc("/sign-up-newsletter/", signUpNewsletterHandler)
-	http.HandleFunc("/teller/", buyHandler)
+	http.HandleFunc("/teller/", tellerHandler)
 	// http.HandleFunc("/stats-left/", statsLefthandler)
 	http.HandleFunc("/qr-code/", qrCodehandler)
 	http.HandleFunc("/get-address/", getAddrHandler)
@@ -221,7 +219,7 @@ func moreInvitationHandler(w http.ResponseWriter, r *http.Request) {
 	}{config.GetServerConfig().CoinName, len(records), records, convertUnit(service.QueryRewardRemain(addr))})
 }
 
-var codeTemplates = template.Must(template.ParseGlob("tpl-code/*.html"))
+// var codeTemplates = template.Must(template.ParseGlob("tpl-code/*.html"))
 
 // func renderCodeTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 // 	err := codeTemplates.ExecuteTemplate(w, tmpl+".html", data)
@@ -284,7 +282,7 @@ func allCryptocurrency() []Cryptocurrency {
 	return allCryptocurrencySlice
 }
 
-func buyHandler(w http.ResponseWriter, r *http.Request) {
+func tellerHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	if len(getRefCookie(r)) == 0 {
 		ref := r.FormValue("ref")
@@ -296,11 +294,14 @@ func buyHandler(w http.ResponseWriter, r *http.Request) {
 		refreshSoldRatio()
 		statsLeftInit = true
 	}
+	dec,_ := decimal.NewFromString(statsLeftInfo.TotalAmount)
 	renderTemplate(w, "teller", struct {
 		CoinName    string
 		AllCurrency []Cryptocurrency
-		StatsLeft   client.StatsLeftInfo
-	}{config.GetServerConfig().CoinName, allCryptocurrency(), *statsLeftInfo})
+		Round   uint32
+		SoldRatioPercent uint32
+		TotalAmountMillion string
+	}{config.GetServerConfig().CoinName, allCryptocurrency(), statsLeftInfo.Round, uint32(statsLeftInfo.SoldRatio*100), dec.DivRound(decimal.New(1, 6), 2).String()})
 }
 
 func checkStatusHandler(w http.ResponseWriter, r *http.Request) {
@@ -452,12 +453,4 @@ func recordNewsletterEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "index", nil)
-}
-
-func walletHandler(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "wallet", nil)
-}
-
-func signUpNewsletterHandler(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "newsletter", nil)
 }

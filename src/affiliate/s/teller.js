@@ -138,19 +138,10 @@ window.setInterval(function(){
       }});
 },60000)
 
-function hideLayer(id){
-    $('#'+id).addClass('hide');
-}
-
-function showLayer(id){
-    $('#'+id).removeClass('hide');
-}
-
 window.alert = function(message){
     $('#commonAlertMsg').html(message);
     showLayer('commonAlert');
 }
-
 
 function copyToClipboard(id, resultId) {
     var text = $('#'+id).val();

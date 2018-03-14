@@ -4,46 +4,47 @@
     <meta charset="UTF-8" />
     <title>SPO Teller Service</title>
     {{template "head"}}
+    <link rel="stylesheet" href="/s/styles/layout.css" />
 </head>
 <body>
     <div class="wrapper">
         {{template "top"}}
         <div class="progress-bar clearfix">
-            <div class="item item1 item-current">
+            <div class="item item1{{if eq .Round 1}} item-current{{end}}">
                 <div class="title">1<span>st. Round</span></div>
-                <div class="desc">5million SPO Token Available</div>
+                <div class="desc">{{if eq .Round 1}}{{.TotalAmountMillion}}million SPO Token Available{{end}}</div>
                 <div class="progress">
-                    <div class="bar"></div>
+                    <div class="bar" style="width:{{if eq .Round 1}}{{.SoldRatioPercent}}{{else}}100{{end}}%;"></div>
                 </div>
                 <div class="off">
                     <span>on a discount of</span>35%off
                 </div>
             </div>
-            <div class="item item2">
+            <div class="item item2{{if eq .Round 2}} item-current{{end}}">
                 <div class="title">2<span>st. Round</span></div>
-                <div class="desc">5million SPO Token Available</div>
+                <div class="desc">{{if eq .Round 2}}{{.TotalAmountMillion}}million SPO Token Available{{end}}</div>
                 <div class="progress">
-                    <div class="bar"></div>
+                    <div class="bar" style="width:{{if eq .Round 2}}{{.SoldRatioPercent}}{{else}}100{{end}}%;"></div>
                 </div>
                 <div class="off">
                     <span>on a discount of</span>35%off
                 </div>
             </div>
-            <div class="item item3">
+            <div class="item item3{{if eq .Round 3}} item-current{{end}}">
                 <div class="title">3<span>st. Round</span></div>
-                <div class="desc">5million SPO Token Available</div>
+                <div class="desc">{{if eq .Round 3}}{{.TotalAmountMillion}}million SPO Token Available{{end}}</div>
                 <div class="progress">
-                    <div class="bar"></div>
+                    <div class="bar" style="width:{{if eq .Round 3}}{{.SoldRatioPercent}}{{else}}100{{end}}%;"></div>
                 </div>
                 <div class="off">
                     <span>on a discount of</span>35%off
                 </div>
             </div>
-            <div class="item item4">
+            <div class="item item4{{if eq .Round 4}} item-current{{end}}">
                 <div class="title">4<span>st. Round</span></div>
-                <div class="desc">5million SPO Token Available</div>
+                <div class="desc">{{if eq .Round 4}}{{.TotalAmountMillion}}million SPO Token Available{{end}}</div>
                 <div class="progress">
-                    <div class="bar"></div>
+                    <div class="bar" style="width:{{if eq .Round 4}}{{.SoldRatioPercent}}{{else}}100{{end}}%;"></div>
                 </div>
                 <div class="off">
                     <span>on a discount of</span>35%off
@@ -124,18 +125,17 @@
             <img src="/s/images/footer.jpg" />
         </div>
     </div>
-    <!-- Please input wallet address -->
     <div class="layer-mask hide" id="commonAlert">
-        <div class="layer layer-tips">
-            <a class="close-btn" href="javascript:hideLayer('commonAlert');"></a>
-            <div class="bd">
-                <span id="commonAlertMsg"></span>
-                <div class="clearfix tc">
-                    <input class="btn" type="button" value="Okay" onclick="hideLayer('commonAlert')"/>
+            <div class="layer layer-tips">
+                <a class="close-btn" href="javascript:hideLayer('commonAlert');"></a>
+                <div class="bd">
+                    <span id="commonAlertMsg"></span>
+                    <div class="clearfix tc">
+                        <input class="btn" type="button" value="Okay" onclick="hideLayer('commonAlert')"/>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     <!-- Generate Tracking Address -->
     <div class="layer-mask hide" id="generateTrackingUrl">
         <div class="layer">
@@ -223,6 +223,7 @@
 </script>
 <script src="/s/jquery.js"></script>
 <script src="/s/jsrender.js"></script>
-<script src="/s/j.js"></script>
+<script src="/s/common.js?v2"></script>
+<script src="/s/teller.js"></script>
 </body>
 </html>

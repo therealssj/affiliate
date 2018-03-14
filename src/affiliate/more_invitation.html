@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>SPO Teller Service</title>
     {{template "head"}}
+    <link rel="stylesheet" href="/s/styles/layout.css" />
 </head>
 <body>
     <div class="wrapper">
@@ -30,7 +31,7 @@
                             <td>r{{.Id}}</td>
                             <td>{{.CalAmountStr}}</td>
                             <td>{{.SentAmountStr}}</td>
-                            <td>{{if .Sent}} done {{end}} {{if not .Sent}} {{if eq .SentAmount 0}} remain {{end}}{{if ne .SentAmount 0}} remain {{end}} {{end}}</td>
+                            <td>{{if .Sent}} done {{else if eq .SentAmount 0}} remain {{else}} waiting {{end}}</td>
                             <td>{{if .Sent}} {{.SentTime}} {{end}}</td>
                             <td>{{.RewardType}}</td>
                         </tr>

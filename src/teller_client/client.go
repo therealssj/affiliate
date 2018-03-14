@@ -461,7 +461,7 @@ type StatsLeftInfo struct {
 func StatsLeft() (*StatsLeftInfo, error) {
 	conf := config.GetServerConfig()
 	if conf.TestMode {
-		return statsLeftRespProcess([]byte(`{"reward_hours": "6120417", "total_amount": "110000.0", "reward_amount": "10856.663000", "total_hours": "9586194", "sold_ratio": 0.98, "round": 1}`))
+		return statsLeftRespProcess([]byte(`{"reward_hours": "6120417", "total_amount": "1150000.0", "reward_amount": "10856.663000", "total_hours": "9586194", "sold_ratio": 0.98, "round": 3}`))
 	} else {
 		json, err := httpGet(&(config.GetServerConfig().Teller), false, "/stats/left")
 		if err != nil {

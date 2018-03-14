@@ -42,7 +42,7 @@ func httpGet(url string) ([]byte, error) {
 func Balance(addr string) (uint64, error) {
 	conf := config.GetServerConfig()
 	if conf.TestMode {
-		return 9527, nil
+		return 9527000000, nil
 	}
 	resp, err := httpGet("http://localhost:8620/balance?addrs=" + addr)
 	if err != nil {
