@@ -166,3 +166,17 @@ function copyToClipboard(id, resultId) {
         $('#'+resultId).html('');
       }, 3000);
 }
+
+var disclaimerName = 'disclaimerv1';
+function agreeDisclaimer(){
+	hideLayer('disclaimer');
+	$.cookie(disclaimerName, '1', { expires: 365 });
+}
+
+$(function () {
+	var agree = $.cookie(disclaimerName);
+	if(!agree||agree!='1'){
+		showLayer('disclaimer');
+	}
+});
+

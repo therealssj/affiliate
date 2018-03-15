@@ -126,16 +126,28 @@
         </div>
     </div>
     <div class="layer-mask hide" id="commonAlert">
-            <div class="layer layer-tips">
-                <a class="close-btn" href="javascript:hideLayer('commonAlert');"></a>
-                <div class="bd">
-                    <span id="commonAlertMsg"></span>
-                    <div class="clearfix tc">
-                        <input class="btn" type="button" value="Okay" onclick="hideLayer('commonAlert')"/>
-                    </div>
+        <div class="layer layer-tips">
+            <a class="close-btn" href="javascript:hideLayer('commonAlert');"></a>
+            <div class="bd">
+                <span id="commonAlertMsg"></span>
+                <div class="clearfix tc">
+                    <input class="btn" type="button" value="Okay" onclick="hideLayer('commonAlert')"/>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="layer-mask hide" id="disclaimer">
+        <div class="layer layer-tips">
+            <a class="close-btn" href="javascript:hideLayer('disclaimer');"></a>
+            <div class="bd">
+                <span></span>
+                <div class="clearfix tc">
+                    <input class="btn" type="button" value="Okay" onclick="agreeDisclaimer()"/>
+                </div>
+            </div>
+        </div>
+    </div>   
+    
     <!-- Generate Tracking Address -->
     <div class="layer-mask hide" id="generateTrackingUrl">
         <div class="layer">
@@ -222,8 +234,9 @@
 [[/if]]
 </script>
 <script src="/s/jquery.js"></script>
+<script src="/s/jquery.cookie.js"></script>
 <script src="/s/jsrender.js"></script>
 <script src="/s/common.js?v2"></script>
-<script src="/s/teller.js"></script>
+<script src="/s/teller.js?v2"></script>
 </body>
 </html>

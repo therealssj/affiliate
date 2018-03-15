@@ -5,7 +5,8 @@ var __welcome = {
             $next = $('._btnNext'),
             $thumbnail = $('._thumbnailBox li'),
             iNow = $thumbnail.length - 1,
-            current = 0;
+            current = 0,
+            timer = null;
 
         function showImg(i) {
             var strSrc = $thumbnail.find('img').eq(i).attr('data-src');
@@ -14,7 +15,19 @@ var __welcome = {
             $next.show();
         }
 
+        function timeout() {
+            current++;
+            if (current >= iNow) {
+                current = 0;
+            }
+            showImg(current);
+        }
+
         showImg(0);
+
+        clearInterval(timer);
+        timer = setInterval(timeout, 2000);
+
         $prev
             .on('click', function () {
                 var $this = $(this);
@@ -47,12 +60,16 @@ var __welcome = {
                 showImg($this.index());
             });
 
+        $(document)
+            .on('mouseenter', '.photo-album', function () {
+                clearInterval(timer);
+            })
+            .on('mouseleave', '.photo-album', function () {
+                timer = setInterval(timeout, 2000);
+            });
+
     }
 };
-
-$(function () {
-    __welcome.slidesImages();
-});
 
 function hashChange(){
     var hash = location.hash;
@@ -97,3 +114,7 @@ function signUpNewsletter(){
     	}
       }});
 }
+
+$(function () {
+    __welcome.slidesImages();
+});
