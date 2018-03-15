@@ -56,8 +56,14 @@ $(function () {
 
 function hashChange(){
     var hash = location.hash;
-    if(hash=='#wallet'||hash=='#newsletter'){
-        showLayer(hash.substring(1)+'Layer');
+    if(hash=='#wallet'){
+        showLayer('walletLayer');
+        $('#walletMenu').click(function(){showLayer('walletLayer');});
+        $('#newsletterMenu').prop('onclick',null).off('click');
+    }else if(hash=='#newsletter'){
+        showLayer('newsletterLayer');
+        $('#newsletterMenu').click(function(){showLayer('newsletterLayer');});        
+        $('#walletMenu').prop('onclick',null).off('click');
     }
 }
 
