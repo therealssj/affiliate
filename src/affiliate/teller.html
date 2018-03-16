@@ -4,7 +4,64 @@
     <meta charset="UTF-8" />
     <title>SPO Teller Service</title>
     {{template "head"}}
-    <link rel="stylesheet" href="/s/styles/layout.css" />
+    <link rel="stylesheet" href="/s/styles/layout.css?v7" />
+<style>
+.download-list {
+    width: 100%; border-top: 1px solid #3E3A39;
+    font-size: 14px; color: #3E3A39; line-height: 18px;
+}
+.download-list li {
+    padding: 12px 15px; border-bottom: 1px solid #717071; overflow: hidden; zoom: 1;
+}
+.download-list .name {
+    float: left; width: 320px;
+}
+.download-list .os-name {
+    float: left; width: 60px; text-align: center;
+}
+.download-list .os-name img { display: block; margin: 0 auto; }
+.download-list .gray { color: #9E9E9F; }
+.download-list span { float: right; color: #9E9E9F;}
+.download-list a { float: right; color: #009FE8; }
+
+.download-table {
+    width: 100%;
+}
+.download-table th {
+    height: 30px; font-family: 'latobold'; font-size: 15px; line-height: 30px; text-align: center;
+    border-bottom: 1px solid #3E3A39;
+}
+.download-table td {
+    padding: 12px 15px; line-height: 20px; vertical-align: top;
+    text-align: center; font-size: 15px; color: #9E9E9F;
+    border-bottom: 1px solid #717071;
+}
+.download-table .name { color: #717071; }
+.download-table .name img {
+    display: block; margin: 0 auto;
+}
+.download-table a { color: #009FE8; }
+.layer .sign-up-box { height: auto; }
+.sign-up-box .label-title {
+    display: block; margin-bottom: 5px; font-size: 15px; line-height: 24px; color: #3E3A39;
+}
+.sign-up-box .form-group .form-control {
+    width: 482px; height: 18px; padding: 11px 10px; border: 1px solid #3E3A39;
+    line-height: 18px; font-size: 14px; color: #000; outline: none;
+}
+.sign-up-box .form-group span {
+    display: none; font-size: 12px; line-height: 20px; color: #E50012;
+}
+.sign-up-box .form-group-error .form-control { border-color: #E50012; }
+.sign-up-box .form-group-error span { display: block; }
+.sign-up-box .btn-box { padding: 20px 0; line-height: 34px; }
+.sign-up-box .btn {
+    width: 202px; height: 34px; border-radius: 17px;
+    background:linear-gradient(-45deg, #e51373, #ff7400); border: none;
+    outline: none; cursor: pointer;
+    font-weight: bold; color: #fff; text-align: center; line-height: 34px;
+}
+</style>
 </head>
 <body>
     <div class="wrapper">
@@ -27,7 +84,7 @@
                     <div class="bar" style="width:{{if eq .Round 2}}{{.SoldRatioPercent}}{{else}}100{{end}}%;"></div>
                 </div>
                 <div class="off">
-                    <span>on a discount of</span>35%off
+                    <span>on a discount of</span>25%off
                 </div>
             </div>
             <div class="item item3{{if eq .Round 3}} item-current{{end}}">
@@ -37,7 +94,7 @@
                     <div class="bar" style="width:{{if eq .Round 3}}{{.SoldRatioPercent}}{{else}}100{{end}}%;"></div>
                 </div>
                 <div class="off">
-                    <span>on a discount of</span>35%off
+                    <span>on a discount of</span>15%off
                 </div>
             </div>
             <div class="item item4{{if eq .Round 4}} item-current{{end}}">
@@ -47,9 +104,19 @@
                     <div class="bar" style="width:{{if eq .Round 4}}{{.SoldRatioPercent}}{{else}}100{{end}}%;"></div>
                 </div>
                 <div class="off">
-                    <span>on a discount of</span>35%off
+                    <span>on a discount of</span>5%off
                 </div>
             </div>
+            <div class="item item5{{if eq .Round 5}} item-current{{end}}">
+                    <div class="title">5<span>st. Round</span></div>
+                    <div class="desc">{{if eq .Round 5}}{{.TotalAmountMillion}}million SPO Token Available{{end}}</div>
+                    <div class="progress">
+                        <div class="bar" style="width:{{if eq .Round 5}}{{.SoldRatioPercent}}{{else}}100{{end}}%;"></div>
+                    </div>
+                    <div class="off">
+                        <span>on a discount of</span>0%off
+                    </div>
+                </div>
         </div>
         <div class="module module-bg clearfix">
             <div class="item">
@@ -60,7 +127,7 @@
                     <div class="content">
                         <p>SPO Teller Affiliate provides a complimentary bonus when users share a SPO Teller Affiliate link to their friends, it is a secure and smart program invented by SPO.</p>
                         <p>If your referral purchases SPO via your affiliate link, you will receive a complimentary bonus.</p>
-                        <p>When purchases coming from you or your affiliate accumulate to a certain level, you will receive <a href="">different levels of bonuses.</a></p>
+                        <p>When purchases coming from you or your affiliate accumulate to a certain level, you will receive <a href="javascript:showLayer('levelsOfBonusesLayer');">different levels of bonuses.</a></p>
                     </div>
                 </div>
             </div>
@@ -72,8 +139,8 @@
                             <input type="text" class="form-control" id="joinAddress" name="address"/>
                         </div>
                         <div class="clearfix">
-                            <input class="btn btn1" type="button" name="" value="Generating Tracking URL" onclick="generate()"/>
-                            <input class="btn btn2" type="button" name="" value="My Invitation" onclick="myInvitation()"/>
+                            <input class="btn btn1" type="button" name="" value="Generating Tracking URL" onclick="generateFun()"/>
+                            <input class="btn btn2" type="button" name="" value="My Invitation" onclick="myInvitationFun()"/>
                         </div>
                     </form>
                 </div>
@@ -86,7 +153,7 @@
                         <img src="/s/images/network.png" alt="spo network" />
                     </h2>
                     <div class="content">
-                        <p>SPO Teller is our main method when distributing SPO Tokens, please check our <a href="#">Teller Distribution Plan.</a></p>
+                        <p>SPO Teller is our main method when distributing SPO Tokens, please check our <a href="javascript:showLayer('distributionPlanLayer');">Teller Distribution Plan.</a></p>
                         <p>SPO Teller system can let our users achieve instant-trading with BTC,ETH,SKY, etc.</p>
                         <p><img src="/s/images/img1.jpg" /></p>
                     </div>
@@ -115,7 +182,7 @@
                             {{end}}{{end}}
                         </ul>
                         <div class="clearfix">
-                            <input class="btn btn1" type="button" name="" value="Get Address" onclick="getAddress()"/>
+                            <input class="btn btn1" type="button" name="" value="Get Address" onclick="getAddressFun()"/>
                         </div>
                    </form>
                 </div>
@@ -136,17 +203,6 @@
             </div>
         </div>
     </div>
-    <div class="layer-mask hide" id="disclaimer">
-        <div class="layer layer-tips">
-            <a class="close-btn" href="javascript:hideLayer('disclaimer');"></a>
-            <div class="bd">
-                <span></span>
-                <div class="clearfix tc">
-                    <input class="btn" type="button" value="Okay" onclick="agreeDisclaimer()"/>
-                </div>
-            </div>
-        </div>
-    </div>   
     
     <!-- Generate Tracking Address -->
     <div class="layer-mask hide" id="generateTrackingUrl">
@@ -199,6 +255,87 @@
             </div>
         </div>
     </div>
+
+    <div class="layer-mask hide" id="disclaimer">
+        <div class="alert-layer">
+            <div class="alert-hd">Disclaimer</div>
+            <div class="alert-bd">
+                The SPO Teller is NOT an exchange. It is a token dispenser. SPO DO NOT engage in any efforts to create a secondary market for the token by entering into any kind of repurchase agreement or agreeing to locate buyers for the token and such. SPO Teller is only token distribution online software tool. 
+                <br/><br/>
+                By clicking "Accept" you are aware that you can only purchase SPO tokens via the SPO Teller, but you can not sell them. 
+            </div>
+            <a class="close-btn" href="/"></a>
+            <input type="button" class="btn" value="Accept" onclick="agreeDisclaimer()">
+        </div>
+    </div>
+
+    <div class="layer-mask hide" id="termsLayer">
+        <div class="alert-layer">
+            <div class="alert-hd">Terms and Conditions</div>
+            <div class="alert-bd">
+                Attention. The Teller Affiliate Link can only be activated when your input wallet address holds a minimum balance of 1000 SPOs. If not, please complete your purchase first before applying for a Teller Affiliate Link.
+                <br/><br/>
+                Once you successfully purchase SPO through a teller affiliate link, you can only make purchase from the same affiliate link as you did the first time.
+            </div>
+            <a class="close-btn" href="javascript:hideLayer('termsLayer');"></a>
+            <input type="button" class="btn" value="Accept" onclick="agreeTerms()">
+        </div>
+    </div>
+
+
+    <div class="layer-mask hide" id="levelsOfBonusesLayer">
+        <div class="alert-layer">
+            <div class="alert-title">Levels of Bonuses</div>
+            <div class="alert-content">
+                <p>
+                    When you purchase SPO tokens through SPO Teller Affiliate Link, you will be rewarded a 2% bonus of the total amount purchased. The bonus will be sent to your SPO wallet address. 
+                    When someone purchases SPO token through the SPO Teller Affiliate Link you shared, you will be able to benefit from a bonus scheme:</p>
+                    <p>1.  5% bonus will be rewarded between a total purchasing amount of 10,000 to 100,000 SPO tokens.</p>
+                    
+                    <p>2.  8% bonus will be rewarded between a total purchasing amount of 100,000 to 1,000,000 SPO tokens.</p>
+                    
+                    <p>3. 15% bonus will be rewarded if total purchasing amount exceeds 1,000,000 SPO tokens.</p>
+            </div>
+            <input type="button" class="btn" value="Okay" onclick="hideLayer('levelsOfBonusesLayer')">
+        </div>
+    </div>
+
+    <div class="layer-mask hide" id="distributionPlanLayer">
+        <div class="alert-layer">
+            <div class="alert-title">SPO Teller Distribution Plan</div>
+            <div class="alert-content">
+                    Phase 1 <br />
+
+
+                    There will be a total amount of 55Mil SPOs available in phase 1, there're 4 corresponding discount levels. The benchmark price of phase 1 is 0.000033BTC.
+                    
+                    <ul>
+                        <li>
+                       Round 1) 35% Discount Off <br />
+
+                       5Mil SPO available at the rate of 0.000021BTC. 
+                    </li><li>
+                       Round 2) 25% Discount Off <br />
+                    
+                       8Mil SPO available at the rate of 0.000025BTC.
+                    </li><li>
+                       Round 3) 15% Discount Off<br />
+                    
+                       10Mil SPO available at the rate of 0.000028BTC. 
+                    </li><li>
+                       Round 4) 5% Discount Off<br />
+                    
+                       12Mil SPO available at the rate of 0.000031BTC.
+                    </li><li>
+                       Round 5) 0% Discount Off<br />
+                    
+                       20Mil SPO available at the rate of 0.000033BTC.</li>
+                    </ul>
+            </div>
+            <input type="button" class="btn" value="Okay" onclick="hideLayer('distributionPlanLayer')">
+        </div>
+    </div>
+    {{template "layer"}}
 <script type="text/x-jsrender" id="tmpl">
 <p class="mb15">You got [[:times]] times reward. Remain [[:remain]] [[:coinName]]</p>
 [[if records.length>0]]
@@ -236,7 +373,7 @@
 <script src="/s/jquery.js"></script>
 <script src="/s/jquery.cookie.js"></script>
 <script src="/s/jsrender.js"></script>
-<script src="/s/common.js?v2"></script>
-<script src="/s/teller.js?v2"></script>
+<script src="/s/common.js?v7"></script>
+<script src="/s/teller.js?v7"></script>
 </body>
 </html>

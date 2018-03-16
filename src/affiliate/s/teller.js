@@ -12,7 +12,7 @@ function generate(){
 	if(!validateJoinForm(form)){
 		return;
 	}
-	$.ajax({ url: './generate/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
+	$.ajax({ url: '/generate/', method: 'POST', data: $(form).serialize(), dataType: 'json', success: function(obj){
 		if(obj){
 			if(obj.code===0){
 				$('#buyUrl').removeAttr("readonly");
@@ -168,6 +168,7 @@ function copyToClipboard(id, resultId) {
 }
 
 var disclaimerName = 'disclaimerv1';
+var termName = 'term';
 function agreeDisclaimer(){
 	hideLayer('disclaimer');
 	$.cookie(disclaimerName, '1', { expires: 365 });
@@ -180,3 +181,42 @@ $(function () {
 	}
 });
 
+var executeFunName='';
+function getAddressFun(){
+	var term = $.cookie(termName);
+	if(term&&term=='1'){
+		getAddress();
+		return;
+	}
+	executeFunName = 'getAddress';
+	showLayer('termsLayer');
+}
+
+function generateFun(){
+	var term = $.cookie(termName);
+	if(term&&term=='1'){
+		generate();
+		return;
+	}
+	executeFunName = 'generate';
+	showLayer('termsLayer');
+}
+
+function myInvitationFun(){
+	var term = $.cookie(termName);
+	if(term&&term=='1'){
+		myInvitation();
+		return;
+	}
+	executeFunName = 'myInvitation';
+	showLayer('termsLayer');
+}
+
+function agreeTerms(){
+	hideLayer('termsLayer');
+	$.cookie(termName, '1', { expires: 365 });
+	if(executeFunName){
+		window[executeFunName]();
+	}
+
+}

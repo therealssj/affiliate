@@ -67,7 +67,7 @@ func main() {
 		if err := recover(); err != nil {
 			fmt.Printf("Panic Error: %s", err)
 			debug.PrintStack()
-			logger.Println(debug.Stack())
+			logger.Println(string(debug.Stack()))
 		}
 	}()
 	http.HandleFunc("/", indexHandler)
@@ -294,14 +294,14 @@ func tellerHandler(w http.ResponseWriter, r *http.Request) {
 		refreshSoldRatio()
 		statsLeftInit = true
 	}
-	dec,_ := decimal.NewFromString(statsLeftInfo.TotalAmount)
+	dec, _ := decimal.NewFromString(statsLeftInfo.TotalAmount)
 	renderTemplate(w, "teller", struct {
-		CoinName    string
-		AllCurrency []Cryptocurrency
-		Round   uint32
-		SoldRatioPercent uint32
+		CoinName           string
+		AllCurrency        []Cryptocurrency
+		Round              uint32
+		SoldRatioPercent   uint32
 		TotalAmountMillion string
-	}{config.GetServerConfig().CoinName, allCryptocurrency(), statsLeftInfo.Round, uint32(statsLeftInfo.SoldRatio*100), dec.DivRound(decimal.New(1, 6), 2).String()})
+	}{config.GetServerConfig().CoinName, allCryptocurrency(), statsLeftInfo.Round, uint32(statsLeftInfo.SoldRatio * 100), dec.DivRound(decimal.New(1, 6), 2).String()})
 }
 
 func checkStatusHandler(w http.ResponseWriter, r *http.Request) {

@@ -24,7 +24,7 @@
 
 /* progress bar */
 .progress-bar {
-    padding: 15px 0 0 140px; background-color: #fff;
+    padding: 15px 0 0 72px; background-color: #fff;
 }
 .progress-bar .item {
     position: relative;
@@ -46,18 +46,18 @@
 .progress-bar .item1 { z-index: 10; }
 .progress-bar .item1 .title { color: #d50030; }
 .progress-bar .item1 .progress {
-    background-color: #B4B4B5;
+    background-color: #b4b4b5;
 }
 .progress-bar .item1 .off { color: #d50030; }
 .progress-bar .item2 { z-index: 9; }
 .progress-bar .item2 .progress {
-    background-color: #E6E6E6;
+    background-color: #c8c9ca;
 }
 .progress-bar .item2 .title,
 .progress-bar .item2 .off { color: #ed8c9a; }
 .progress-bar .item3 { z-index: 8; }
 .progress-bar .item3 .progress {
-    background-color: #EEEEEF;
+    background-color: #dadcdc;
 }
 .progress-bar .item3 .title,
 .progress-bar .item3 .off { color: #f7c7cd; }
@@ -65,7 +65,13 @@
 .progress-bar .item4 .title,
 .progress-bar .item4 .off { color: #fbdde1; }
 .progress-bar .item4 .progress {
-    background-color: #F7F7F7;
+    background-color: #eeeeef;
+}
+.progress-bar .item5 { z-index: 7; }
+.progress-bar .item5 .title,
+.progress-bar .item5 .off { color: #fbdde1; }
+.progress-bar .item5 .progress {
+    background-color: #f7f7f7;
 }
 .progress-bar .item-current {
     width: 500px;
@@ -156,7 +162,13 @@
     width: 482px; height: 18px; padding: 11px 10px; border: 1px solid #3E3A39;
     line-height: 18px; font-size: 14px; color: #000; outline: none;
 }
+.layer .form-group span {
+    display: none; font-size: 12px; line-height: 20px; color: #E50012;
+}
+.layer .form-group-error .form-control { border-color: #E50012; }
+.layer .form-group-error span { display: block; }
 .layer .btn-box { padding: 25px 10px; }
+.layer .btn-box .fl { height: 34px; line-height: 34px; }
 .layer .btn {
     width: 202px; height: 34px; border-radius: 17px;
     background-color: #fff; border: 1px solid #3E3A39; outline: none; cursor: pointer;
@@ -173,8 +185,11 @@
 
 .layer-tips .bd {
     height: 130px; padding-top: 40px;
-    background: url('../images/icon-tips.png') no-repeat 0 5px;
+    background: url('../images/icon-tips.png') no-repeat 0 5px; background-size: auto 40px;
     font-size: 16px; color: #BA0221; line-height: 60px;
+}
+.layer-tips .bd p {
+    padding: 20px 0 10px; line-height: 20px;
 }
 
 /* table-box */

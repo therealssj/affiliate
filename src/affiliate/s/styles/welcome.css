@@ -92,6 +92,23 @@
 .download-list span { float: right; color: #9E9E9F;}
 .download-list a { float: right; color: #009FE8; }
 
+.download-table {
+    width: 100%;
+}
+.download-table th {
+    height: 30px; font-family: 'latobold'; font-size: 15px; line-height: 30px; text-align: center;
+    border-bottom: 1px solid #3E3A39;
+}
+.download-table td {
+    padding: 12px 15px; line-height: 20px; vertical-align: top;
+    text-align: center; font-size: 15px; color: #9E9E9F;
+    border-bottom: 1px solid #717071;
+}
+.download-table .name { color: #717071; }
+.download-table .name img {
+    display: block; margin: 0 auto;
+}
+.download-table a { color: #009FE8; }
 .layer .sign-up-box { height: auto; }
 .sign-up-box .label-title {
     display: block; margin-bottom: 5px; font-size: 15px; line-height: 24px; color: #3E3A39;

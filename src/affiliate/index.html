@@ -2,14 +2,14 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
-    <title>SPO Teller Service</title>
+    <title>SPO Network</title>
     {{template "head"}}
-    <link rel="stylesheet" href="/s/styles/welcome.css" />
+    <link rel="stylesheet" href="/s/styles/welcome.css?v7" />
     <style>
             #welcomeTeller {display:none;}
     </style>
 </head>
-<body onhashchange="hashChange()" onload="hashChange()">
+<body>
     <div class="wrapper">
         {{template "top"}}
         <div class="banner">
@@ -81,103 +81,9 @@
             </div>
         </div>
     </div>
-    <!-- spo wallet -->
-    <div class="layer-mask hide" id="walletLayer">
-        <div class="layer" style="height:380px;">
-            <div class="hd">SPO Wallet</div>
-            <a class="close-btn" href="javascript:hideLayer('walletLayer');"></a>
-            <div class="bd">
-                <ul class="download-list">
-                    <li>
-                        <div class="os-name">
-                            Windows<br/>
-                            <img src="/s/images/windows.png" />
-                        </div>
-                        <a href="http://dl.yqkkn.com/Spaco-0.21.1-gui-win-setup.exe">Download (72.8MB)</a>
-                    </li>
-                    <li>
-                        <div class="os-name">
-                            Mac<br/>
-                            <img src="/s/images/mac.png?v2" />
-                        </div>
-                        <a href="http://dl.yqkkn.com/Spaco-0.21.1.dmg">Download (53MB)</a>
-                    </li>
-                    <li>
-                        <div class="os-name">
-                            Linux<br/>
-                            <img src="/s/images/linux.png?v2" />
-                        </div>
-                        <a href="http://dl.yqkkn.com/Spaco-0.21.1-gui-linux-x64.AppImage">Download (56MB)</a>
-                    </li>
-                    <li>
-                        <div class="os-name">
-                            Andriod<br/>
-                            <img src="/s/images/andriod.png" />
-                        </div>
-                        <span>Coming Soon.</span>
-                    </li>
-                    <!--
-                    <li>
-                        <div class="os-name">
-                            IOS<br/>
-                            <img src="/s/images/ios.png" />
-                        </div>
-                        <span>Coming Soon.</span>
-                    </li>
-                    -->
-                </ul>
-            </div>
-        </div>
-    </div>
-    <!-- Sign-Up Newsletter -->
-    <div class="layer-mask hide" id="newsletterLayer">
-        <div class="layer">
-            <div class="hd">Sign-Up Newsletter</div>
-            <a class="close-btn" href="javascript:hideLayer('newsletterLayer');"></a>
-            <div class="bd sign-up-box">
-                <form method="POST" name="signUpNewsletterForm" id="signUpNewsletterForm" action="">
-                <div>
-                    <div class="form-group" id="signUpNewsletterDiv">
-                        <label class="label-title" for="emailAddress">Your E-mail Address:</label>
-                        <input type="text" class="form-control" id="emailAddress" name="email"/>
-                        <span id="signUpNewsletterErr"></span>
-                    </div>
-                    <div class="clearfix btn-box">
-                        <div class="fl">
-                            <input id="agreement" type="checkbox" name="concernMiner" value="1"/>
-                            <label for="agreement">I’m interested in a SPO Miner</label>
-                        </div>
-                        <input class="btn fr" type="button" value="Submit" onclick="signUpNewsletter();"/>
-                    </div>
-                </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="layer-mask hide">
-        <div class="layer">
-            <div class="hd">Sign-Up Newsletter</div>
-            <a class="close-btn" href="javascript:;"></a>
-            <div class="bd sign-up-box">
-                <div>
-                    <div class="form-group">
-                        <label class="label-title" for="sendAddress">Buy SPO Token URL :</label>
-                        <input type="text" class="form-control" id="sendAddress" />
-                        <span>Error ,,,shukehwal;jd</span>
-                    </div>
-                    <div class="clearfix btn-box">
-                        <div class="fl">
-                            <input id="agreement" type="checkbox" /s>
-                            <label for="agreement">I’m interested in a SPO Miner</label>
-                        </div>
-                        <input class="btn fr" type="button" value="Submit" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {{template "layer"}}
 <script src="/s/jquery.js"></script>
-<script src="/s/common.js?v2"></script>
-<script src="/s/index.js?v2"></script>
+<script src="/s/common.js?v7"></script>
+<script src="/s/welcome.js?v7"></script>
 </body>
 </html>

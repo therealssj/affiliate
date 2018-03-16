@@ -21,7 +21,7 @@
 }
 
 html { line-height: 1.15; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
-body { margin: 0; background-color: #f4f4f4; font-family: 'latolight', 'Arial'; color: #3e3a39;}
+body { margin: 0; font-family: 'latolight', 'Arial'; color: #3e3a39;}
 article, aside, footer, header, nav, section { display: block; }
 h1 { font-size: 2em; margin: 0.67em 0; }
 figcaption, figure, main { display: block; }
@@ -75,6 +75,9 @@ input, textarea, select { padding: 0; font-family: Microsoft YaHei, Helvetica, T
 table { border-collapse: collapse; border-spacing: 0; }
 table th { text-align: left; }
 textarea { vertical-align: top; resize: none; -webkit-appearance: none; -moz-outline: 0; outline: 0; }
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+}
 
 /* clearfix */
 .clearfix:after{ content:"."; display:block; height:0; clear:both; visibility:hidden; }
@@ -122,7 +125,7 @@ textarea { vertical-align: top; resize: none; -webkit-appearance: none; -moz-out
 
 /* layer */
 .layer-mask {
-    position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: 99999;
+    position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: 999;
     width: 100%; height: 100%; background-color: #000; background-color: rgba(0, 0, 0, .5);
 }
 .layer {
@@ -140,4 +143,42 @@ textarea { vertical-align: top; resize: none; -webkit-appearance: none; -moz-out
     position: absolute; top: 20px; right: 20px;
     width: 21px; height: 21px;
     background: url('../images/close-btn.png') no-repeat 0 0; cursor: pointer;
+}
+
+.alert-layer {
+    position: fixed; left: 50%; top: 50%; z-index: 9999;
+    width: 504px; padding: 30px; margin-left: -300px; margin-top: -150px;
+    background-color: #fff;
+}
+.alert-layer .alert-hd {
+    display: inline-block; font-family: "latobold"; font-size: 20px; color: #d42d26; line-height: 26px;
+     background-image: linear-gradient(to right, rgb(229, 0, 18), rgb(229, 19, 115), rgb(225, 116, 0));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; margin-bottom: 20px;
+}
+.alert-layer .alert-bd {
+     margin-bottom: 30px; font-size: 15px; line-height: 22px; text-align: center;
+}
+.alert-layer .alert-title {
+    margin-bottom: 20px; font-size: 27px; text-align: center; line-height: 34px;
+}
+.alert-layer .alert-content {
+     margin-bottom: 30px; font-size: 12px; line-height: 22px; text-align: center;
+}
+.alert-layer .close-btn {
+    display: block; position: absolute; top: 15px; right: 15px; width: 18px; height: 18px;
+    background: url('../images/close-btn.png') no-repeat 0 0; background-size: 100% 100%;
+}
+.alert-layer p { margin-bottom: 30px; line-height: 24px; }
+.alert-layer .btn {
+    display: block; width: 230px; height: 36px; margin: 0 auto;
+    border: 1px solid #3E3A39; border-radius: 18px; background-color: #fff;
+    font-family: "latobold"; font-size: 14px; text-align: center; line-height: 36px;
+    cursor: pointer; outline: none; color: #3E3A39;
+}
+
+@media screen and (max-width: 750px) {
+    .alert-layer {
+        width: 300px; margin-left: -180px;
+    }
 }
