@@ -6,14 +6,15 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/spolabs/affiliate/src/config"
-	"github.com/spolabs/affiliate/src/service"
-	"github.com/spolabs/affiliate/src/service/db"
 	"log"
 	"net/http"
 	"os"
 	"runtime/debug"
 	"strconv"
+
+	"github.com/spolabs/affiliate/src/config"
+	"github.com/spolabs/affiliate/src/service"
+	"github.com/spolabs/affiliate/src/service/db"
 	//	"strings"
 	"time"
 )
@@ -111,7 +112,7 @@ func rewardStatusHandler(w http.ResponseWriter, r *http.Request) {
 func recoverErr(w http.ResponseWriter, r *http.Request) {
 	if err := recover(); err != nil {
 		debug.PrintStack()
-		logger.Println(debug.Stack())
+		logger.Println(string(debug.Stack()))
 		json.NewEncoder(w).Encode(&JsonObj{Code: 9, ErrMsg: fmt.Sprint(err)})
 	}
 }
