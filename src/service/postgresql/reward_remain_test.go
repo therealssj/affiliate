@@ -49,6 +49,13 @@ func TestRewardRemain(t *testing.T) {
 	if _, ok := m2["testaddress3"]; ok {
 		t.Errorf("Failed.")
 	}
+	m = make(map[string]uint64, 4)
+	m["k9QgadMDxisLfj2CLgNrwgzZZSEmZMeUpK"] = 878000
+	UpdateRewardRemain(tx, "!@#$%^&*(){}|_+<>?", m)
+	m2 = QueryRewardRemain(tx, "!@#$%^&*(){}|_+<>?", mapKeySlice(m)...)
+	if m2["k9QgadMDxisLfj2CLgNrwgzZZSEmZMeUpK"] != 878000 {
+		t.Errorf("Failed.")
+	}
 }
 
 func mapKeySlice(m map[string]uint64) []string {
